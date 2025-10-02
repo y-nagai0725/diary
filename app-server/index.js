@@ -89,18 +89,22 @@ app.post('/api/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     //ユーザー登録
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: { name, password: hashedPassword },
     });
 
     //登録成功レスポンス
-    //TODO質問 付属させるデータについて、特にフロント側で必要なければuserIdはいらないよね？
-    res.json({ message: "ユーザー登録完了しました。登録内容でログインして下さい。", userId: user.id });
+    res.json({ message: "ユーザー登録完了しました。登録内容でログインして下さい。" });
   } catch (error) {
-    //TODO質問 500のサーバーエラーの可能性もあるよね？
-
-    //ユーザー名が重複した場合はエラー
-    res.status(400).json({ error: 'こちらのユーザー名は既に使用されています。別のユーザー名を入力して下さい。' });
+    //'P2002':Prismaでユニーク制約に違反した時のエラーコード
+    if (error.code === 'P2002') {
+      //ユーザー名が重複した場合、400エラー
+      res.status(400).json({ error: 'こちらのユーザー名は既に使用されています。別のユーザー名を入力して下さい。' });
+    } else {
+      //500サーバーエラー
+      console.error(error);
+      res.status(500).json({ error: SERVER_ERROR_MESSAGE_500 });
+    }
   }
 });
 
@@ -135,6 +139,7 @@ app.post('/api/login', async (req, res) => {
     res.json({ message: 'ログインしました。', token: token });
   } catch (error) {
     //500サーバーエラー
+    console.error(error);
     res.status(500).json({ error: SERVER_ERROR_MESSAGE_500 });
   }
 });
@@ -151,7 +156,9 @@ app.get('/api/diaries', authenticateToken, async (req, res) => {
     const allDiaries = await prisma.diary.findMany({ where: { authorId } });
     res.json(allDiaries);
   } catch (error) {
-    //TODO質問 どんなエラーを想定すればいい？
+    //500サーバーエラー
+    console.error(error);
+    res.status(500).json({ error: SERVER_ERROR_MESSAGE_500 });
   }
 });
 
@@ -167,7 +174,9 @@ app.get('/api/diaries/:id', authenticateToken, async (req, res) => {
     const diary = await prisma.diary.findUnique({ where: { id } });
     res.json(diary);
   } catch (error) {
-    //TODO質問 どんなエラーを想定すればいい？
+    //500サーバーエラー
+    console.error(error);
+    res.status(500).json({ error: SERVER_ERROR_MESSAGE_500 });
   }
 });
 
@@ -193,7 +202,9 @@ app.post('/api/diaries', authenticateToken, async (req, res) => {
     });
     res.json(newDiary);
   } catch (error) {
-    //TODO質問 どんなエラーを想定すればいい？
+    //500サーバーエラー
+    console.error(error);
+    res.status(500).json({ error: SERVER_ERROR_MESSAGE_500 });
   }
 });
 
@@ -208,8 +219,16 @@ app.put('/api/diaries/:id', authenticateToken, async (req, res) => {
     //日記テキスト、Geminiコメント、日付
     const { text, geminiComment, date } = req.body;
 
-    //TODO質問 本人が書いた日記かどうかチェック処理、こんな処理でどうかな？
-    if (!isDiaryAuthor(id, req.user.userId)) {
+    //対象id且つ本人の著者idの日記を取得
+    const diary = await prisma.diary.findUnique({
+      where: {
+        id,
+        authorId: req.user.userId,
+      }
+    });
+
+    //日記が存在しない or 本人の日記ではない場合
+    if (!diary) {
       return res.status(403).json({ error: FORBIDDEN_ERROR_MESSAGE_403 });
     }
 
@@ -224,7 +243,9 @@ app.put('/api/diaries/:id', authenticateToken, async (req, res) => {
     });
     res.json(updatedDiary);
   } catch (error) {
-    //TODO質問 どんなエラーを想定すればいい？
+    //500サーバーエラー
+    console.error(error);
+    res.status(500).json({ error: SERVER_ERROR_MESSAGE_500 });
   }
 });
 
@@ -236,8 +257,16 @@ app.delete('/api/diaries/:id', authenticateToken, async (req, res) => {
     //削除対象のid
     const id = parseInt(req.params.id);
 
-    //TODO質問 本人が書いた日記かどうかチェック処理、こんな処理でどうかな？
-    if (!isDiaryAuthor(id, req.user.userId)) {
+    //対象id且つ本人の著者idの日記を取得
+    const diary = await prisma.diary.findUnique({
+      where: {
+        id,
+        authorId: req.user.userId,
+      }
+    });
+
+    //日記が存在しない or 本人の日記ではない場合
+    if (!diary) {
       return res.status(403).json({ error: FORBIDDEN_ERROR_MESSAGE_403 });
     }
 
@@ -247,7 +276,9 @@ app.delete('/api/diaries/:id', authenticateToken, async (req, res) => {
     });
     res.json(deletedDiary);
   } catch (error) {
-    //TODO質問 どんなエラーを想定すればいい？
+    //500サーバーエラー
+    console.error(error);
+    res.status(500).json({ error: SERVER_ERROR_MESSAGE_500 });
   }
 });
 
@@ -261,17 +292,6 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
 
   }
 });
-
-/**
- * 対象の日記がログインユーザーのものかどうか
- * @param {*} diaryId
- * @param {*} authorId
- * @returns
- */
-async function isDiaryAuthor(diaryId, authorId) {
-  const targetDiary = await prisma.diary.findUnique({ where: { id: diaryId } });
-  return targetDiary.authorId === authorId;
-}
 
 /**
  * サーバー起動
