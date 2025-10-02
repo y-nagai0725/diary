@@ -170,8 +170,19 @@ app.get('/api/diaries/:id', authenticateToken, async (req, res) => {
     //取得対象のid
     const id = parseInt(req.params.id);
 
-    //対象の日記を取得
-    const diary = await prisma.diary.findUnique({ where: { id } });
+    //対象id且つ本人の著者idの日記を取得
+    const diary = await prisma.diary.findUnique({
+      where: {
+        id: id,
+        authorId: req.user.userId,
+      },
+    });
+
+    //日記がない場合
+    if (!diary) {
+      return res.status(404).json({ error: '対象の日記が見つかりません。' });
+    }
+
     res.json(diary);
   } catch (error) {
     //500サーバーエラー
