@@ -37,6 +37,44 @@ const SERVER_ERROR_MESSAGE_500 = 'サーバーにてエラーが発生してい�
 const FORBIDDEN_ERROR_MESSAGE_403 = '対象の操作の権限がありません。';
 
 /**
+ * Geminiからもらうコメントの文字数
+ */
+const GEMINI_RESPONSE_STRING_COUNT = 100;
+
+/**
+ * Gemini APIへの設定
+ */
+const promptSettings = {
+  // 性別の設定
+  gender: {
+    male: '男性',
+    female: '女性',
+    other: 'その他',
+  },
+  // 関係性の設定
+  relation: {
+    lover: '恋人',
+    friend: '友人',
+    olderSister: '姉',
+    youngerSister: '妹',
+    olderBrother: '兄',
+    youngerBrother: '弟',
+    other: 'その他',
+  },
+  // コメントのスタイルの設定
+  commentStyle: {
+    //共感
+    empathy: 'とにかく優しく共感して、肯定的な言葉をかけるスタイル',
+    //アドバイス
+    advice: '具体的なアドバイスや次のアクションに繋がるようなヒントを与えるスタイル',
+    //激励
+    encouragement: '頑張りを褒めて、元気づけて、背中を押してくれるような激励スタイル',
+    //提案
+    suggestion: '「こんなことをしてみるのはどう？」と新しい視点やアイデアを提案するスタイル',
+  }
+};
+
+/**
  * リクエストヘッダーのトークン認証
  * @param {*} req
  * @param {*} res
@@ -298,9 +336,87 @@ app.delete('/api/diaries/:id', authenticateToken, async (req, res) => {
  */
 app.post('/api/comment', authenticateToken, async (req, res) => {
   try {
-    //TODO まだ未実装、これから作成予定です
-  } catch (error) {
+    //日記テキスト、書き手の性別Key、geminiの性別Key、関係性Key、コメントスタイルKey
+    const { diaryText, writerGenderKey, geminiGenderKey, relationKey, styleKey } = req.body;
 
+    //日記データが無い場合
+    if (!diaryText || diaryText.trim() === "") {
+      return res.status(400).json({ error: '日記の内容がありません。' });
+    }
+
+    //geminiへ渡す日記テキスト、改行コード統一
+    const formattedDiaryText = diaryText.replace(/\r\n/g, '\n');
+
+    //書き手の性別
+    const writerGender = promptSettings.gender[writerGenderKey];
+
+    //geminiの性別
+    const geminiGender = promptSettings.gender[geminiGenderKey];
+
+    //関係性
+    const relation = promptSettings.relation[relationKey];
+
+    //コメントスタイル
+    const style = promptSettings.commentStyle[styleKey];
+
+    //設定値チェック
+    if (!writerGender || !geminiGender || !relation || !style) {
+      return res.status(400).json({ error: '不正な設定値です。' });
+    }
+
+    //ユーザープロンプト
+    const userPrompt = `【日記】\n${formattedDiaryText}`;
+
+    //指示プロンプト
+    const systemPrompt = `
+    # 指示
+    あなたは日記のコメント生成AIです。以下の設定に従ってコメントを生成してください。
+    - あなたの性別は「${geminiGender}」です。
+    - 日記の書き手の性別は「${writerGender}」です。
+    - あなたと書き手の関係は「${relation}」です。
+    - コメントのスタイルは「${style}」でお願いします。
+    - これから送られてくる日記に対して、前向きな温かいコメントを日本語で${GEMINI_RESPONSE_STRING_COUNT}文字程度で生成してください。
+    `;
+
+    //api呼び出し
+    const apiUrl = GEMINI_API_URL + GEMINI_API_KEY;
+    const geminiResponse = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: {
+          parts: [{ text: systemPrompt }]
+        },
+      }),
+    });
+
+    //正常なレスポンスがない場合
+    if (!geminiResponse.ok) {
+      const errorBody = await geminiResponse.json();
+      console.error('Gemini API Error:', errorBody);
+      throw new Error(`APIエラー: ${errorBody.error.message || geminiResponse.statusText}`);
+    }
+
+    //結果をjson形式で取得
+    const result = await geminiResponse.json();
+    let comment;
+
+    if (result.candidates && result.candidates[0].content.parts[0].text) {
+      //レスポンスからコメントを取得
+      comment = result.candidates[0].content.parts[0].text;
+    } else {
+      // 候補がない場合や、予期しないレスポンスの時
+      throw new Error('有効なレスポンスがありませんでした。');
+    }
+
+    // フロント側に、GeminiからのコメントをJSON形式で返す
+    res.json({ comment });
+  } catch (error) {
+    console.error('Error in /api/comment:', error);
+    res.status(500).json({ error: error.message || SERVER_ERROR_MESSAGE_500 });
   }
 });
 
