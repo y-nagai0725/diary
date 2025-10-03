@@ -24,7 +24,7 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 /**
  * Gemini APIのURL
  */
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent';
 
 /**
  * 500エラーメッセージ
@@ -379,8 +379,7 @@ app.post('/api/comment', authenticateToken, async (req, res) => {
     `;
 
     //api呼び出し
-    const apiUrl = GEMINI_API_URL + GEMINI_API_KEY;
-    const geminiResponse = await fetch(apiUrl, {
+    const geminiResponse = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
