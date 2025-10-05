@@ -1,5 +1,5 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterView } from 'vue-router';
 </script>
 
 <template>
@@ -8,8 +8,9 @@ import { RouterView } from 'vue-router'
   </header>
 
   <main>
-    <!-- ここに、URLに合わせて色々なページが表示されるよ！ -->
-    <RouterView />
+    <div class="container">
+      <RouterView />
+    </div>
   </main>
 
   <footer>
