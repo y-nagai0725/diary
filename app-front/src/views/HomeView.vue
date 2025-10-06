@@ -18,14 +18,19 @@ const NO_DIARIES_MESSAGE =
 const NOT_EXISTS_TODAY_DIARY_MESSAGE = '今日の日記がまだ登録されていません。';
 
 /**
- * 日付を YYYY/MM/DD 形式にフォーマットする
+ * 日付を指定された形式の文字列にフォーマットする関数
+ * @param {Date | String} date フォーマットしたい日付（Dateオブジェクトか日付文字列）
+ * @param {String} separator区切り文字（デフォルトは '/'）
+ * @returns {String} フォーマットされた日付文字列
  */
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`;
+const formatDate = (date, separator = '/') => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+
+  //separatorの文字で区切る
+  return `${year}${separator}${month}${separator}${day}`;
 };
 
 /**
@@ -77,16 +82,13 @@ const existsTodayDiaryData = () => {
     return false;
   }
 
-  // 最新の日記の日付（YYYY-MM-DD の部分だけ取り出す）
-  const recentDate = recentDiaries.value[0].date.substring(0, 10);
+  // 最新の日記の日付を'YYYY-MM-DD'形式にする
+  const recentDate = formatDate(recentDiaries.value[0].date, '-');
 
-  // 今日の日付（YYYY-MM-DD の形にする）
-  const today = new Date().toISOString().substring(0, 10);
+  // 今日の日付も、同じ関数を使って'YYYY-MM-DD'形式にする
+  const today = formatDate(new Date(), '-');
 
-  console.log(recentDiaries.value[0].date);
-  console.log(recentDate);
-  console.log(today);
-
+  //比較結果を返す
   return recentDate === today;
 };
 
