@@ -201,6 +201,30 @@ app.get('/api/diaries', authenticateToken, async (req, res) => {
 });
 
 /**
+ * 最新5件の日記取得
+ */
+app.get('/api/diaries/recent', authenticateToken, async (req, res) => {
+  try {
+    //日記の著者id
+    const authorId = req.user.userId;
+
+    //最新5件の日記取得
+    const recentDiaries = await prisma.diary.findMany({
+      where: { authorId },
+      orderBy: {
+        date: 'desc', //日付が新しい順
+      },
+      take: 5, //5件取得
+    });
+    res.json(recentDiaries);
+  } catch (error) {
+    //500サーバーエラー
+    console.error(error);
+    res.status(500).json({ error: SERVER_ERROR_MESSAGE_500 });
+  }
+});
+
+/**
  * 特定の日記取得
  */
 app.get('/api/diaries/:id', authenticateToken, async (req, res) => {
