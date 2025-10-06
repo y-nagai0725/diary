@@ -18,6 +18,17 @@ const NO_DIARIES_MESSAGE =
 const NOT_EXISTS_TODAY_DIARY_MESSAGE = '今日の日記がまだ登録されていません。';
 
 /**
+ * 日付を YYYY/MM/DD 形式にフォーマットする
+ */
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}/${month}/${day}`;
+};
+
+/**
  * トークンからユーザー名を取得
  */
 const getUserNameFromToken = () => {
@@ -52,9 +63,8 @@ const getRecentDiaries = async () => {
     const response = await apiClient.get('/api/diaries/recent');
     return response.data;
   } catch (error) {
-    //TODO質問 エラーの処理これでいいのかな？その後のreturn null;で大丈夫？
     console.error('直近5件の日記データの取得に失敗しました。', error);
-    return null;
+    return [];
   }
 };
 
@@ -63,20 +73,21 @@ const getRecentDiaries = async () => {
  */
 const existsTodayDiaryData = () => {
   //直近データがない場合
-  //TODO質問 最初はif(!recentDiaries.value)これで書いてたけど、const recentDiaries = ref([]); こんなふうに配列で初期化してるからだめなんだね？
   if (recentDiaries.value.length === 0) {
     return false;
   }
 
-  //最新1件の日付
-  const recentDiaryDate = recentDiaries.value[0].date.replace('Z', '');
-  const targetDate = new Date(recentDiaryDate);
+  // 最新の日記の日付（YYYY-MM-DD の部分だけ取り出す）
+  const recentDate = recentDiaries.value[0].date.substring(0, 10);
 
-  //今日の日付
-  const today = new Date(Date.now());
+  // 今日の日付（YYYY-MM-DD の形にする）
+  const today = new Date().toISOString().substring(0, 10);
 
-  //比較して結果を返す
-  return today.toDateString() === targetDate.toDateString();
+  console.log(recentDiaries.value[0].date);
+  console.log(recentDate);
+  console.log(today);
+
+  return recentDate === today;
 };
 
 /**
@@ -115,7 +126,7 @@ onMounted(async () => {
           :key="diary.id"
           class="home__grid-row"
         >
-          <p class="home__grid-item">{{ diary.date }}</p>
+          <p class="home__grid-item">{{ formatDate(diary.date) }}</p>
           <p class="home__grid-item">
             <span class="home__truncate-text">{{ diary.text }}</span>
           </p>
