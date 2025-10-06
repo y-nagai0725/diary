@@ -18,6 +18,8 @@ import { RouterView } from 'vue-router';
   </footer>
 </template>
 
-<style scoped>
-/* あとでここにスタイルを書こうね！ */
+<style lang="scss" scoped>
+.container {
+  @include contents-width;
+}
 </style>
