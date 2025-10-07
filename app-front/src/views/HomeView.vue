@@ -122,16 +122,14 @@ onMounted(async () => {
         <div class="home__grid-header">日付</div>
         <div class="home__grid-header">日記内容</div>
         <div class="home__grid-header">Geminiコメント有無</div>
-        <div class="home__grid-header"></div>
+        <div class="home__grid-header">編集リンク</div>
         <div
           v-for="diary in recentDiaries"
           :key="diary.id"
           class="home__grid-row"
         >
           <p class="home__grid-item">{{ formatDate(diary.date) }}</p>
-          <p class="home__grid-item">
-            <span class="home__truncate-text">{{ diary.text }}</span>
-          </p>
+          <p class="home__grid-item">{{ diary.text }}</p>
           <p class="home__grid-item">
             <span v-if="diary.geminiComment" class="home__gemini-check"
               >コメント有</span
@@ -158,20 +156,19 @@ onMounted(async () => {
     grid-template-columns: 2fr 3fr 1fr 1fr;
   }
 
+  &__grid-header {
+  }
+
   &__grid-row {
     display: contents;
   }
 
   &__grid-item {
-    min-width: 0;
-  }
-
-  &__truncate-text {
-    white-space: nowrap; /* テキストを一行で表示する */
-    overflow: hidden; /* はみ出した部分を隠す */
-    text-overflow: ellipsis; /* はみ出した部分を三点リーダーにする */
-    display: block; /* ブロック要素にして三点リーダーを有効化 */
-    width: 100%;
+    &:nth-of-type(2) {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 }
 </style>
