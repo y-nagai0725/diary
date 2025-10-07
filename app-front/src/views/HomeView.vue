@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import apiClient from '@/api';
+import CheckmarkIcon from '@/components/icons/CheckmarkIcon.vue';
 
 const userName = ref('');
 const notice = ref('');
@@ -130,11 +131,8 @@ onMounted(async () => {
         >
           <p class="home__grid-item">{{ formatDate(diary.date) }}</p>
           <p class="home__grid-item">{{ diary.text }}</p>
-          <p class="home__grid-item">
-            <span v-if="diary.geminiComment" class="home__gemini-check"
-              >コメント有</span
-            >
-            <span v-else class="home__gemini-check">コメント無</span>
+          <p class="home__grid-item home__gemini-check">
+            <CheckmarkIcon v-if="diary.geminiComment" />
           </p>
           <p class="home__grid-item">
             <RouterLink class="home__edit-link" :to="`/diary/${diary.id}`"
@@ -168,6 +166,18 @@ onMounted(async () => {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+  }
+
+  &__gemini-check {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      color: #42b983;
     }
   }
 }
