@@ -56,12 +56,9 @@ const handleDeleteDiary = async (id) => {
     //データベースから削除
     const response = await apiClient.delete(`/api/diaries/${id}`);
 
-    //TODO 表から削除 今回みたいな場合はこれはいらない？
-    //diaries.value = diaries.value.filter((diary) => diary.id !== id);
-
     //TODO 確認モーダルウィンドウ（「○○○を削除しました。」 みたいなメッセージとOKボタン）表示、OKボタンを押されたら次へ進む
 
-    //TODO 1ページ目を表示 でいいかな？これが一番処理は楽だよね currentPageの値を使って現在のページを再表示もできそうだけど、1件削除したことによって場合によっては合計ページ数とか変わる可能性あるし…削除のapiに削除後の合計登録数を返してもらうようにもできるだろうけど、結局表示ページが変わる場合があるから、やっぱり「1ページ目を表示」が一番よさそう？
+    //1ページ目を再表示
     fetchDiaries(1);
   } catch (error) {
     console.error('日記データの削除に失敗しました。', error);
