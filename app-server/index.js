@@ -183,16 +183,40 @@ app.post('/api/login', async (req, res) => {
 });
 
 /**
- * 日記一覧取得
+ * クエリで指定した分の日記取得
  */
 app.get('/api/diaries', authenticateToken, async (req, res) => {
   try {
+    //何ページ目か
+    const page = parseInt(req.query.page) || 1;
+
+    //1ページあたりの表示数
+    const limit = parseInt(req.query.limit) || 10;
+
+    //スキップ数、（skip + 1）番目から取得
+    const skip = (page - 1) * limit;
+
+    //並び順（デフォルトは降順とする）
+    const order = req.query.order === 'asc' ? 'asc' : 'desc';
+
     //日記の著者id
     const authorId = req.user.userId;
 
-    //対象の全ての日記取得
-    const allDiaries = await prisma.diary.findMany({ where: { authorId } });
-    res.json(allDiaries);
+    //必要な分の日記を取得
+    const diaries = await prisma.diary.findMany({
+      where: { authorId },
+      skip: skip,
+      take: limit,
+      orderBy: {
+        date: order, //日付で並び替え
+      },
+    });
+
+    //登録されている日記の数
+    const totalDiaries = await prisma.diary.count({ where: { authorId } });
+
+    //必要な分の日記データと、登録されている日記数を返す
+    res.json({ diaries, totalDiaries });
   } catch (error) {
     //500サーバーエラー
     console.error(error);
