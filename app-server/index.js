@@ -199,12 +199,26 @@ app.get('/api/diaries', authenticateToken, async (req, res) => {
     //並び順（デフォルトは降順とする）
     const order = req.query.order === 'asc' ? 'asc' : 'desc';
 
+    //検索キーワード
+    const searchTerm = req.query.search || '';
+
     //日記の著者id
     const authorId = req.user.userId;
 
+    //検索条件
+    const where = {
+      authorId,
+    };
+    if (searchTerm) {
+      //テキストに検索キーワードを含む条件を追加
+      where.text = {
+        contains: searchTerm,
+      };
+    }
+
     //必要な分の日記を取得
     const diaries = await prisma.diary.findMany({
-      where: { authorId },
+      where: where,
       skip: skip,
       take: limit,
       orderBy: {
@@ -213,7 +227,7 @@ app.get('/api/diaries', authenticateToken, async (req, res) => {
     });
 
     //登録されている日記の数
-    const totalDiaries = await prisma.diary.count({ where: { authorId } });
+    const totalDiaries = await prisma.diary.count({ where: where });
 
     //必要な分の日記データと、登録されている日記数を返す
     res.json({ diaries, totalDiaries });
@@ -235,10 +249,10 @@ app.get('/api/diaries/recent', authenticateToken, async (req, res) => {
     //最新5件の日記取得
     const recentDiaries = await prisma.diary.findMany({
       where: { authorId },
+      take: 5, //5件取得
       orderBy: {
         date: 'desc', //日付が新しい順
       },
-      take: 5, //5件取得
     });
     res.json(recentDiaries);
   } catch (error) {
