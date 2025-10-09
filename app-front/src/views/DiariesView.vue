@@ -2,6 +2,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import apiClient from '@/api';
 import CheckmarkIcon from '@/components/icons/CheckmarkIcon.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 const diaries = ref([]);
 const currentPage = ref(1);
@@ -10,6 +11,13 @@ const sortOrder = ref('desc');
 const searchTerm = ref('');
 const itemsPerPage = 10;
 const totalPages = computed(() => Math.ceil(totalDiaries.value / itemsPerPage));
+
+// --- モーダル用の設定 ---
+const showDeleteModal = ref(false); //削除モーダルの表示状態
+const deleteTargetId = ref(null); // 削除対象の日記ID
+const deleteTargetDate = ref(''); // 削除対象の日記の日付
+const showResultModal = ref(false); // 削除完了モーダルの表示状態
+const resultMessage = ref(''); // 完了メッセージ
 
 /**
  * 指定されたページの日記を取得
@@ -44,25 +52,61 @@ const toggleSortOrder = () => {
 };
 
 /**
- * 対象idの日記データを削除
+ * 削除ボタンが押された時の処理
+ * @param {object} diary 削除対象の日記オブジェクト
  */
-const handleDeleteDiary = async (id) => {
-  //console.log(id);
+const handleDeleteDiary = (diary) => {
+  // 削除対象の日記のid
+  deleteTargetId.value = diary.id;
+  // 削除対象の日記の日付
+  deleteTargetDate.value = formatDate(diary.date);
+  // 削除確認モーダルを表示する
+  showDeleteModal.value = true;
+};
 
-  //TODO 確認モーダルウィンドウ（「○○○を削除します。よろしいですか？」 みたいなメッセージとOKボタンとキャンセルボタン）表示、OKボタンを押されたら次へ進む
+/**
+ * 削除確認モーダルで「OK」が押された時の処理
+ */
+const confirmDelete = async () => {
+  // モーダルを閉じる
+  showDeleteModal.value = false;
 
-  //削除処理
   try {
-    //データベースから削除
-    const response = await apiClient.delete(`/api/diaries/${id}`);
+    // データベースから削除
+    await apiClient.delete(`/api/diaries/${deleteTargetId.value}`);
 
-    //TODO 確認モーダルウィンドウ（「○○○を削除しました。」 みたいなメッセージとOKボタン）表示、OKボタンを押されたら次へ進む
-
-    //1ページ目を再表示
-    fetchDiaries(1);
+    // 完了メッセージを設定して、完了モーダルを表示
+    resultMessage.value = `${deleteTargetDate.value} の日記を削除しました。`;
+    showResultModal.value = true;
   } catch (error) {
     console.error('日記データの削除に失敗しました。', error);
+    // エラーメッセージを設定して、完了モーダルを表示
+    resultMessage.value = `${deleteTargetDate.value} の日記の削除に失敗しました。`;
+    showResultModal.value = true;
   }
+};
+
+/**
+ * 削除確認モーダルで「キャンセル」が押された時の処理
+ */
+const cancelDelete = () => {
+  // モーダルを閉じる
+  showDeleteModal.value = false;
+
+  //保持していた削除対象idと日付を空に
+  deleteTargetId.value = null;
+  deleteTargetDate.value = '';
+};
+
+/**
+ * 削除完了モーダルを閉じる処理
+ */
+const closeResultModal = () => {
+  // モーダルを閉じる
+  showResultModal.value = false;
+
+  // 日記一覧の再表示
+  fetchDiaries(1);
 };
 
 /**
@@ -133,7 +177,7 @@ onMounted(() => {
         <p class="diaries__grid-item">
           <button
             class="diaries__delete-button"
-            @click="handleDeleteDiary(diary.id)"
+            @click="handleDeleteDiary(diary)"
           >
             削除
           </button>
@@ -160,6 +204,20 @@ onMounted(() => {
         次へ
       </button>
     </div>
+
+    <ConfirmModal
+      :show="showDeleteModal"
+      :message="`${deleteTargetDate} の日記を削除します。よろしいですか？`"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
+
+    <ConfirmModal
+      :show="showResultModal"
+      :message="resultMessage"
+      :confirmOnly="true"
+      @confirm="closeResultModal"
+    />
   </div>
 </template>
 <style lang="scss" scoped>
