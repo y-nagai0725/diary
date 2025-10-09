@@ -21,6 +21,12 @@ const showResultModal = ref(false); // 削除完了モーダルの表示状態
 const resultMessage = ref(''); // 完了メッセージ
 
 /**
+ * 日記未登録時のメッセージ
+ */
+const NO_DIARIES_MESSAGE =
+  'まだ日記が登録されていません。初めての日記を書いてみよう！';
+
+/**
  * 指定されたページの日記を取得
  */
 const fetchDiaries = async (page) => {
@@ -130,79 +136,84 @@ onMounted(() => {
       <RouterLink class="diaries__link" to="/diary/new">日記作成</RouterLink>
     </div>
 
-    <div class="diaries__search-form">
-      <input
-        class="diaries__search-box"
-        type="text"
-        v-model="searchTerm"
-        placeholder="日記を検索..."
+    <p v-if="diaries.length === 0" class="diaries__no-data">
+      {{ NO_DIARIES_MESSAGE }}
+    </p>
+    <div v-else class="diaries__data-wrapper">
+      <div class="diaries__search-form">
+        <input
+          class="diaries__search-box"
+          type="text"
+          v-model="searchTerm"
+          placeholder="日記を検索..."
+        />
+      </div>
+      <button class="diaries__order-button" @click="toggleSortOrder">
+        並び替え: {{ sortOrder === 'desc' ? '新しい順' : '古い順' }}
+      </button>
+
+      <div class="diaries__grid">
+        <div class="diaries__grid-header">日付</div>
+        <div class="diaries__grid-header">日記内容</div>
+        <div class="diaries__grid-header">Geminiコメント有無</div>
+        <div class="diaries__grid-header">編集リンク</div>
+        <div class="diaries__grid-header">削除リンク</div>
+        <div v-for="diary in diaries" :key="diary.id" class="diaries__grid-row">
+          <p class="diaries__grid-item">{{ formatDate(diary.date) }}</p>
+          <p class="diaries__grid-item">{{ diary.text }}</p>
+          <p class="diaries__grid-item diaries__gemini-check">
+            <CheckmarkIcon v-if="diary.geminiComment" class="diaries__gemini-check-icon" />
+          </p>
+          <p class="diaries__grid-item">
+            <RouterLink class="diaries__edit-link" :to="`/diary/${diary.id}`"
+              >編集</RouterLink
+            >
+          </p>
+          <p class="diaries__grid-item">
+            <button
+              class="diaries__delete-button"
+              @click="handleDeleteDiary(diary)"
+            >
+              削除
+            </button>
+          </p>
+        </div>
+      </div>
+
+      <div class="diaries__pagination">
+        <button
+          class="diaries__prev-button"
+          @click="fetchDiaries(currentPage - 1)"
+          :disabled="currentPage === 1"
+        >
+          前へ
+        </button>
+        <span class="diaries__page-number"
+          >{{ currentPage }} / {{ totalPages }} ページ</span
+        >
+        <button
+          class="diaries__next-button"
+          @click="fetchDiaries(currentPage + 1)"
+          :disabled="currentPage === totalPages"
+        >
+          次へ
+        </button>
+      </div>
+
+      <ConfirmModal
+        :show="showDeleteModal"
+        :message="`${deleteTargetDate} の日記を削除します。よろしいですか？`"
+        @confirm="confirmDelete"
+        @cancel="cancelDelete"
+      />
+
+      <ConfirmModal
+        :show="showResultModal"
+        :message="resultMessage"
+        :confirmOnly="true"
+        @confirm="closeResultModal"
       />
     </div>
-    <button class="diaries__order-button" @click="toggleSortOrder">
-      並び替え: {{ sortOrder === 'desc' ? '新しい順' : '古い順' }}
-    </button>
-
-    <div class="diaries__grid">
-      <div class="diaries__grid-header">日付</div>
-      <div class="diaries__grid-header">日記内容</div>
-      <div class="diaries__grid-header">Geminiコメント有無</div>
-      <div class="diaries__grid-header">編集リンク</div>
-      <div class="diaries__grid-header">削除リンク</div>
-      <div v-for="diary in diaries" :key="diary.id" class="diaries__grid-row">
-        <p class="diaries__grid-item">{{ formatDate(diary.date) }}</p>
-        <p class="diaries__grid-item">{{ diary.text }}</p>
-        <p class="diaries__grid-item diaries__gemini-check">
-          <CheckmarkIcon v-if="diary.geminiComment" />
-        </p>
-        <p class="diaries__grid-item">
-          <RouterLink class="diaries__edit-link" :to="`/diary/${diary.id}`"
-            >編集</RouterLink
-          >
-        </p>
-        <p class="diaries__grid-item">
-          <button
-            class="diaries__delete-button"
-            @click="handleDeleteDiary(diary)"
-          >
-            削除
-          </button>
-        </p>
-      </div>
-    </div>
-
-    <div class="diaries__pagination">
-      <button
-        class="diaries__prev-button"
-        @click="fetchDiaries(currentPage - 1)"
-        :disabled="currentPage === 1"
-      >
-        前へ
-      </button>
-      <span class="diaries__page-number"
-        >{{ currentPage }} / {{ totalPages }} ページ</span
-      >
-      <button
-        class="diaries__next-button"
-        @click="fetchDiaries(currentPage + 1)"
-        :disabled="currentPage === totalPages"
-      >
-        次へ
-      </button>
-    </div>
-
-    <ConfirmModal
-      :show="showDeleteModal"
-      :message="`${deleteTargetDate} の日記を削除します。よろしいですか？`"
-      @confirm="confirmDelete"
-      @cancel="cancelDelete"
-    />
-
-    <ConfirmModal
-      :show="showResultModal"
-      :message="resultMessage"
-      :confirmOnly="true"
-      @confirm="closeResultModal"
-    />
   </div>
 </template>
 <style lang="scss" scoped>
