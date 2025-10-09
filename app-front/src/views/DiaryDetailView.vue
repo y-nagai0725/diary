@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import apiClient from '@/api';
 import { useRouter } from 'vue-router';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -49,7 +49,7 @@ const initDisplay = async () => {
   //gemini送信ボタンのテキスト
   submitGeminiButtonText.value = GEMINI_READY_TEXT;
 
-  //TODO ローカルストレージからGemini APIへの設定を取得、設定
+  //ローカルストレージからGemini APIへの設定を取得
   const settings = {
     writerGender: localStorage.getItem('writerGender')
       ? localStorage.getItem('writerGender')
@@ -64,6 +64,7 @@ const initDisplay = async () => {
       ? localStorage.getItem('style')
       : 'empathy',
   };
+
   //日記の書き手の性別
   promptSettings.value.writerGenderKey = settings.writerGender;
 
@@ -102,6 +103,30 @@ const initDisplay = async () => {
 onMounted(() => {
   initDisplay();
 });
+
+watch(
+  promptSettings,
+  () => {
+    //書き手との関係性がGeminiの性別によっておかしくならように、関係性を'その他'に設定
+    if (
+      (promptSettings.value.geminiGenderKey === 'female' &&
+        (promptSettings.value.relationKey === 'olderBrother' ||
+          promptSettings.value.relationKey === 'youngerBrother')) ||
+      (promptSettings.value.geminiGenderKey === 'male' &&
+        (promptSettings.value.relationKey === 'olderSister' ||
+          promptSettings.value.relationKey === 'youngerSister'))
+    ) {
+      promptSettings.value.relationKey = 'other';
+    }
+
+    //ローカルストレージに設定を保存
+    localStorage.setItem('writerGender', promptSettings.value.writerGenderKey);
+    localStorage.setItem('geminiGender', promptSettings.value.geminiGenderKey);
+    localStorage.setItem('relation', promptSettings.value.relationKey);
+    localStorage.setItem('style', promptSettings.value.styleKey);
+  },
+  { deep: true }
+);
 </script>
 
 <template>
@@ -387,7 +412,7 @@ onMounted(() => {
     display: none;
 
     &:checked + #{$parent}__setting-label {
-      background-color: cyan;
+      background-color: #42b983;
       color: white;
     }
   }
@@ -396,7 +421,7 @@ onMounted(() => {
     cursor: pointer;
     display: block;
     padding: 1rem;
-    border: 1px solid blue;
+    border: 1px solid #42b983;
     border-radius: 4px;
     font-size: clamp(12px, 1.2rem, 14px);
     transition: background-color 0.3s ease-out, color 0.3s ease-out;
