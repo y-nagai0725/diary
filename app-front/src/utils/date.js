@@ -4,12 +4,17 @@
  * @param {String} separator 区切り文字（デフォルトは '/'）
  * @returns {String} フォーマットされた日付文字列
  */
-export const formatDate = (date, separator = '/') => {
+export const formatDate = (date, separator = '/', addHm = false) => {
   const d = new Date(date);
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
 
-  //separatorの文字で区切る
-  return `${year}${separator}${month}${separator}${day}`;
+  if (addHm) {
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}${separator}${month}${separator}${day}T${hours}:${minutes}`
+  } else {
+    return `${year}${separator}${month}${separator}${day}`;
+  }
 };
