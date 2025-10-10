@@ -183,10 +183,6 @@ const getGeminiComment = async () => {
 
     //Geminiからのコメントを表示
     diaryForm.value.geminiComment = response.data.comment;
-
-    //TODO質問 成功の場合も結果モーダルを表示しようかと思うけど、わざわざちゃんと成功して表示できたってことを伝える必要あるかな？ちょっとくどいかんじする？
-    resultMessage.value = 'Geminiからのコメントを取得、表示しました。';
-    showResultModal.value = true;
   } catch (error) {
     console.error('Geminiからのコメント取得に失敗しました。', error);
     resultMessage.value = 'Geminiからのコメント取得に失敗しました。';
