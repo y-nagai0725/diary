@@ -19,12 +19,20 @@ const logout = () => {};
       <nav class="header__gnav" :class="{ isOpened: isOpenedMenu }">
         <ul class="header__link-list">
           <li class="header__item">
-            <RouterLink class="header__link" to="/diary/new"
+            <RouterLink
+              class="header__link"
+              to="/diary/new"
+              @click="isOpenedMenu = !isOpenedMenu"
               >日記作成</RouterLink
             >
           </li>
           <li class="header__item">
-            <RouterLink class="header__link" to="/diaries">日記一覧</RouterLink>
+            <RouterLink
+              class="header__link"
+              to="/diaries"
+              @click="isOpenedMenu = !isOpenedMenu"
+              >日記一覧</RouterLink
+            >
           </li>
           <li class="header__item">
             <button class="header__logout-button" @click="logout()">
