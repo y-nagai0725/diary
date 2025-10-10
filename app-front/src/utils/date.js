@@ -18,3 +18,16 @@ export const formatDate = (date, separator = '/', addHm = false) => {
     return `${year}${separator}${month}${separator}${day}`;
   }
 };
+
+/**
+ * 日付が有効かどうかをチェックする関数
+ * @param {String} dateString
+ * @returns {Boolean} 日付が有効かどうか
+ */
+export const isValidDate = (dateString) => {
+  // Dateオブジェクトに変換、その結果の時間を取得
+  const time = new Date(dateString).getTime();
+
+  // 時間がNaNでなければ、有効な日付だと判断
+  return !isNaN(time);
+};
