@@ -116,6 +116,31 @@ const authenticateToken = (req, res, next) => {
 };
 
 /**
+ * 日記データのバリデーションチェック
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns
+ */
+const validateDiaryData = (req, res, next) => {
+  //日記内容と日付
+  const { text, date } = req.body;
+
+  // textが空ではない、文字列であることのチェック
+  if (!text || typeof text !== 'string' || text.trim() === '') {
+    return res.status(400).json({ error: '日記の内容は必須です。' });
+  }
+
+  // dateが空ではない、正しい日付の形式かどうかチェック
+  if (!date || typeof date !== 'string' || isNaN(new Date(date).getTime())) {
+    return res.status(400).json({ error: '日付の形式が正しくありません。' });
+  }
+
+  //問題ない場合は進む
+  next();
+};
+
+/**
  * ユーザー登録
  */
 app.post('/api/register', async (req, res) => {
@@ -294,7 +319,7 @@ app.get('/api/diaries/:id', authenticateToken, async (req, res) => {
 /**
  * 日記登録
  */
-app.post('/api/diaries', authenticateToken, async (req, res) => {
+app.post('/api/diaries', authenticateToken, validateDiaryData, async (req, res) => {
   try {
     //日記テキスト、Geminiコメント、日付
     const { text, geminiComment, date } = req.body;
@@ -322,7 +347,7 @@ app.post('/api/diaries', authenticateToken, async (req, res) => {
 /**
  * 特定の日記更新
  */
-app.put('/api/diaries/:id', authenticateToken, async (req, res) => {
+app.put('/api/diaries/:id', authenticateToken, validateDiaryData, async (req, res) => {
   try {
     //更新対象のid
     const id = parseInt(req.params.id);
