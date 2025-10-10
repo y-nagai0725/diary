@@ -1,11 +1,11 @@
 <script setup>
+import Header from './components/Header.vue';
+import Footer from './components/Footer.vue';
 import { RouterView } from 'vue-router';
 </script>
 
 <template>
-  <header>
-    <!-- ここにヘッダーとかナビゲーションを後で入れると良いかも！ -->
-  </header>
+  <Header />
 
   <main>
     <div class="container">
@@ -13,9 +13,7 @@ import { RouterView } from 'vue-router';
     </div>
   </main>
 
-  <footer>
-    <!-- ここにフッターを入れると良いかも！ -->
-  </footer>
+  <Footer />
 </template>
 
 <style lang="scss" scoped>
