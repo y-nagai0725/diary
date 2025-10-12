@@ -202,7 +202,16 @@ onUnmounted(() => {
   }
 
   &__home-link {
-    width: 140px;
+    padding: 10px 0;
+    width: 120px;
+
+    @include tab {
+      width: 130px;
+    }
+
+    @include pc {
+      width: 140px;
+    }
   }
 
   &__home-logo {
