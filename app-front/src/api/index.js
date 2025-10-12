@@ -1,5 +1,6 @@
 import axios from 'axios';
 import router from '@/router';
+import { logout } from '@/auth.js';
 
 //api呼び出し時のbaseURLを設定
 const apiClient = axios.create({
@@ -28,11 +29,8 @@ apiClient.interceptors.response.use(
     if (error.response && [401, 403].includes(error.response.status) && error.config.url !== '/api/login') {
       console.error('トークンが無効か期限切れです。ログイン画面に移動します。');
 
-      //トークン削除
-      localStorage.removeItem('token');
-
-      //ログイン画面に遷移
-      router.push('/login');
+      //トークン削除、ログイン画面に遷移
+      logout();
     }
 
     //それ以外のエラーの場合は、そのままエラーを次に渡す
