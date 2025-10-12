@@ -1,9 +1,68 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-const isOpenedMenu = ref(false);
-const logout = () => {};
+/**
+ * vue-router
+ */
+const router = useRouter();
+
+/**
+ * 画面幅
+ */
+const windowWidth = ref(window.innerWidth);
+
+/**
+ * PC表示（画面幅1024px以上）かどうか
+ */
+const isPc = computed(() => windowWidth.value >= 1024);
+
+/**
+ * sp用ナビゲーションメニュー開閉状態
+ */
+const isOpenedSpMenu = ref(false);
+
+/**
+ * ログアウト処理
+ */
+const logout = () => {
+  //ローカルストレージのトークンを削除
+  localStorage.removeItem('token');
+
+  //ログイン画面へ遷移させる
+  router.push(`/login`);
+};
+
+/**
+ * リサイズイベント時のタイマー処理
+ */
+let resizeTimeout = null;
+
+/**
+ * 画面幅リサイズ時処理
+ */
+const handleResize = () => {
+  //以前のタイマー処理を削除
+  clearTimeout(resizeTimeout);
+
+  //150ミリ秒待ってから実行
+  resizeTimeout = setTimeout(() => {
+    windowWidth.value = window.innerWidth;
+  }, 150);
+};
+
+onMounted(() => {
+  //リサイズイベント時の処理設定
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  //リサイズイベント時の処理削除
+  window.removeEventListener('resize', handleResize);
+
+  //タイマー処理を削除
+  clearTimeout(resizeTimeout);
+});
 </script>
 
 <template>
@@ -16,45 +75,88 @@ const logout = () => {};
           alt="Diary日記帳アプリロゴ"
         />
       </RouterLink>
-      <nav class="header__gnav" :class="{ isOpened: isOpenedMenu }">
-        <ul class="header__link-list">
-          <li class="header__item">
-            <RouterLink
-              class="header__link"
-              to="/diary/new"
-              @click="isOpenedMenu = !isOpenedMenu"
+      <nav v-if="isPc" class="header__gnav-pc">
+        <ul class="header__pc-link-list">
+          <li class="header__pc-item">
+            <RouterLink class="header__pc-link" to="/home">ホーム</RouterLink>
+          </li>
+          <li class="header__pc-item">
+            <RouterLink class="header__pc-link" to="/diary/new"
               >日記作成</RouterLink
             >
           </li>
-          <li class="header__item">
-            <RouterLink
-              class="header__link"
-              to="/diaries"
-              @click="isOpenedMenu = !isOpenedMenu"
+          <li class="header__pc-item">
+            <RouterLink class="header__pc-link" to="/diaries"
               >日記一覧</RouterLink
             >
           </li>
-          <li class="header__item">
-            <button class="header__logout-button" @click="logout()">
+          <li class="header__pc-item">
+            <button class="header__pc-logout-button" @click="logout()">
               ログアウト
             </button>
           </li>
         </ul>
       </nav>
       <button
+        v-else
         class="header__hamburger-button"
-        :class="{ isOpened: isOpenedMenu }"
-        @click="isOpenedMenu = !isOpenedMenu"
+        :class="{ isOpened: isOpenedSpMenu }"
+        @click="isOpenedSpMenu = !isOpenedSpMenu"
       >
         <span class="header__line top"></span>
         <span class="header__line middle"></span>
         <span class="header__line bottom"></span>
       </button>
     </div>
+    <nav
+      v-if="!isPc"
+      class="header__gnav-sp"
+      :class="{ isOpened: isOpenedSpMenu }"
+    >
+      <ul class="header__sp-link-list">
+        <li class="header__sp-item">
+          <RouterLink
+            class="header__sp-link"
+            to="/home"
+            @click="isOpenedSpMenu = !isOpenedSpMenu"
+            >ホーム</RouterLink
+          >
+        </li>
+        <li class="header__sp-item">
+          <RouterLink
+            class="header__sp-link"
+            to="/diary/new"
+            @click="isOpenedSpMenu = !isOpenedSpMenu"
+            >日記作成</RouterLink
+          >
+        </li>
+        <li class="header__sp-item">
+          <RouterLink
+            class="header__sp-link"
+            to="/diaries"
+            @click="isOpenedSpMenu = !isOpenedSpMenu"
+            >日記一覧</RouterLink
+          >
+        </li>
+        <li class="header__sp-item">
+          <button
+            class="header__sp-logout-button"
+            @click="
+              isOpenedSpMenu = !isOpenedSpMenu;
+              logout();
+            "
+          >
+            ログアウト
+          </button>
+        </li>
+      </ul>
+    </nav>
   </header>
 </template>
 <style lang="scss" scoped>
 .header {
+  $parent: &;
+
   &__inner {
     padding: 2rem;
     display: flex;
@@ -79,44 +181,22 @@ const logout = () => {};
     object-fit: cover;
   }
 
-  &__gnav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    place-content: center;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease-out, background-color 0.3s ease-out;
-
-    &.isOpened {
-      z-index: 10000;
-      background-color: aquamarine;
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    @include pc {
-      position: static;
-      width: auto;
-      height: auto;
-    }
+  &__gnav-pc {
   }
 
-  &__link-list {
+  &__pc-link-list {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
+    flex-direction: row;
+    gap: 4rem;
+  }
 
-    @include tab {
-    }
+  &__pc-link {
+    padding: 10px 0;
+  }
 
-    @include pc {
-      flex-direction: row;
-    }
+  &__pc-logout-button {
+    cursor: pointer;
+    padding: 10px 0;
   }
 
   &__hamburger-button {
@@ -125,36 +205,91 @@ const logout = () => {};
     position: relative;
     z-index: 10001;
 
-    @include tab {
-      width: 50px;
+    &.isOpened {
+      #{$parent}__line {
+        background-color: white;
+      }
+
+      #{$parent}__line.top {
+        top: 50%;
+        transform: translateY(-50%) rotate(45deg);
+      }
+
+      #{$parent}__line.middle {
+        opacity: 0;
+        transform: translate(10px, -50%);
+      }
+
+      #{$parent}__line.bottom {
+        top: 50%;
+        transform: translateY(-50%) rotate(-45deg);
+      }
     }
 
-    @include pc {
-      display: none;
+    @include tab {
+      width: 50px;
     }
   }
 
   &__line {
+    width: 100%;
     position: absolute;
     left: 0;
     height: 2px;
     background-color: #000;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out,
+      background-color 0.3s ease-out, top 0.3s ease-out;
 
     &.top {
-      width: 100%;
       top: 20%;
     }
 
     &.middle {
-      width: 100%;
       top: 50%;
       transform: translateY(-50%);
     }
 
     &.bottom {
-      width: 80%;
       bottom: 20%;
     }
+  }
+
+  &__gnav-sp {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-out, background-color 0.3s ease-out;
+    z-index: 10000;
+
+    &.isOpened {
+      opacity: 1;
+      pointer-events: all;
+      background-color: #42b983;
+    }
+  }
+
+  &__sp-link-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  &__sp-link {
+    padding: 10px 0;
+    color: white;
+  }
+
+  &__sp-logout-button {
+    cursor: pointer;
+    padding: 10px 0;
+    color: white;
   }
 }
 </style>
