@@ -1,10 +1,9 @@
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import apiClient from '@/api';
 import UserForm from '@/components/UserForm.vue';
+import { login } from '@/auth.js';
 
-const router = useRouter();
 const message = ref('');
 
 // UserFormからデータを受け取って、ユーザー登録処理を実行
@@ -21,8 +20,9 @@ const handleRegister = async (formData) => {
 
     // そのままログイン処理へ
     const loginResponse = await apiClient.post('/api/login', formData);
-    localStorage.setItem('token', loginResponse.data.token);
-    router.push('/home');
+
+    //トークン保存、home画面へ遷移
+    login(loginResponse.data.token);
   } catch (error) {
     //サーバーからのエラーメッセージを表示
     message.value = error.response.data.error;

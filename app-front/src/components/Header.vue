@@ -1,11 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-
-/**
- * vue-router
- */
-const router = useRouter();
+import { isLoggedIn, logout } from '@/auth.js';
 
 /**
  * 画面幅
@@ -21,17 +16,6 @@ const isPc = computed(() => windowWidth.value >= 1024);
  * sp用ナビゲーションメニュー開閉状態
  */
 const isOpenedSpMenu = ref(false);
-
-/**
- * ログアウト処理
- */
-const logout = () => {
-  //ローカルストレージのトークンを削除
-  localStorage.removeItem('token');
-
-  //ログイン画面へ遷移させる
-  router.push(`/login`);
-};
 
 /**
  * リサイズイベント時のタイマー処理
@@ -66,7 +50,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="header">
+  <header v-if="isLoggedIn" class="header">
     <div class="header__inner">
       <RouterLink class="header__home-link" to="/home">
         <img
