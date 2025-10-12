@@ -50,35 +50,52 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header v-if="isLoggedIn" class="header">
+  <header class="header">
     <div class="header__inner">
       <RouterLink class="header__home-link" to="/home">
         <img
           class="header__home-logo"
-          src="@/assets/images/common/header_logo.svg"
+          src="@/assets/images/common/site-logo.svg"
           alt="Diary日記帳アプリロゴ"
         />
       </RouterLink>
       <nav v-if="isPc" class="header__gnav-pc">
         <ul class="header__pc-link-list">
-          <li class="header__pc-item">
-            <RouterLink class="header__pc-link" to="/home">ホーム</RouterLink>
-          </li>
-          <li class="header__pc-item">
-            <RouterLink class="header__pc-link" to="/diary/new"
-              >日記作成</RouterLink
-            >
-          </li>
-          <li class="header__pc-item">
-            <RouterLink class="header__pc-link" to="/diaries"
-              >日記一覧</RouterLink
-            >
-          </li>
-          <li class="header__pc-item">
-            <button class="header__pc-logout-button" @click="logout()">
-              ログアウト
-            </button>
-          </li>
+          <template v-if="isLoggedIn">
+            <li class="header__pc-item">
+              <RouterLink class="header__pc-link" to="/home">Home</RouterLink>
+            </li>
+            <li class="header__pc-item">
+              <RouterLink class="header__pc-link" to="/diary/new"
+                >日記作成</RouterLink
+              >
+            </li>
+            <li class="header__pc-item">
+              <RouterLink class="header__pc-link" to="/diaries"
+                >日記一覧</RouterLink
+              >
+            </li>
+            <li class="header__pc-item">
+              <button class="header__pc-logout-button" @click="logout()">
+                ログアウト
+              </button>
+            </li>
+          </template>
+          <template v-else>
+            <li class="header__pc-item">
+              <RouterLink class="header__pc-link" to="/home">Home</RouterLink>
+            </li>
+            <li class="header__pc-item">
+              <RouterLink class="header__pc-link" to="/login"
+                >ログイン</RouterLink
+              >
+            </li>
+            <li class="header__pc-item">
+              <RouterLink class="header__pc-link" to="/register"
+                >ユーザー登録</RouterLink
+              >
+            </li>
+          </template>
         </ul>
       </nav>
       <button
@@ -98,41 +115,69 @@ onUnmounted(() => {
       :class="{ isOpened: isOpenedSpMenu }"
     >
       <ul class="header__sp-link-list">
-        <li class="header__sp-item">
-          <RouterLink
-            class="header__sp-link"
-            to="/home"
-            @click="isOpenedSpMenu = !isOpenedSpMenu"
-            >ホーム</RouterLink
-          >
-        </li>
-        <li class="header__sp-item">
-          <RouterLink
-            class="header__sp-link"
-            to="/diary/new"
-            @click="isOpenedSpMenu = !isOpenedSpMenu"
-            >日記作成</RouterLink
-          >
-        </li>
-        <li class="header__sp-item">
-          <RouterLink
-            class="header__sp-link"
-            to="/diaries"
-            @click="isOpenedSpMenu = !isOpenedSpMenu"
-            >日記一覧</RouterLink
-          >
-        </li>
-        <li class="header__sp-item">
-          <button
-            class="header__sp-logout-button"
-            @click="
-              isOpenedSpMenu = !isOpenedSpMenu;
-              logout();
-            "
-          >
-            ログアウト
-          </button>
-        </li>
+        <template v-if="isLoggedIn">
+          <li class="header__sp-item">
+            <RouterLink
+              class="header__sp-link"
+              to="/home"
+              @click="isOpenedSpMenu = false"
+              >Home</RouterLink
+            >
+          </li>
+          <li class="header__sp-item">
+            <RouterLink
+              class="header__sp-link"
+              to="/diary/new"
+              @click="isOpenedSpMenu = false"
+              >日記作成</RouterLink
+            >
+          </li>
+          <li class="header__sp-item">
+            <RouterLink
+              class="header__sp-link"
+              to="/diaries"
+              @click="isOpenedSpMenu = false"
+              >日記一覧</RouterLink
+            >
+          </li>
+          <li class="header__sp-item">
+            <button
+              class="header__sp-logout-button"
+              @click="
+                isOpenedSpMenu = false;
+                logout();
+              "
+            >
+              ログアウト
+            </button>
+          </li>
+        </template>
+        <template v-else>
+          <li class="header__sp-item">
+            <RouterLink
+              class="header__sp-link"
+              to="/home"
+              @click="isOpenedSpMenu = false"
+              >Home</RouterLink
+            >
+          </li>
+          <li class="header__sp-item">
+            <RouterLink
+              class="header__sp-link"
+              to="/login"
+              @click="isOpenedSpMenu = false"
+              >ログイン</RouterLink
+            >
+          </li>
+          <li class="header__sp-item">
+            <RouterLink
+              class="header__sp-link"
+              to="/register"
+              @click="isOpenedSpMenu = false"
+              >ユーザー登録</RouterLink
+            >
+          </li>
+        </template>
       </ul>
     </nav>
   </header>
