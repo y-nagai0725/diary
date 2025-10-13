@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-import { isLoggedIn, logout } from '@/auth.js';
+import { isLoggedIn, logout, userName } from '@/auth.js';
+import UserIcon from '@/components/icons/UserIcon.vue';
 
 /**
  * 画面幅
@@ -66,55 +67,61 @@ onUnmounted(() => {
           alt="Diary日記帳アプリロゴ"
         />
       </RouterLink>
-      <nav v-if="isPc" class="header__gnav-pc">
-        <ul class="header__pc-link-list">
-          <template v-if="isLoggedIn">
-            <li class="header__pc-item">
-              <RouterLink class="header__pc-link" to="/home">Home</RouterLink>
-            </li>
-            <li class="header__pc-item">
-              <RouterLink class="header__pc-link" to="/diary/new"
-                >日記作成</RouterLink
-              >
-            </li>
-            <li class="header__pc-item">
-              <RouterLink class="header__pc-link" to="/diaries"
-                >日記一覧</RouterLink
-              >
-            </li>
-            <li class="header__pc-item">
-              <button class="header__pc-logout-button" @click="logout()">
-                ログアウト
-              </button>
-            </li>
-          </template>
-          <template v-else>
-            <li class="header__pc-item">
-              <RouterLink class="header__pc-link" to="/home">Home</RouterLink>
-            </li>
-            <li class="header__pc-item">
-              <RouterLink class="header__pc-link" to="/login"
-                >ログイン</RouterLink
-              >
-            </li>
-            <li class="header__pc-item">
-              <RouterLink class="header__pc-link" to="/register"
-                >ユーザー登録</RouterLink
-              >
-            </li>
-          </template>
-        </ul>
-      </nav>
-      <button
-        v-else
-        class="header__hamburger-button"
-        :class="{ isOpened: isOpenedSpMenu }"
-        @click="isOpenedSpMenu = !isOpenedSpMenu"
-      >
-        <span class="header__line top"></span>
-        <span class="header__line middle"></span>
-        <span class="header__line bottom"></span>
-      </button>
+      <div class="header__right-box">
+        <div v-if="isLoggedIn" class="header__user-information">
+          <UserIcon class="header__user-icon" />
+          <span class="header__user-name">{{ userName }}</span>
+        </div>
+        <nav v-if="isPc" class="header__gnav-pc">
+          <ul class="header__pc-link-list">
+            <template v-if="isLoggedIn">
+              <li class="header__pc-item">
+                <RouterLink class="header__pc-link" to="/home">Home</RouterLink>
+              </li>
+              <li class="header__pc-item">
+                <RouterLink class="header__pc-link" to="/diary/new"
+                  >日記作成</RouterLink
+                >
+              </li>
+              <li class="header__pc-item">
+                <RouterLink class="header__pc-link" to="/diaries"
+                  >日記一覧</RouterLink
+                >
+              </li>
+              <li class="header__pc-item">
+                <button class="header__pc-logout-button" @click="logout()">
+                  ログアウト
+                </button>
+              </li>
+            </template>
+            <template v-else>
+              <li class="header__pc-item">
+                <RouterLink class="header__pc-link" to="/home">Home</RouterLink>
+              </li>
+              <li class="header__pc-item">
+                <RouterLink class="header__pc-link" to="/login"
+                  >ログイン</RouterLink
+                >
+              </li>
+              <li class="header__pc-item">
+                <RouterLink class="header__pc-link" to="/register"
+                  >ユーザー登録</RouterLink
+                >
+              </li>
+            </template>
+          </ul>
+        </nav>
+        <button
+          v-else
+          class="header__hamburger-button"
+          :class="{ isOpened: isOpenedSpMenu }"
+          @click="isOpenedSpMenu = !isOpenedSpMenu"
+        >
+          <span class="header__line top"></span>
+          <span class="header__line middle"></span>
+          <span class="header__line bottom"></span>
+        </button>
+      </div>
     </div>
     <nav
       v-if="!isPc"
@@ -241,6 +248,50 @@ onUnmounted(() => {
   &__home-logo {
     width: 100%;
     object-fit: cover;
+  }
+
+  &__right-box {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+  }
+
+  &__user-information {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  &__user-icon {
+    width: 22px;
+    aspect-ratio: 1;
+    fill: $black;
+
+    @include tab {
+      width: 24px;
+    }
+
+    @include pc {
+      width: 26px;
+    }
+  }
+
+  &__user-name {
+    font-size: clamp(12px, 1.2rem, 13px);
+
+    &::after {
+      content: "さん";
+      margin-left: 0.5em;
+      font-size: 0.75em;
+    }
+
+    @include tab {
+      font-size: clamp(13px, 1.3rem, 14px);
+    }
+
+    @include pc {
+      font-size: clamp(13px, 1.4rem, 14px);
+    }
   }
 
   &__gnav-pc {

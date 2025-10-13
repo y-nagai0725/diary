@@ -3,8 +3,8 @@ import { ref, onMounted } from 'vue';
 import apiClient from '@/api';
 import CheckmarkIcon from '@/components/icons/CheckmarkIcon.vue';
 import { formatDate } from '@/utils/date.js';
+import { userName } from '@/auth.js';
 
-const userName = ref('');
 const notice = ref('');
 const recentDiaries = ref([]);
 
@@ -18,33 +18,6 @@ const NO_DIARIES_MESSAGE =
  * 今日の日記が未登録時のお知らせメッセージ
  */
 const NOT_EXISTS_TODAY_DIARY_MESSAGE = '今日の日記がまだ登録されていません。';
-
-/**
- * トークンからユーザー名を取得
- */
-const getUserNameFromToken = () => {
-  //ログイン時に発行したトークン
-  const token = localStorage.getItem('token');
-
-  //トークンが存在しない場合
-  if (!token) {
-    return null;
-  }
-
-  try {
-    //トークンのペイロード部分取り出し
-    const payload = token.split('.')[1];
-
-    //Base64でデコードしJSON形式に変換
-    const decodedPayload = JSON.parse(atob(payload));
-
-    //ユーザー名を返す
-    return decodedPayload.userName;
-  } catch (error) {
-    console.error('トークンの解析に失敗しました。', error);
-    return null;
-  }
-};
 
 /**
  * 直近5件の日記データ取得
@@ -82,9 +55,6 @@ const existsTodayDiaryData = () => {
  * マウント時の初期処理
  */
 onMounted(async () => {
-  //ユーザー名表示
-  userName.value = getUserNameFromToken();
-
   //直近5件の日記データ取得、表示
   recentDiaries.value = await getRecentDiaries();
 
