@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { isLoggedIn, logout } from '@/auth.js';
 
 /**
@@ -34,6 +34,13 @@ const handleResize = () => {
     windowWidth.value = window.innerWidth;
   }, 150);
 };
+
+watch(isPc, () => {
+  //SP用メニューが開かれた状態で、PC表示になった場合はメニューを閉じる
+  if (isOpenedSpMenu.value && isPc.value) {
+    isOpenedSpMenu.value = false;
+  }
+});
 
 onMounted(() => {
   //リサイズイベント時の処理設定
@@ -185,32 +192,49 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .header {
   $parent: &;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  z-index: 100;
+
+  @include tab {
+    height: 80px;
+  }
+
+  @include pc {
+    height: 100px;
+  }
 
   &__inner {
-    padding: 2rem;
+    width: 100%;
+    padding: 0 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
 
     @include tab {
-      padding: 3rem;
+      padding: 0 3rem;
     }
 
     @include pc {
-      padding: 4rem;
+      padding: 0 4rem;
     }
   }
 
   &__home-link {
     padding: 10px 0;
-    width: 120px;
+    width: 110px;
 
     @include tab {
-      width: 130px;
+      width: 120px;
     }
 
     @include pc {
-      width: 140px;
+      width: 150px;
     }
   }
 
@@ -225,16 +249,19 @@ onUnmounted(() => {
   &__pc-link-list {
     display: flex;
     flex-direction: row;
+    align-items: center;
     gap: 4rem;
   }
 
   &__pc-link {
     padding: 10px 0;
+    font-size: clamp(14px, 1.6rem, 16px);
   }
 
   &__pc-logout-button {
     cursor: pointer;
     padding: 10px 0;
+    font-size: clamp(14px, 1.6rem, 16px);
   }
 
   &__hamburger-button {
@@ -245,7 +272,7 @@ onUnmounted(() => {
 
     &.isOpened {
       #{$parent}__line {
-        background-color: white;
+        background-color: $white;
       }
 
       #{$parent}__line.top {
@@ -274,7 +301,7 @@ onUnmounted(() => {
     position: absolute;
     left: 0;
     height: 2px;
-    background-color: #000;
+    background-color: $black;
     transition: transform 0.3s ease-out, opacity 0.3s ease-out,
       background-color 0.3s ease-out, top 0.3s ease-out;
 
@@ -308,7 +335,7 @@ onUnmounted(() => {
     &.isOpened {
       opacity: 1;
       pointer-events: all;
-      background-color: #42b983;
+      background-color: $green;
     }
   }
 
@@ -316,18 +343,32 @@ onUnmounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 2.4rem;
+
+    @include tab {
+      gap: 3.2rem;
+    }
   }
 
   &__sp-link {
     padding: 10px 0;
-    color: white;
+    color: $white;
+    font-size: clamp(15px, 1.5rem, 18px);
+
+    @include tab {
+      font-size: clamp(18px, 1.8rem, 20px);
+    }
   }
 
   &__sp-logout-button {
     cursor: pointer;
     padding: 10px 0;
-    color: white;
+    color: $white;
+    font-size: clamp(15px, 1.5rem, 18px);
+
+    @include tab {
+      font-size: clamp(18px, 1.8rem, 20px);
+    }
   }
 }
 </style>

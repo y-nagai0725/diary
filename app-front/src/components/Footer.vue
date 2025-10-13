@@ -116,15 +116,15 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
   }
 
   &__home-link {
-    width: 120px;
+    width: 110px;
     padding: 10px 0;
 
     @include tab {
-      width: 130px;
+      width: 120px;
     }
 
     @include pc {
-      width: 140px;
+      width: 150px;
     }
   }
 
@@ -173,14 +173,14 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     cursor: pointer;
     display: inline-block;
     padding: 10px 0;
-    font-size: clamp(15px, 1.5rem, 17px);
+    font-size: clamp(14px, 1.4rem, 16px);
 
     @include tab {
-      font-size: clamp(17px, 1.7rem, 20px);
+      font-size: clamp(16px, 1.6rem, 18px);
     }
 
     @include pc {
-      font-size: clamp(18px, 2rem, 20px);
+      font-size: clamp(16px, 1.8rem, 18px);
     }
   }
 
@@ -223,14 +223,14 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     display: inline-flex;
     align-items: center;
     padding: 10px 0;
-    font-size: clamp(12px, 1.2rem, 14px);
+    font-size: clamp(12px, 1.2rem, 13px);
 
     @include tab {
-      font-size: clamp(14px, 1.4rem, 15px);
+      font-size: clamp(13px, 1.3rem, 14px);
     }
 
     @include pc {
-      font-size: clamp(14px, 1.6rem, 16px);
+      font-size: clamp(14px, 1.5rem, 15px);
     }
   }
 
