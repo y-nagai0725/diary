@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { isLoggedIn, logout } from '@/auth.js';
+import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
 </script>
 <template>
   <footer class="footer">
@@ -58,24 +59,25 @@ import { isLoggedIn, logout } from '@/auth.js';
               href="https://portfolio.mikanbako.jp"
               class="footer__external-link"
               target="_blank"
-              >ポートフォリオ</a
-            >
+              >ポートフォリオ<ExternalLinkIcon
+                class="footer__external-link-icon"
+            /></a>
           </li>
           <li class="footer__external-link-item">
             <a
               href="https://github.com/y-nagai0725"
               class="footer__external-link"
               target="_blank"
-              >GitHub</a
-            >
+              >GitHub<ExternalLinkIcon class="footer__external-link-icon"
+            /></a>
           </li>
           <li class="footer__external-link-item">
             <a
               href="https://blog.mikanbako.jp"
               class="footer__external-link"
               target="_blank"
-              >技術ブログ</a
-            >
+              >技術ブログ<ExternalLinkIcon class="footer__external-link-icon"
+            /></a>
           </li>
         </ul>
         <small class="footer__copyright">&copy; 2025 NAGAI YOSHITAKA</small>
@@ -155,7 +157,7 @@ import { isLoggedIn, logout } from '@/auth.js';
   }
 
   &__item {
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid $black;
 
     @include tab {
     }
@@ -184,7 +186,7 @@ import { isLoggedIn, logout } from '@/auth.js';
 
   &__external-link-wrapper {
     padding-top: 3.2rem;
-    border-top: 1px solid black;
+    border-top: 1px solid $black;
     display: flex;
     flex-direction: column;
     gap: 3.2rem;
@@ -218,7 +220,8 @@ import { isLoggedIn, logout } from '@/auth.js';
   }
 
   &__external-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     padding: 10px 0;
     font-size: clamp(12px, 1.2rem, 14px);
 
@@ -231,6 +234,13 @@ import { isLoggedIn, logout } from '@/auth.js';
     }
   }
 
+  &__external-link-icon {
+    margin-left: 0.3em;
+    width: 1em;
+    aspect-ratio: 1;
+    fill: $black;
+  }
+
   &__copyright {
     display: block;
     font-size: clamp(10px, 1rem, 11px);
@@ -240,6 +250,7 @@ import { isLoggedIn, logout } from '@/auth.js';
     }
 
     @include pc {
+      padding-bottom: 10px;
       font-size: clamp(11px, 1.2rem, 12px);
       align-self: flex-end;
     }
