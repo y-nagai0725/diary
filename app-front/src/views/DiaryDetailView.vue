@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import apiClient from '@/api';
 import { useRouter } from 'vue-router';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -35,6 +35,11 @@ const promptSettings = ref({
   relationKey: '',
   styleKey: '',
 });
+
+/**
+ * Geminiコメント表示要素
+ */
+const geminiCommentSection = ref(null);
 
 /**
  * Gemini APIとのやり取り中かどうか
@@ -183,6 +188,17 @@ const getGeminiComment = async () => {
 
     //Geminiからのコメントを表示
     diaryForm.value.geminiComment = response.data.comment;
+
+    //コメントが表示されるのを待ってから、次の処理を実行する
+    await nextTick();
+
+    //コメントを表示している要素が画面中央にくるまでスクロールさせる
+    if (geminiCommentSection.value) {
+      geminiCommentSection.value.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center', // 画面の真ん中に表示
+      });
+    }
   } catch (error) {
     console.error('Geminiからのコメント取得に失敗しました。', error);
     resultMessage.value = 'Geminiからのコメント取得に失敗しました。';
@@ -614,9 +630,14 @@ onMounted(() => {
         >Geminiにコメントをもらう</span
       >
     </button>
-    <p class="diary__gemini-comment">
-      {{ diaryForm.geminiComment }}
-    </p>
+    <div
+      v-if="diaryForm.geminiComment"
+      ref="geminiCommentSection"
+      class="diary__gemini-comment"
+    >
+      <p class="diary__gemini-comment-title">Geminiからのコメント</p>
+      <p class="diary__gemini-comment-text">{{ diaryForm.geminiComment }}</p>
+    </div>
     <button
       v-if="isEditMode"
       class="diary__update-button"
@@ -687,6 +708,7 @@ onMounted(() => {
 
   &__submit-gemini-button {
     cursor: pointer;
+    display: block;
 
     &:disabled {
       cursor: not-allowed;
@@ -718,6 +740,7 @@ onMounted(() => {
   &__update-button,
   &__register-button {
     cursor: pointer;
+    display: block;
 
     &:disabled {
       cursor: not-allowed;
