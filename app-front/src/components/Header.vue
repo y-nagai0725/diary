@@ -36,10 +36,20 @@ const handleResize = () => {
   }, 150);
 };
 
-watch(isPc, () => {
+watch(isPc, (newValue) => {
   //SP用メニューが開かれた状態で、PC表示になった場合はメニューを閉じる
-  if (isOpenedSpMenu.value && isPc.value) {
+  if (isOpenedSpMenu.value && newValue) {
     isOpenedSpMenu.value = false;
+  }
+});
+
+watch(isOpenedSpMenu, (newValue) => {
+  if (newValue) {
+    // メニューが開いた時、背景のスクロールを禁止する
+    document.body.style.overflow = 'hidden';
+  } else {
+    // メニューが閉じた時、スクロール禁止を解除する
+    document.body.style.overflow = '';
   }
 });
 
@@ -54,6 +64,9 @@ onUnmounted(() => {
 
   //タイマー処理を削除
   clearTimeout(resizeTimeout);
+
+  //スクロール禁止を解除
+  document.body.style.overflow = '';
 });
 </script>
 
@@ -280,7 +293,7 @@ onUnmounted(() => {
     font-size: clamp(12px, 1.2rem, 13px);
 
     &::after {
-      content: "さん";
+      content: 'さん';
       margin-left: 0.5em;
       font-size: 0.75em;
     }
