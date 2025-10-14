@@ -266,7 +266,15 @@ onUnmounted(() => {
   &__right-box {
     display: flex;
     align-items: center;
-    gap: 4rem;
+    gap: 2rem;
+
+    @include tab {
+      gap: 3rem;
+    }
+
+    @include tab {
+      gap: 4rem;
+    }
   }
 
   &__user-information {
@@ -278,14 +286,14 @@ onUnmounted(() => {
   &__user-icon {
     width: 22px;
     aspect-ratio: 1;
-    fill: $black;
+    fill: $brown;
 
     @include tab {
-      width: 24px;
+      width: 23px;
     }
 
     @include pc {
-      width: 26px;
+      width: 25px;
     }
   }
 
@@ -320,38 +328,38 @@ onUnmounted(() => {
   &__pc-link {
     padding: 10px 0;
     font-size: clamp(14px, 1.6rem, 16px);
+    letter-spacing: 0.1em;
   }
 
   &__pc-logout-button {
     cursor: pointer;
     padding: 10px 0;
     font-size: clamp(14px, 1.6rem, 16px);
+    letter-spacing: 0.1em;
   }
 
   &__hamburger-button {
-    width: 40px;
+    width: 46px;
     aspect-ratio: 1;
+    border-radius: 100vmax;
+    background-color: $orange;
     position: relative;
     z-index: 10001;
 
     &.isOpened {
-      #{$parent}__line {
-        background-color: $white;
-      }
-
       #{$parent}__line.top {
         top: 50%;
-        transform: translateY(-50%) rotate(45deg);
+        transform: translateX(-50%) translateY(-50%) rotate(45deg);
       }
 
       #{$parent}__line.middle {
         opacity: 0;
-        transform: translate(10px, -50%);
+        transform: translate(calc(-50% + 8px), -50%);
       }
 
       #{$parent}__line.bottom {
         top: 50%;
-        transform: translateY(-50%) rotate(-45deg);
+        transform: translateX(-50%) translateY(-50%) rotate(-45deg);
       }
     }
 
@@ -361,25 +369,26 @@ onUnmounted(() => {
   }
 
   &__line {
-    width: 100%;
     position: absolute;
-    left: 0;
+    width: 50%;
     height: 2px;
-    background-color: $black;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: $white-brown;
     transition: transform 0.3s ease-out, opacity 0.3s ease-out,
-      background-color 0.3s ease-out, top 0.3s ease-out;
+      top 0.3s ease-out;
 
     &.top {
-      top: 20%;
+      top: 33%;
     }
 
     &.middle {
       top: 50%;
-      transform: translateY(-50%);
+      transform: translateX(-50%) translateY(-50%);
     }
 
     &.bottom {
-      bottom: 20%;
+      bottom: 33%;
     }
   }
 
@@ -399,7 +408,7 @@ onUnmounted(() => {
     &.isOpened {
       opacity: 1;
       pointer-events: all;
-      background-color: $green;
+      background-color: $white-brown;
     }
   }
 
@@ -416,8 +425,9 @@ onUnmounted(() => {
 
   &__sp-link {
     padding: 10px 0;
-    color: $white;
+    color: $brown;
     font-size: clamp(15px, 1.5rem, 18px);
+    letter-spacing: 0.1em;
 
     @include tab {
       font-size: clamp(18px, 1.8rem, 20px);
@@ -427,8 +437,9 @@ onUnmounted(() => {
   &__sp-logout-button {
     cursor: pointer;
     padding: 10px 0;
-    color: $white;
+    color: $brown;
     font-size: clamp(15px, 1.5rem, 18px);
+    letter-spacing: 0.1em;
 
     @include tab {
       font-size: clamp(18px, 1.8rem, 20px);

@@ -677,8 +677,8 @@ onMounted(() => {
     display: none;
 
     &:checked + #{$parent}__setting-label {
-      background-color: #42b983;
-      color: white;
+      background-color: $orange;
+      color: $white-brown;
     }
   }
 
@@ -686,7 +686,7 @@ onMounted(() => {
     cursor: pointer;
     display: block;
     padding: 1rem;
-    border: 1px solid #42b983;
+    border: 1px solid $orange;
     border-radius: 4px;
     font-size: clamp(12px, 1.2rem, 14px);
     transition: background-color 0.3s ease-out, color 0.3s ease-out;

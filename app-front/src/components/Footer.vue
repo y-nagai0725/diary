@@ -87,14 +87,14 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
 </template>
 <style lang="scss" scoped>
 .footer {
-  padding: 4rem 0 1.6rem;
+  padding: 7rem 0 5rem;
 
   @include tab {
-    padding: 4.8rem 0 2.4rem;
+    padding: 8rem 0 6rem;
   }
 
   @include pc {
-    padding: 5.6rem 0 3.2rem;
+    padding: 10.5rem 0 7rem;
   }
 
   &__inner {
@@ -102,16 +102,16 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
   }
 
   &__logo-wrapper {
-    margin-bottom: 4rem;
+    margin-bottom: 5.5rem;
     display: grid;
     place-content: center;
 
     @include tab {
-      margin-bottom: 4.8rem;
+      margin-bottom: 6.2rem;
     }
 
     @include pc {
-      margin-bottom: 5.6rem;
+      margin-bottom: 7rem;
     }
   }
 
@@ -129,14 +129,14 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
   }
 
   &__gnav {
-    margin-bottom: 3.2rem;
+    margin-bottom: 4rem;
 
     @include tab {
-      margin-bottom: 4rem;
+      margin-bottom: 4.8rem;
     }
 
     @include pc {
-      margin-bottom: 4.8rem;
+      margin-bottom: 6.4rem;
     }
   }
 
@@ -151,13 +151,13 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     }
 
     @include pc {
-      grid-template-columns: repeat(auto-fit, minmax(200px, 275px));
+      grid-template-columns: repeat(auto-fit, 200px);
       gap: 0;
     }
   }
 
   &__item {
-    border-bottom: 1px solid $black;
+    border-bottom: 1px solid $brown;
 
     @include tab {
     }
@@ -172,45 +172,47 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
   &__logout-button {
     cursor: pointer;
     display: inline-block;
-    padding: 10px 0;
+    padding: 10px 0 20px;
     font-size: clamp(14px, 1.4rem, 16px);
+    letter-spacing: 0.1em;
 
     @include tab {
       font-size: clamp(16px, 1.6rem, 18px);
     }
 
     @include pc {
+      padding: 10px 0;
       font-size: clamp(16px, 1.8rem, 18px);
     }
   }
 
   &__external-link-wrapper {
-    padding-top: 3.2rem;
-    border-top: 1px solid $black;
+    padding-top: 3rem;
+    border-top: 1px solid $brown;
     display: flex;
     flex-direction: column;
-    gap: 3.2rem;
+    gap: 3rem;
 
     @include tab {
-      padding-top: 4rem;
-      gap: 4rem;
+      padding-top: 3.8rem;
+      gap: 3.8rem;
     }
 
     @include pc {
       flex-direction: row;
       justify-content: space-between;
-      padding-top: 4.8rem;
-      gap: 4.8rem;
+      padding-top: 6.4rem;
+      gap: 0;
     }
   }
 
   &__external-link-list {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0;
 
     @include tab {
-      gap: 1.6rem;
+      gap: 0.8rem;
     }
 
     @include pc {
@@ -224,6 +226,7 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     align-items: center;
     padding: 10px 0;
     font-size: clamp(12px, 1.2rem, 13px);
+    letter-spacing: 0.1em;
 
     @include tab {
       font-size: clamp(13px, 1.3rem, 14px);
@@ -238,7 +241,7 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     margin-left: 0.3em;
     width: 1em;
     aspect-ratio: 1;
-    fill: $black;
+    fill: $brown;
   }
 
   &__copyright {
