@@ -173,6 +173,7 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     cursor: pointer;
     display: inline-block;
     padding: 10px 0 20px;
+    font-weight: 700;
     font-size: clamp(14px, 1.4rem, 16px);
     letter-spacing: 0.1em;
 

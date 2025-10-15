@@ -327,6 +327,7 @@ onUnmounted(() => {
 
   &__pc-link {
     padding: 10px 0;
+    font-weight: 700;
     font-size: clamp(14px, 1.6rem, 16px);
     letter-spacing: 0.1em;
   }
@@ -334,6 +335,7 @@ onUnmounted(() => {
   &__pc-logout-button {
     cursor: pointer;
     padding: 10px 0;
+    font-weight: 700;
     font-size: clamp(14px, 1.6rem, 16px);
     letter-spacing: 0.1em;
   }
@@ -426,6 +428,7 @@ onUnmounted(() => {
   &__sp-link {
     padding: 10px 0;
     color: $brown;
+    font-weight: 700;
     font-size: clamp(15px, 1.5rem, 18px);
     letter-spacing: 0.1em;
 
@@ -438,6 +441,7 @@ onUnmounted(() => {
     cursor: pointer;
     padding: 10px 0;
     color: $brown;
+    font-weight: 700;
     font-size: clamp(15px, 1.5rem, 18px);
     letter-spacing: 0.1em;
 
