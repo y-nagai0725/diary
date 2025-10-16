@@ -32,17 +32,140 @@ const handleRegister = async (formData) => {
 
 <template>
   <div class="register">
-    <UserForm
-      formTitle="ユーザー登録"
-      buttonText="登録する"
-      @submit-form="handleRegister"
-    />
-    <p class="register__noice">
-      登録済みの方は
-      <RouterLink class="register__link" to="/login"
-        >こちらからログイン</RouterLink
-      >
-    </p>
-    <p v-if="message" class="register__message">{{ message }}</p>
+    <h1 class="register__title">ユーザー登録</h1>
+    <div class="register__box">
+      <UserForm buttonText="ユーザー登録" @submit-form="handleRegister" />
+      <p class="register__message">{{ message }}</p>
+      <p class="register__notice">登録済みの方はこちらから</p>
+      <RouterLink class="register__link" to="/login">ログイン</RouterLink>
+    </div>
   </div>
 </template>
+<style lang="scss" scoped>
+.register {
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  background-color: $white;
+  border-radius: 10px;
+
+  @include tab {
+    padding: 0 3rem;
+  }
+
+  @include pc {
+    width: 100%;
+    margin-inline: 0;
+    padding: 0;
+    flex-direction: row;
+  }
+
+  &__title {
+    width: 100vw;
+    height: 18rem;
+    margin-inline: calc(50% - 50vw);
+    padding-left: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: $orange;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    color: $white-brown;
+    font-weight: 700;
+    font-size: clamp(24px, 2.4rem, 28px);
+    letter-spacing: 0.1em;
+
+    @include tab {
+      padding-left: 3rem;
+      font-size: clamp(28px, 2.8rem, 30px);
+    }
+
+    @include pc {
+      width: 40%;
+      height: auto;
+      margin-inline: 0;
+      padding-left: 0;
+      justify-content: center;
+      border-top-right-radius: 0;
+      border-bottom-left-radius: 10px;
+      font-size: clamp(30px, 3.4rem, 34px);
+    }
+  }
+
+  &__box {
+    padding: 4rem 0;
+
+    @include tab {
+      width: 50%;
+      margin-inline: auto;
+      padding: 6rem 0;
+    }
+
+    @include pc {
+      min-width: 320px;
+      width: 44.8rem;
+      padding: 8rem 0;
+    }
+  }
+
+  &__message {
+    padding: 1.6rem 0;
+    margin-bottom: 1.6rem;
+    border-bottom: 1px solid $brown;
+    color: $red;
+    font-size: clamp(14px, 1.4rem, 15px);
+    line-height: 1.8;
+
+    @include tab {
+      margin-bottom: 1.8rem;
+      font-size: clamp(15px, 1.5rem, 16px);
+    }
+
+    @include pc {
+      margin-bottom: 2rem;
+      font-size: clamp(15px, 1.6rem, 16px);
+    }
+  }
+
+  &__notice {
+    text-align: center;
+    margin-bottom: 1.6rem;
+    font-size: clamp(12px, 1.2rem, 13px);
+
+    @include tab {
+      margin-bottom: 1.8rem;
+      font-size: clamp(13px, 1.3rem, 14px);
+    }
+
+    @include pc {
+      margin-bottom: 2rem;
+      font-size: clamp(13px, 1.4rem, 14px);
+    }
+  }
+
+  &__link {
+    height: 4.8rem;
+    display: grid;
+    place-content: center;
+    border: 1px solid $brown;
+    border-radius: 100vmax;
+    color: $brown;
+    font-weight: 700;
+    font-size: clamp(14px, 1.4rem, 15px);
+    letter-spacing: 0.1em;
+
+    @include tab {
+      height: 5.2rem;
+      font-size: clamp(15px, 1.5rem, 16px);
+    }
+
+    @include pc {
+      height: clamp(46px, 5.6rem, 56px);
+      font-size: clamp(15px, 1.6rem, 16px);
+    }
+  }
+}
+</style>

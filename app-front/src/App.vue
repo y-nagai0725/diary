@@ -19,14 +19,14 @@ import { RouterView } from 'vue-router';
 <style lang="scss" scoped>
 .container {
   @include contents-width;
-  margin-top: 70px;
+  margin-top: calc(70px + 4rem);
 
   @include tab {
-    margin-top: 80px;
+    margin-top: calc(80px + 6rem);
   }
 
   @include pc {
-    margin-top: 100px;
+    margin-top: calc(100px + 8rem);
   }
 }
 </style>
