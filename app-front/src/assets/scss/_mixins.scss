@@ -1,3 +1,5 @@
+@use "./_variables.scss" as *;
+
 //タブレット用メディアクエリ
 @mixin tab {
   @media screen and (min-width: 768px) {
@@ -33,6 +35,35 @@
     padding: 0;
     margin-inline: auto;
     width: 90%;
-    max-width: 1100px;
+    max-width: 1200px;
   }
+}
+
+@mixin button-style-fill($fill-color, $text-color) {
+  cursor: pointer;
+  height: 4.8rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $fill-color;
+  border-radius: 100vmax;
+  color: $text-color;
+  font-weight: 700;
+  font-size: clamp(14px, 1.4rem, 15px);
+  letter-spacing: 0.1em;
+
+  @include tab {
+    height: 5.2rem;
+    font-size: clamp(15px, 1.5rem, 16px);
+  }
+
+  @include pc {
+    height: clamp(46px, 5.6rem, 56px);
+    font-size: clamp(15px, 1.6rem, 16px);
+  }
+}
+
+@mixin button-style-border($border-color) {
+  @include button-style-fill(initial, $border-color);
+  border: 1px solid $border-color;
 }

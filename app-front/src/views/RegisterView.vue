@@ -147,25 +147,7 @@ const handleRegister = async (formData) => {
   }
 
   &__link {
-    height: 4.8rem;
-    display: grid;
-    place-content: center;
-    border: 1px solid $brown;
-    border-radius: 100vmax;
-    color: $brown;
-    font-weight: 700;
-    font-size: clamp(14px, 1.4rem, 15px);
-    letter-spacing: 0.1em;
-
-    @include tab {
-      height: 5.2rem;
-      font-size: clamp(15px, 1.5rem, 16px);
-    }
-
-    @include pc {
-      height: clamp(46px, 5.6rem, 56px);
-      font-size: clamp(15px, 1.6rem, 16px);
-    }
+    @include button-style-border($brown);
   }
 }
 </style>

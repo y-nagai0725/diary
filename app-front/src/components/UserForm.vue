@@ -102,26 +102,7 @@ const handleSubmit = () => {
   }
 
   &__button {
-    cursor: pointer;
-    height: 4.8rem;
-    display: grid;
-    place-content: center;
-    background-color: $brown;
-    border-radius: 100vmax;
-    color: $white-brown;
-    font-weight: 700;
-    font-size: clamp(14px, 1.4rem, 15px);
-    letter-spacing: 0.1em;
-
-    @include tab {
-      height: 5.2rem;
-      font-size: clamp(15px, 1.5rem, 16px);
-    }
-
-    @include pc {
-      height: clamp(46px, 5.6rem, 56px);
-      font-size: clamp(15px, 1.6rem, 16px);
-    }
+    @include button-style-fill($brown, $white-brown);
   }
 }
 </style>

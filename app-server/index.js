@@ -279,7 +279,11 @@ app.get('/api/diaries/recent', authenticateToken, async (req, res) => {
         date: 'desc', //日付が新しい順
       },
     });
-    res.json(recentDiaries);
+
+    //登録されている日記の数
+    const totalDiaries = await prisma.diary.count({ where: { authorId } });
+
+    res.json({recentDiaries, totalDiaries});
   } catch (error) {
     //500サーバーエラー
     console.error(error);
