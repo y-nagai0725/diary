@@ -264,17 +264,17 @@ app.get('/api/diaries', authenticateToken, async (req, res) => {
 });
 
 /**
- * 最新5件の日記取得
+ * 最新7件の日記取得
  */
 app.get('/api/diaries/recent', authenticateToken, async (req, res) => {
   try {
     //日記の著者id
     const authorId = req.user.userId;
 
-    //最新5件の日記取得
+    //最新7件の日記取得
     const recentDiaries = await prisma.diary.findMany({
       where: { authorId },
-      take: 5, //5件取得
+      take: 7, //7件取得
       orderBy: {
         date: 'desc', //日付が新しい順
       },

@@ -24,7 +24,7 @@ const NO_DIARIES_MESSAGE =
 const NOT_EXISTS_TODAY_DIARY_MESSAGE = '今日の日記がまだ登録されていません。';
 
 /**
- * 直近5件の日記データ取得
+ * 直近7件の日記データ取得
  */
 const getRecentDiaries = async () => {
   try {
@@ -153,6 +153,8 @@ onMounted(async () => {
       width: 100%;
       margin-inline: initial;
       gap: 3.2rem;
+      position: sticky;
+      top: 100px; //ヘッダーの高さ分
     }
   }
 
@@ -288,10 +290,14 @@ onMounted(async () => {
     gap: 1rem;
 
     @include tab {
+      width: 75%;
+      margin-inline: auto;
       gap: 1.6rem;
     }
 
     @include pc {
+      width: 100%;
+      margin-inline: initial;
       gap: 2.4rem;
     }
   }
@@ -348,22 +354,50 @@ onMounted(async () => {
   &__diary-edit-link {
     display: flex;
     flex-direction: column;
+    gap: 0.4rem;
+
+    @include tab {
+      gap: 0.6rem;
+    }
+
+    @include pc {
+      gap: 0.8rem;
+    }
   }
 
   &__diary-date-wrapper {
     display: flex;
+    align-items: flex-end;
+    gap: 1rem;
   }
 
   &__diary-date {
+    color: $orange;
+    font-weight: 700;
+    font-size: clamp(36px, 3.6rem, 38px);
+    line-height: 1;
+
+    @include tab {
+      font-size: clamp(38px, 3.8rem, 40px);
+    }
+
+    @include pc {
+      font-size: clamp(38px, 4rem, 40px);
+    }
   }
 
-  &__diary-day {
-  }
-
-  &__diary-time {
-  }
-
+  &__diary-day,
+  &__diary-time,
   &__diary-yyyy-mm {
+    font-size: clamp(14px, 1.4rem, 15px);
+
+    @include tab {
+      font-size: clamp(15px, 1.5rem, 16px);
+    }
+
+    @include pc {
+      font-size: clamp(15px, 1.6rem, 16px);
+    }
   }
 
   &__diary-text-wrapper {
@@ -408,6 +442,7 @@ onMounted(async () => {
     -webkit-line-clamp: 3;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.8;
   }
 }
 </style>
