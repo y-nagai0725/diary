@@ -77,10 +77,7 @@ const createDisplayData = (diaries) => {
     const minutes = String(d.getMinutes()).padStart(2, '0'); // 分
 
     return {
-      id: diary.id,
-      text: diary.text,
-      geminiComment: diary.geminiComment,
-      date: diary.date,
+      ...diary,
       year,
       month,
       day,
