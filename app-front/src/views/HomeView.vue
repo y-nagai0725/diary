@@ -56,12 +56,47 @@ const existsTodayDiaryData = () => {
 };
 
 /**
+ * 表示用の日記データを作成
+ * @param {*} diaries 日記データ配列
+ * @returns {*} 表示用の日記データ配列
+ */
+const createDisplayData = (diaries) => {
+  if (diaries.length === 0) {
+    return [];
+  }
+
+  return diaries.map((diary) => {
+    const d = new Date(diary.date);
+    const year = d.getFullYear(); // 年
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // 月
+    const day = String(d.getDate()).padStart(2, '0'); // 日
+    const dayOfWeek = d.getDay();
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+    const dayOfWeekString = weekdays[dayOfWeek]; // 曜日
+    const hours = String(d.getHours()).padStart(2, '0'); // 時
+    const minutes = String(d.getMinutes()).padStart(2, '0'); // 分
+
+    return {
+      id: diary.id,
+      text: diary.text,
+      geminiComment: diary.geminiComment,
+      date: diary.date,
+      year,
+      month,
+      day,
+      dayOfWeek: dayOfWeekString,
+      time: `${hours}:${minutes}`,
+    };
+  });
+};
+
+/**
  * マウント時の初期処理
  */
 onMounted(async () => {
-  //直近5件の日記データ取得、表示
+  //直近7件の日記データ取得、表示
   const responseData = await getRecentDiaries();
-  recentDiaries.value = responseData.recentDiaries;
+  recentDiaries.value = createDisplayData(responseData.recentDiaries);
   totalDiariesCount.value = responseData.totalDiaries;
 
   //お知らせメッセージ表示
@@ -105,10 +140,12 @@ onMounted(async () => {
         >
           <RouterLink class="home__diary-edit-link" :to="`/diary/${diary.id}`">
             <div class="home__diary-date-wrapper">
-              <span class="home__diary-date">11</span>
-              <span class="home__diary-day">水</span>
-              <span class="home__diary-time">11:35</span>
-              <span class="home__diary-yyyy-mm">2025/10</span>
+              <span class="home__diary-day">{{ diary.day }}</span>
+              <span class="home__diary-day-of-week">{{ diary.dayOfWeek }}</span>
+              <span class="home__diary-time">{{ diary.time }}</span>
+              <span class="home__diary-yyyy-mm">{{
+                `${diary.year}/${diary.month}`
+              }}</span>
             </div>
             <div
               class="home__diary-text-wrapper"
@@ -120,10 +157,13 @@ onMounted(async () => {
         </li>
       </ul>
     </div>
+    <RouterLink class="home__create-diary-button" to="/diary/new"
+      ><PenIcon class="home__create-diary-icon"
+    /></RouterLink>
   </div>
 </template>
 <style lang="scss" scoped>
-//TODOメモ css(デザイン)はほとんど全部まだ仮です、最後に作成します。
+//TODOメモ linkのhover処理などは最後にまとめてやります
 .home {
   display: grid;
   gap: 1.6rem;
@@ -371,7 +411,7 @@ onMounted(async () => {
     gap: 1rem;
   }
 
-  &__diary-date {
+  &__diary-day {
     color: $orange;
     font-weight: 700;
     font-size: clamp(36px, 3.6rem, 38px);
@@ -386,7 +426,7 @@ onMounted(async () => {
     }
   }
 
-  &__diary-day,
+  &__diary-day-of-week,
   &__diary-time,
   &__diary-yyyy-mm {
     font-size: clamp(14px, 1.4rem, 15px);
@@ -443,6 +483,36 @@ onMounted(async () => {
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.8;
+  }
+
+  &__create-diary-button {
+    position: fixed;
+    bottom: 4rem;
+    right: 2rem;
+    height: 4.8rem;
+    aspect-ratio: 1;
+    border-radius: 100vmax;
+    background-color: $orange;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    @include tab {
+      bottom: 5rem;
+      right: 3rem;
+      height: 5.2rem;
+    }
+
+    @include pc {
+      display: none;
+    }
+  }
+
+  &__create-diary-icon {
+    width: 45%;
+    fill: none;
+    stroke: $white-brown;
+    stroke-width: 2;
   }
 }
 </style>

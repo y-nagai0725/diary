@@ -58,7 +58,7 @@
   }
 
   @include pc {
-    height: clamp(46px, 5.6rem, 56px);
+    height: clamp(48px, 5.6rem, 56px);
     font-size: clamp(15px, 1.6rem, 16px);
   }
 }

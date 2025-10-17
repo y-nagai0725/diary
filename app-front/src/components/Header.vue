@@ -341,7 +341,7 @@ onUnmounted(() => {
   }
 
   &__hamburger-button {
-    width: 46px;
+    width: 48px;
     aspect-ratio: 1;
     border-radius: 100vmax;
     background-color: $orange;
@@ -366,7 +366,7 @@ onUnmounted(() => {
     }
 
     @include tab {
-      width: 50px;
+      width: 52px;
     }
   }
 
