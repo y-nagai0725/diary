@@ -4,6 +4,8 @@ import apiClient from '@/api';
 import CheckmarkIcon from '@/components/icons/CheckmarkIcon.vue';
 import PenIcon from '@/components/icons/PenIcon.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
+import DeleteIcon from '@/components/icons/DeleteIcon.vue';
+import EditIcon from '@/components/icons/EditIcon.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { formatDate } from '@/utils/date.js';
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -30,8 +32,7 @@ const resultMessage = ref(''); // 完了メッセージ
 /**
  * 日記未登録時のメッセージ
  */
-const NO_DIARIES_MESSAGE =
-  'まだ日記が登録されていません。初めての日記を書いてみよう！';
+const NO_DIARIES_MESSAGE = '検索条件に該当する日記はありません。';
 
 /**
  * 指定されたページの日記を取得
@@ -131,7 +132,7 @@ const formatYm = (date) => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
 
   return `${year} 年 ${month} 月`;
-}
+};
 
 /**
  * 年月日選択ボックス用フォーマッター
@@ -142,7 +143,7 @@ const formatYmd = (date) => {
   const day = String(date.getDate()).padStart(2, '0');
 
   return `${year} 年 ${month} 月 ${day} 日`;
-}
+};
 
 watch(searchWord, () => {
   // 検索キーワードが変わったら、必ず1ページ目から検索し直す
@@ -248,85 +249,84 @@ onMounted(() => {
         >
       </div>
     </div>
-    <div class="diaries__list-wrapper">
-      <p v-if="diaries.length === 0" class="diaries__no-data">
-        {{ NO_DIARIES_MESSAGE }}
-      </p>
-      <div v-else class="diaries__data-wrapper">
-        <button class="diaries__order-button" @click="toggleSortOrder">
+    <div class="diaries__right-box">
+      <p class="diaries__sub-title">日記一覧</p>
+      <div
+        class="diaries__list-wrapper"
+        :class="{ 'no-data': diaries.length === 0 }"
+      >
+        <p v-if="diaries.length === 0" class="diaries__no-data">
+          {{ NO_DIARIES_MESSAGE }}
+        </p>
+        <ul v-else class="diaries__result-list">
+          <!-- <button class="diaries__order-button" @click="toggleSortOrder">
           並び替え: {{ sortOrder === 'desc' ? '新しい順' : '古い順' }}
-        </button>
-
-        <div class="diaries__grid">
-          <div class="diaries__grid-header">日付</div>
-          <div class="diaries__grid-header">日記内容</div>
-          <div class="diaries__grid-header">Geminiコメント有無</div>
-          <div class="diaries__grid-header">編集リンク</div>
-          <div class="diaries__grid-header">削除リンク</div>
-          <div
+        </button> -->
+          <li
             v-for="diary in diaries"
             :key="diary.id"
-            class="diaries__grid-row"
+            class="diaries__diary-item"
           >
-            <p class="diaries__grid-item">{{ formatDate(diary.date) }}</p>
-            <p class="diaries__grid-item">{{ diary.text }}</p>
-            <p class="diaries__grid-item diaries__gemini-check">
-              <CheckmarkIcon
-                v-if="diary.geminiComment"
-                class="diaries__gemini-check-icon"
-              />
-            </p>
-            <p class="diaries__grid-item">
-              <RouterLink class="diaries__edit-link" :to="`/diary/${diary.id}`"
-                >編集</RouterLink
-              >
-            </p>
-            <p class="diaries__grid-item">
-              <button
-                class="diaries__delete-button"
-                @click="handleDeleteDiary(diary)"
-              >
-                削除
-              </button>
-            </p>
+            <div class="diaries__diary-text-wrapper">
+              <span class="diaries__diary-date">{{
+                formatDate(diary.date, '/', true)
+              }}</span>
+              <span class="diaries__diary-text">{{ diary.text }}</span>
+            </div>
+            <RouterLink class="diaries__edit-link" :to="`/diary/${diary.id}`"
+              ><EditIcon class="diaries__edit-icon"
+            /></RouterLink>
+            <button
+              class="diaries__delete-button"
+              @click="handleDeleteDiary(diary)"
+            >
+              <DeleteIcon class="diaries__delete-icon" />
+            </button>
+          </li>
+
+          <div class="diaries__pagination">
+            <button
+              class="diaries__prev-button"
+              @click="fetchDiaries(currentPage - 1)"
+              :disabled="currentPage === 1"
+            >
+              前へ
+            </button>
+            <span class="diaries__page-number"
+              >{{ currentPage }} / {{ totalPages }} ページ</span
+            >
+            <button
+              class="diaries__next-button"
+              @click="fetchDiaries(currentPage + 1)"
+              :disabled="currentPage === totalPages"
+            >
+              次へ
+            </button>
           </div>
-        </div>
-
-        <div class="diaries__pagination">
-          <button
-            class="diaries__prev-button"
-            @click="fetchDiaries(currentPage - 1)"
-            :disabled="currentPage === 1"
-          >
-            前へ
-          </button>
-          <span class="diaries__page-number"
-            >{{ currentPage }} / {{ totalPages }} ページ</span
-          >
-          <button
-            class="diaries__next-button"
-            @click="fetchDiaries(currentPage + 1)"
-            :disabled="currentPage === totalPages"
-          >
-            次へ
-          </button>
-        </div>
-
-        <ConfirmModal
-          :show="showDeleteModal"
-          :message="`${deleteTargetDate} の日記を削除します。よろしいですか？`"
-          @confirm="confirmDelete"
-          @cancel="cancelDelete"
-        />
-
-        <ConfirmModal
-          :show="showResultModal"
-          :message="resultMessage"
-          :confirmOnly="true"
-          @confirm="closeResultModal"
-        />
+        </ul>
       </div>
     </div>
+    <div class="diaries__sp-link-wrapper">
+      <RouterLink class="diaries__link-create" to="/diary/new"
+        ><PenIcon class="diaries__pen-icon" />作成</RouterLink
+      >
+      <RouterLink class="diaries__link-home" to="/home"
+        ><HomeIcon class="diaries__home-icon" />Home</RouterLink
+      >
+    </div>
+    <ConfirmModal
+      :show="showDeleteModal"
+      :message="`${deleteTargetDate} の日記を削除します。よろしいですか？`"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
+
+    <ConfirmModal
+      :show="showResultModal"
+      :message="resultMessage"
+      :confirmOnly="true"
+      @confirm="closeResultModal"
+    />
   </div>
 </template>
 <style lang="scss" scoped>
@@ -444,7 +444,6 @@ onMounted(() => {
   }
 
   &__input-date {
-
   }
 
   &__search-word-wrapper {
@@ -468,8 +467,6 @@ onMounted(() => {
     display: none;
 
     @include pc {
-      padding-top: 2.4rem;
-      border-top: 1px solid $brown;
       display: flex;
       justify-content: space-between;
     }
@@ -510,35 +507,208 @@ onMounted(() => {
     fill: $white-brown;
   }
 
-  &__grid {
-    display: grid;
-    grid-template-columns: 1fr 3fr 1fr 1fr 1fr;
-  }
+  &__right-box {
+    @include tab {
+      width: 80%;
+      margin-inline: auto;
+    }
 
-  &__grid-header {
-  }
-
-  &__grid-row {
-    display: contents;
-  }
-
-  &__grid-item {
-    &:nth-of-type(2) {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    @include pc {
+      width: 100%;
+      margin-inline: initial;
     }
   }
 
-  &__gemini-check {
+  &__sub-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: clamp(22px, 2.2rem, 26px);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.6rem;
+
+    @include tab {
+      font-size: clamp(26px, 2.6rem, 30px);
+      margin-bottom: 2.4rem;
+    }
+
+    @include pc {
+      font-size: clamp(30px, 4rem, 40px);
+    }
+  }
+
+  &__list-wrapper {
+    height: 330px;
+    margin-bottom: 4rem;
+    padding: 1.6rem;
+    border-radius: 10px;
+    background-color: $orange;
+    overflow: scroll;
+
+    &.no-data {
+      display: flex;
+      align-items: center;
+    }
+
+    @include tab {
+      height: 400px;
+      margin-bottom: 6rem;
+      padding: 2rem;
+    }
+
+    @include pc {
+      overflow: auto;
+      height: auto;
+      margin-bottom: 8rem;
+      padding: 2.4rem;
+    }
+  }
+
+  &__no-data {
+    width: 100%;
+    padding: 1em;
+    border-radius: 10px;
+    background-color: $white;
+    line-height: 1.8;
+    color: $red;
+    font-size: clamp(14px, 1.4rem, 15px);
+
+    @include tab {
+      font-size: clamp(15px, 1.5rem, 16px);
+    }
+
+    @include pc {
+      font-size: clamp(15px, 1.6rem, 16px);
+    }
+  }
+
+  &__result-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+
+    @include tab {
+      gap: 2rem;
+    }
+
+    @include pc {
+      gap: 2.4rem;
+    }
+  }
+
+  &__diary-item {
+    padding: 1.6rem;
+    border-radius: 10px;
+    background-color: $white-brown;
+    display: grid;
+    align-items: center;
+    grid-template-columns: auto 4rem 4rem;
+    gap: 1rem;
+
+    @include tab {
+      padding: 2rem;
+      grid-template-columns: auto 4.4rem 4.4rem;
+      gap: 1.6rem;
+    }
+
+    @include pc {
+      padding: 2.4rem;
+      grid-template-columns: auto 4.8rem 4.8rem;
+      gap: 2.4rem;
+    }
+  }
+
+  &__diary-text-wrapper {
+    display: grid;
+    gap: 0.4rem;
+
+    @include tab {
+      gap: 0.6rem;
+    }
+
+    @include pc {
+      gap: 1rem;
+    }
+  }
+
+  &__diary-date {
+    font-size: clamp(11px, 1.1rem, 12px);
+
+    @include tab {
+      font-size: clamp(12px, 1.2rem, 14px);
+    }
+
+    @include pc {
+      font-size: clamp(12px, 1.4rem, 14px);
+    }
+  }
+
+  &__diary-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: clamp(14px, 1.4rem, 15px);
+    line-height: 1.8;
+
+    @include tab {
+      font-size: clamp(15px, 1.5rem, 16px);
+    }
+
+    @include pc {
+      font-size: clamp(14px, 1.6rem, 16px);
+    }
+  }
+
+  &__edit-link,
+  &__delete-button {
+    cursor: pointer;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
+  }
 
-    svg {
-      width: 20px;
-      height: 20px;
-      color: #42b983;
+  &__edit-link {
+    background-color: $green;
+  }
+
+  &__delete-button {
+    background-color: $red;
+  }
+
+  &__edit-icon,
+  &__delete-icon {
+    width: 60%;
+  }
+
+  &__edit-icon {
+    fill: $white-brown;
+  }
+
+  &__delete-icon {
+    fill: none;
+    stroke: $white-brown;
+    stroke-width: 3;
+  }
+
+  &__sp-link-wrapper {
+    padding: 1.6rem;
+    background-color: $white;
+    border-radius: 100vmax;
+    display: flex;
+    justify-content: space-between;
+
+    @include tab {
+      width: 55%;
+      margin-inline: auto;
+      padding: 2rem;
+    }
+
+    @include pc {
+      display: none;
     }
   }
 }
