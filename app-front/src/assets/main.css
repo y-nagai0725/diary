@@ -1,4 +1,36 @@
 @import './base.css';
+:root {
+  --dp-font-family: Zen Maru Gothic, sans-serif;
+  --dp-border-radius: 4px;
+  /*Sizing*/
+  --dp-input-padding: 0.65em 30px 0.65em 12px; /*Padding in the input*/
+  /*Font sizes*/
+  --dp-font-size: clamp(14px, 1.4rem, 15px);
+  /*Transitions*/
+}
+@media screen and (min-width: 768px) {
+  :root {
+    --dp-font-size: clamp(15px, 1.5rem, 16px);
+  }
+}
+@media screen and (min-width: 1024px) {
+  :root {
+    --dp-font-size: clamp(15px, 1.6rem, 16px);
+  }
+}
+
+.dp__theme_light {
+  --dp-background-color: #fff;
+  --dp-text-color: #4A200C;
+  --dp-hover-text-color: #4A200C;
+  --dp-primary-color: #f5ac3c;
+  --dp-primary-text-color: #FFFCF7;
+  --dp-secondary-color: #acacac;
+  --dp-border-color: #4A200C;
+  --dp-menu-border-color: #4A200C;
+  --dp-icon-color: #4A200C;
+}
+
 html {
   font-size: 2.6666666667vw;
 }

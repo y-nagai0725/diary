@@ -171,7 +171,7 @@ onMounted(async () => {
 
   @include pc {
     align-items: start;
-    grid-template-columns: minmax(300px, 40rem) auto;
+    grid-template-columns: minmax(340px, 40rem) auto;
     gap: 10rem;
   }
 

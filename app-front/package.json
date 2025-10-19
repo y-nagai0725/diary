@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vuepic/vue-datepicker": "^11.0.3",
     "axios": "^1.12.2",
     "sass": "^1.93.2",
     "vue": "^3.5.22",

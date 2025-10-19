@@ -83,22 +83,7 @@ const handleSubmit = () => {
 
   &__input-name,
   &__input-password {
-    border: 1px solid $brown;
-    border-radius: 4px;
-    padding: 0.65em;
-    font-size: clamp(14px, 1.4rem, 15px);
-
-    &::placeholder {
-      color: $gray;
-    }
-
-    @include tab {
-      font-size: clamp(15px, 1.5rem, 16px);
-    }
-
-    @include pc {
-      font-size: clamp(15px, 1.6rem, 16px);
-    }
+    @include input-text-style;
   }
 
   &__button {

@@ -1,5 +1,6 @@
 @use "./_mixins.scss" as *;
 @use "./_variables.scss" as *;
+@use "./_custom-vue-datepicker";
 @import './base.css';
 
 html {
