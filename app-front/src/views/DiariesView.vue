@@ -1,7 +1,8 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import apiClient from '@/api';
-import CheckmarkIcon from '@/components/icons/CheckmarkIcon.vue';
+import CaretRightIcon from '@/components/icons/CaretRightIcon.vue';
+import CaretLeftIcon from '@/components/icons/CaretLeftIcon.vue';
 import PenIcon from '@/components/icons/PenIcon.vue';
 import HomeIcon from '@/components/icons/HomeIcon.vue';
 import DeleteIcon from '@/components/icons/DeleteIcon.vue';
@@ -30,7 +31,7 @@ const showResultModal = ref(false); // 削除完了モーダルの表示状態
 const resultMessage = ref(''); // 完了メッセージ
 
 /**
- * 日記未登録時のメッセージ
+ * 日記一覧の件数が0の時のメッセージ
  */
 const NO_DIARIES_MESSAGE = '検索条件に該当する日記はありません。';
 
@@ -144,6 +145,53 @@ const formatYmd = (date) => {
 
   return `${year} 年 ${month} 月 ${day} 日`;
 };
+
+/**
+ * ページネーションの数字リストを作成
+ * @param {Number} totalPages 合計ページ数
+ * @param {Number} currentPage 現在のページ数
+ * @returns {Number[]} ページネーションリスト
+ */
+const createPaginationList = (totalPages, currentPage) => {
+  const pages = [];
+
+  // ---常に表示するページを追加---
+  // 最初のページ
+  pages.push(1);
+  // 現在のページ
+  if (currentPage > 1) pages.push(currentPage);
+  // 最後のページ
+  if (totalPages > 1) pages.push(totalPages);
+
+  // ---現在の前後のページを追加---
+  // 前のページ
+  if (currentPage > 2) pages.push(currentPage - 1);
+  // 後のページ
+  if (currentPage < totalPages - 1) pages.push(currentPage + 1);
+
+  // Setを使って重複を削除し、ソートする
+  const pageSet = [...new Set(pages)].sort((a, b) => a - b);
+
+  // ...（省略記号）を挿入する
+  const resultPages = [];
+  let lastPage = 0;
+  for (const page of pageSet) {
+    if (page > lastPage + 1) {
+      resultPages.push('...');
+    }
+    resultPages.push(page);
+    lastPage = page;
+  }
+
+  return resultPages;
+};
+
+/**
+ * ページネーションに表示する数字リスト（省略記号...も含む）
+ */
+const paginationList = computed(() =>
+  createPaginationList(totalPages.value, currentPage.value)
+);
 
 watch(searchWord, () => {
   // 検索キーワードが変わったら、必ず1ページ目から検索し直す
@@ -283,27 +331,39 @@ onMounted(() => {
               <DeleteIcon class="diaries__delete-icon" />
             </button>
           </li>
-
-          <div class="diaries__pagination">
-            <button
-              class="diaries__prev-button"
-              @click="fetchDiaries(currentPage - 1)"
-              :disabled="currentPage === 1"
-            >
-              前へ
-            </button>
-            <span class="diaries__page-number"
-              >{{ currentPage }} / {{ totalPages }} ページ</span
-            >
-            <button
-              class="diaries__next-button"
-              @click="fetchDiaries(currentPage + 1)"
-              :disabled="currentPage === totalPages"
-            >
-              次へ
-            </button>
-          </div>
         </ul>
+      </div>
+      <div class="diaries__pagination">
+        <button
+          class="diaries__page-button diaries__page-button--prev"
+          @click="fetchDiaries(currentPage - 1)"
+          :disabled="currentPage === 1"
+        >
+          <CaretLeftIcon class="diaries__caret-left-icon" />
+        </button>
+        <template v-for="page in paginationList">
+          <button
+            v-if="page !== '...'"
+            class="diaries__page-button"
+            :class="{
+              selected: currentPage === page,
+            }"
+            @click="fetchDiaries(page)"
+            :key="page.index"
+          >
+            {{ page }}
+          </button>
+          <span v-else class="diaries__page-dot" :key="page.index">{{
+            page
+          }}</span>
+        </template>
+        <button
+          class="diaries__page-button diaries__page-button--next"
+          @click="fetchDiaries(currentPage + 1)"
+          :disabled="currentPage === totalPages || totalPages === 0"
+        >
+          <CaretRightIcon class="diaries__caret-right-icon" />
+        </button>
       </div>
     </div>
     <div class="diaries__sp-link-wrapper">
@@ -538,7 +598,6 @@ onMounted(() => {
 
   &__list-wrapper {
     height: 330px;
-    margin-bottom: 4rem;
     padding: 1.6rem;
     border-radius: 10px;
     background-color: $orange;
@@ -551,14 +610,12 @@ onMounted(() => {
 
     @include tab {
       height: 400px;
-      margin-bottom: 6rem;
       padding: 2rem;
     }
 
     @include pc {
       overflow: auto;
       height: auto;
-      margin-bottom: 8rem;
       padding: 2.4rem;
     }
   }
@@ -598,7 +655,7 @@ onMounted(() => {
   &__diary-item {
     padding: 1.6rem;
     border-radius: 10px;
-    background-color: $white-brown;
+    background-color: $white;
     display: grid;
     align-items: center;
     grid-template-columns: auto 4rem 4rem;
@@ -692,6 +749,93 @@ onMounted(() => {
     fill: none;
     stroke: $white-brown;
     stroke-width: 3;
+  }
+
+  &__pagination {
+    width: fit-content;
+    margin-inline: auto;
+    padding: 1rem 0.8rem;
+    background-color: $white;
+    border-radius: 100vmax;
+    display: flex;
+    gap: 0.8rem;
+    position: relative;
+    transform: translateY(-50%);
+
+    @include tab {
+      padding: 1.2rem 1rem;
+      gap: 1.6rem;
+    }
+
+    @include pc {
+      padding: 1.6rem;
+      gap: 2.4rem;
+      transform: translateY(0);
+      margin-top: 2.4rem;
+    }
+  }
+
+  &__page-button {
+    cursor: pointer;
+    width: 2.8rem;
+    aspect-ratio: 1;
+    border-radius: 100vmax;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: $brown;
+    font-size: clamp(12px, 1.2rem, 14px);
+
+    &.selected {
+      background-color: $orange;
+      color: $white-brown;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    @include tab {
+      width: 3.4rem;
+      font-size: clamp(14px, 1.4rem, 16px);
+    }
+
+    @include pc {
+      width: 4rem;
+      font-size: clamp(14px, 1.6rem, 16px);
+    }
+  }
+
+  &__page-dot {
+    display: grid;
+    place-content: center;
+    width: 1.2rem;
+    color: $brown;
+    font-size: clamp(12px, 1.2rem, 14px);
+
+    @include tab {
+      width: 1.6rem;
+      font-size: clamp(14px, 1.4rem, 16px);
+    }
+
+    @include pc {
+      width: 2.4rem;
+      font-size: clamp(14px, 1.6rem, 16px);
+    }
+  }
+
+  &__caret-left-icon,
+  &__caret-right-icon {
+    width: 0.5rem;
+    fill: $brown;
+
+    @include tab {
+      width: 0.6rem;
+    }
+
+    @include pc {
+      width: clamp(5px, 0.7rem, 7px);
+    }
   }
 
   &__sp-link-wrapper {

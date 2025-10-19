@@ -22,7 +22,7 @@ async function main() {
 
   // テスト用の日記データを20件作成
   const diaryPromises = [];
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 100; i++) {
     const date = new Date();
     date.setDate(date.getDate() - i); // i日前の日付にするよ
 
