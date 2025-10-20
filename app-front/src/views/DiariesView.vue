@@ -10,13 +10,11 @@ import EditIcon from '@/components/icons/EditIcon.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { formatDate } from '@/utils/date.js';
 import VueDatePicker from '@vuepic/vue-datepicker';
-import SimpleBar from 'simplebar'; // or "import SimpleBar from 'simplebar';" if you want to use it manually.
-import 'simplebar/dist/simplebar.min.css';
+import Simplebar from 'simplebar-vue';
+import 'simplebar-vue/dist/simplebar.min.css';
 
 const inputDateYm = ref(null);
 const inputDateYmd = ref(null);
-
-const simplebarBox = ref(null);
 
 const diaries = ref([]);
 const currentPage = ref(1);
@@ -44,6 +42,7 @@ const NO_DIARIES_MESSAGE = '検索条件に該当する日記はありません�
  */
 const fetchDiaries = async (page) => {
   try {
+    //TODO 日付での検索機能実装
     const response = await apiClient.get('/api/diaries', {
       params: {
         page,
@@ -213,8 +212,6 @@ watch(inputDateYmd, (newValue) => {
 onMounted(() => {
   //初期表示は、1ページ目のデータを表示
   fetchDiaries(1);
-
-  new SimpleBar(simplebarBox.value, { autoHide: false });
 });
 </script>
 
@@ -305,10 +302,10 @@ onMounted(() => {
     </div>
     <div class="diaries__right-box">
       <p class="diaries__sub-title">日記一覧</p>
-      <div
+      <Simplebar
         class="diaries__list-wrapper"
         :class="{ 'no-data': diaries.length === 0 }"
-        ref="simplebarBox"
+        :auto-hide="false"
       >
         <p v-if="diaries.length === 0" class="diaries__no-data">
           {{ NO_DIARIES_MESSAGE }}
@@ -339,7 +336,7 @@ onMounted(() => {
             </button>
           </li>
         </ul>
-      </div>
+      </Simplebar>
       <div class="diaries__pagination">
         <button
           class="diaries__page-button diaries__page-button--prev"
@@ -397,10 +394,11 @@ onMounted(() => {
   </div>
 </template>
 <style lang="scss" scoped>
-//TODOメモ css(デザイン)はほとんど全部まだ仮です、最後に作成します。
+//TODO hover処理などは最後に
 .diaries {
   $parent: &;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1.6rem;
 
   @include tab {
@@ -408,9 +406,9 @@ onMounted(() => {
   }
 
   @include pc {
+    flex-direction: row;
     align-items: start;
-    grid-template-columns: minmax(340px, 40rem) auto;
-    gap: 10rem;
+    justify-content: space-between;
   }
 
   &__search-area {
@@ -429,7 +427,7 @@ onMounted(() => {
     }
 
     @include pc {
-      width: 100%;
+      width: clamp(340px, 40rem, 400px);
       margin-inline: initial;
       padding: 2.4rem;
       gap: 2.4rem;
@@ -581,7 +579,7 @@ onMounted(() => {
     }
 
     @include pc {
-      width: 100%;
+      width: calc(100% - clamp(340px, 40rem, 400px) - 10rem);
       margin-inline: initial;
     }
   }
@@ -608,16 +606,38 @@ onMounted(() => {
     padding: 1.6rem;
     border-radius: 10px;
     background-color: $orange;
-    overflow: auto;
 
     &.no-data {
       display: flex;
       align-items: center;
     }
 
+    &::v-deep(.simplebar-scrollbar::before) {
+      //スクロールバー色
+      background-color: $brown;
+
+      //スクロールバー不透明度（デフォルト0.5）
+      opacity: 0.7;
+    }
+
+    &::v-deep(.simplebar-track.simplebar-vertical) {
+      //スクロールバー高さ
+      height: calc(100% - 3.2rem);
+
+      //スクロールバー位置
+      top: 1.6rem;
+      right: 2px;
+    }
+
     @include tab {
       height: 400px;
       padding: 2rem;
+
+      &::v-deep(.simplebar-track.simplebar-vertical) {
+        height: calc(100% - 4rem);
+        top: 2rem;
+        right: 4px;
+      }
     }
 
     @include pc {
@@ -675,7 +695,7 @@ onMounted(() => {
 
     @include pc {
       padding: 2.4rem;
-      grid-template-columns: auto 4.8rem 4.8rem;
+      grid-template-columns: auto minmax(40px, 4.8rem) minmax(40px, 4.8rem);
       gap: 2.4rem;
     }
   }
