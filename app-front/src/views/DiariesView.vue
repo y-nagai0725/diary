@@ -10,9 +10,13 @@ import EditIcon from '@/components/icons/EditIcon.vue';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { formatDate } from '@/utils/date.js';
 import VueDatePicker from '@vuepic/vue-datepicker';
+import SimpleBar from 'simplebar'; // or "import SimpleBar from 'simplebar';" if you want to use it manually.
+import 'simplebar/dist/simplebar.min.css';
 
 const inputDateYm = ref(null);
 const inputDateYmd = ref(null);
+
+const simplebarBox = ref(null);
 
 const diaries = ref([]);
 const currentPage = ref(1);
@@ -209,6 +213,8 @@ watch(inputDateYmd, (newValue) => {
 onMounted(() => {
   //初期表示は、1ページ目のデータを表示
   fetchDiaries(1);
+
+  new SimpleBar(simplebarBox.value, { autoHide: false });
 });
 </script>
 
@@ -302,6 +308,7 @@ onMounted(() => {
       <div
         class="diaries__list-wrapper"
         :class="{ 'no-data': diaries.length === 0 }"
+        ref="simplebarBox"
       >
         <p v-if="diaries.length === 0" class="diaries__no-data">
           {{ NO_DIARIES_MESSAGE }}
@@ -601,7 +608,7 @@ onMounted(() => {
     padding: 1.6rem;
     border-radius: 10px;
     background-color: $orange;
-    overflow: scroll;
+    overflow: auto;
 
     &.no-data {
       display: flex;
@@ -614,7 +621,6 @@ onMounted(() => {
     }
 
     @include pc {
-      overflow: auto;
       height: auto;
       padding: 2.4rem;
     }
