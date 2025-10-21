@@ -2,7 +2,8 @@
 defineProps({
   show: Boolean, // モーダルの表示・非表示
   message: String, // 表示するメッセージ
-  confirmOnly: { // OKボタンのみの場合はtrue
+  confirmOnly: {
+    // OKボタンのみの場合はtrue
     type: Boolean,
     defalut: false,
   },
@@ -32,14 +33,13 @@ const emit = defineEmits(['confirm', 'cancel']);
 </template>
 
 <style lang="scss" scoped>
-/* モーダル仮デザイン*/
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 後ろをちょっと暗くするよ */
+  background-color: rgba(74, 32, 12, 0.33);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -47,35 +47,67 @@ const emit = defineEmits(['confirm', 'cancel']);
 }
 
 .modal-content {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
+  background-color: $white-brown;
+  padding: 1.6rem;
+  border-radius: 10px;
   text-align: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  @include tab {
+    padding: 2rem;
+  }
+
+  @include pc {
+    padding: 2.4rem;
+  }
 }
 
 .modal-message {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.6rem;
+  font-size: clamp(14px, 1.4rem, 15px);
+
+  @include tab {
+    margin-bottom: 2rem;
+    font-size: clamp(15px, 1.5rem, 16px);
+  }
+
+  @include pc {
+    margin-bottom: 2.4rem;
+    font-size: clamp(15px, 1.6rem, 16px);
+  }
 }
 
 .modal-buttons {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.6rem;
+
+  @include tab {
+    gap: 2rem;
+  }
+
+  @include pc {
+    gap: 2.4rem;
+  }
 }
 
 .modal-button {
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
+  width: 130px;
 
   &.confirm {
-    background-color: #42b983;
-    color: white;
+    @include button-style-fill($brown, $white-brown);
   }
 
   &.cancel {
-    background-color: #ccc;
+    @include button-style-fill($gray, $white-brown);
+  }
+
+  @include tab {
+    width: 140px;
+  }
+
+  @include pc {
+    width: 150px;
   }
 }
 </style>
