@@ -4,6 +4,15 @@ import apiClient from '@/api';
 import { useRouter } from 'vue-router';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import { formatDate, isValidDate } from '@/utils/date.js';
+import CaretRightIcon from '@/components/icons/CaretRightIcon.vue';
+import CaretLeftIcon from '@/components/icons/CaretLeftIcon.vue';
+import PenIcon from '@/components/icons/PenIcon.vue';
+import HomeIcon from '@/components/icons/HomeIcon.vue';
+import DeleteIcon from '@/components/icons/DeleteIcon.vue';
+import EditIcon from '@/components/icons/EditIcon.vue';
+import BookIcon from '@/components/icons/BookIcon.vue';
+import ClockIcon from '@/components/icons/ClockIcon.vue';
+import VueDatePicker from '@vuepic/vue-datepicker';
 
 /**
  * vue-router
@@ -25,6 +34,16 @@ const diaryForm = ref({
   geminiComment: '',
   date: '',
 });
+
+/**
+ * 次の日記のid
+ */
+const nextDiaryId = ref(null);
+
+/**
+ * 前の日記のid
+ */
+const prevDiaryId = ref(null);
 
 /**
  * Gemini APIへの設定
@@ -155,6 +174,11 @@ const saveDiary = async () => {
 };
 
 /**
+ * 日記削除処理
+ */
+const deleteDiary = async () => {};
+
+/**
  * 日記内容に対してGeminiからコメントを取得する
  */
 const getGeminiComment = async () => {
@@ -227,7 +251,7 @@ const getGeminiComment = async () => {
  * 日付ボックスに現在日付時刻を設定
  */
 const setNowDate = () => {
-  diaryForm.value.date = formatDate(new Date(), '-', true);
+  diaryForm.value.date = new Date();
 };
 
 /**
@@ -247,6 +271,19 @@ const closeResultModal = () => {
     //コールバック処理を空に
     resultModalCallBack = null;
   }
+};
+
+/**
+ * 日付選択ボックス用フォーマッター
+ */
+const format = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year} 年 ${month} 月 ${day} 日 ${hours}:${minutes}`;
 };
 
 /**
@@ -360,315 +397,361 @@ onMounted(() => {
 
 <template>
   <div class="diary">
-    <h1 class="diary__title">
-      {{ isEditMode ? '日記の編集' : '新しい日記の作成' }}
-    </h1>
-    <div class="diary__link-button-wrapper">
-      <RouterLink class="diary__link" to="/home">ホーム</RouterLink>
-      <RouterLink class="diary__link" to="/diaries">日記一覧</RouterLink>
-      <RouterLink v-if="isEditMode" class="diary__link" to="/diary/new"
-        >日記作成</RouterLink
-      >
-    </div>
-    <div class="diary__input-area">
-      <div class="diary__form-group">
-        <label class="diary__input-label" for="diary__input-date">日付</label>
-        <input
-          class="diary__input-date"
-          v-model="diaryForm.date"
-          type="datetime-local"
-          id="diary__input-date"
-        />
-        <button class="diary__now-date-button" @click="setNowDate()">
-          現在時刻設定
-        </button>
+    <div class="diary__gemini-settings-wrapper">
+      <p class="diary__settings-title">Gemini API 設定</p>
+      <div class="diary__prompt-settings">
+        <div class="diary__setting-group">
+          <p class="diary__setting-heading">日記の書き手の性別</p>
+          <div class="diary__radio-wrapper">
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="writer-gender-other"
+                class="diary__radio"
+                value="other"
+                v-model="promptSettings.writerGenderKey"
+              />
+              <label for="writer-gender-other" class="diary__radio-label"
+                >無し</label
+              >
+            </div>
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="writer-gender-male"
+                class="diary__radio"
+                value="male"
+                v-model="promptSettings.writerGenderKey"
+              />
+              <label for="writer-gender-male" class="diary__radio-label"
+                >男性</label
+              >
+            </div>
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="writer-gender-female"
+                class="diary__radio"
+                value="female"
+                v-model="promptSettings.writerGenderKey"
+              />
+              <label for="writer-gender-female" class="diary__radio-label"
+                >女性</label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="diary__setting-group">
+          <p class="diary__setting-heading">Geminiの性別</p>
+          <div class="diary__radio-wrapper">
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="gemini-gender-other"
+                class="diary__radio"
+                value="other"
+                v-model="promptSettings.geminiGenderKey"
+              />
+              <label for="gemini-gender-other" class="diary__radio-label"
+                >無し</label
+              >
+            </div>
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="gemini-gender-male"
+                class="diary__radio"
+                value="male"
+                v-model="promptSettings.geminiGenderKey"
+              />
+              <label for="gemini-gender-male" class="diary__radio-label"
+                >男性</label
+              >
+            </div>
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="gemini-gender-female"
+                class="diary__radio"
+                value="female"
+                v-model="promptSettings.geminiGenderKey"
+              />
+              <label for="gemini-gender-female" class="diary__radio-label"
+                >女性</label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="diary__setting-group">
+          <p class="diary__setting-heading">日記の書き手との関係性</p>
+          <div class="diary__radio-wrapper">
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="relation-other"
+                class="diary__radio"
+                value="other"
+                v-model="promptSettings.relationKey"
+              />
+              <label for="relation-other" class="diary__radio-label"
+                >無し</label
+              >
+            </div>
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="relation-friend"
+                class="diary__radio"
+                value="friend"
+                v-model="promptSettings.relationKey"
+              />
+              <label for="relation-friend" class="diary__radio-label"
+                >友人</label
+              >
+            </div>
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="relation-lover"
+                class="diary__radio"
+                value="lover"
+                v-model="promptSettings.relationKey"
+              />
+              <label for="relation-lover" class="diary__radio-label"
+                >恋人</label
+              >
+            </div>
+            <div
+              v-if="promptSettings.geminiGenderKey === 'male'"
+              class="diary__radio-item row-2"
+            >
+              <input
+                type="radio"
+                id="relation-older-brother"
+                class="diary__radio"
+                value="olderBrother"
+                v-model="promptSettings.relationKey"
+              />
+              <label for="relation-older-brother" class="diary__radio-label"
+                >兄</label
+              >
+            </div>
+            <div
+              v-if="promptSettings.geminiGenderKey === 'male'"
+              class="diary__radio-item row-2"
+            >
+              <input
+                type="radio"
+                id="relation-younger-brother"
+                class="diary__radio"
+                value="youngerBrother"
+                v-model="promptSettings.relationKey"
+              />
+              <label for="relation-younger-brother" class="diary__radio-label"
+                >弟</label
+              >
+            </div>
+            <div
+              v-if="promptSettings.geminiGenderKey === 'female'"
+              class="diary__radio-item row-2"
+            >
+              <input
+                type="radio"
+                id="relation-older-sister"
+                class="diary__radio"
+                value="olderSister"
+                v-model="promptSettings.relationKey"
+              />
+              <label for="relation-older-sister" class="diary__radio-label"
+                >姉</label
+              >
+            </div>
+            <div
+              v-if="promptSettings.geminiGenderKey === 'female'"
+              class="diary__radio-item row-2"
+            >
+              <input
+                type="radio"
+                id="relation-younger-sister"
+                class="diary__radio"
+                value="youngerSister"
+                v-model="promptSettings.relationKey"
+              />
+              <label for="relation-younger-sister" class="diary__radio-label"
+                >妹</label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="diary__setting-group">
+          <p class="diary__setting-heading">Geminiのコメントスタイル</p>
+          <div class="diary__radio-wrapper">
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="comment-style-empathy"
+                class="diary__radio"
+                value="empathy"
+                v-model="promptSettings.styleKey"
+              />
+              <label for="comment-style-empathy" class="diary__radio-label"
+                >共感</label
+              >
+            </div>
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="comment-style-advice"
+                class="diary__radio"
+                value="advice"
+                v-model="promptSettings.styleKey"
+              />
+              <label for="comment-style-advice" class="diary__radio-label"
+                >助言</label
+              >
+            </div>
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="comment-style-encouragement"
+                class="diary__radio"
+                value="encouragement"
+                v-model="promptSettings.styleKey"
+              />
+              <label
+                for="comment-style-encouragement"
+                class="diary__radio-label"
+                >激励</label
+              >
+            </div>
+            <div class="diary__radio-item">
+              <input
+                type="radio"
+                id="comment-style-suggestion"
+                class="diary__radio"
+                value="suggestion"
+                v-model="promptSettings.styleKey"
+              />
+              <label for="comment-style-suggestion" class="diary__radio-label"
+                >提案</label
+              >
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="diary__form-group">
-        <label class="diary__input-label" for="diary__input-text"
-          >日記内容</label
+      <div class="diary__pc-link-wrapper">
+        <RouterLink class="diary__link-views" to="/diaries"
+          ><BookIcon class="diary__book-icon" />一覧</RouterLink
         >
-        <textarea
-          id="diary__input-text"
-          class="diary__input-text"
-          v-model.trim="diaryForm.text"
-          rows="6"
-          placeholder="（例）今日は天気が良くて気持ちよかったから、近所の公園を散歩した。"
-        ></textarea>
+        <RouterLink class="diary__link-home" to="/home"
+          ><HomeIcon class="diary__home-icon" />Home</RouterLink
+        >
       </div>
     </div>
-    <div class="diary__prompt-settings">
-      <p class="diary__sub-title">GeminiAPIの設定</p>
-      <div class="diary__group-wrapper">
-        <fieldset class="diary__setting-group">
-          <legend class="diary__caption">日記の書き手の性別</legend>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="writer-gender-other"
-              class="diary__radio"
-              value="other"
-              v-model="promptSettings.writerGenderKey"
-            />
-            <label for="writer-gender-other" class="diary__setting-label"
-              >無し</label
-            >
+    <div class="diary__right-box">
+      <p class="diary__sub-title">
+        {{ isEditMode ? '日記更新' : '日記作成' }}
+      </p>
+      <div class="diary__input-area">
+        <div class="diary__form-group">
+          <label class="diary__input-label" for="diary__input-date">日付</label>
+          <div class="diary__input-date-wrapper">
+            <VueDatePicker
+              class="diary__input-date"
+              v-model="diaryForm.date"
+              placeholder="---- 年 -- 月 -- 日 --:--"
+              locale="ja"
+              auto-apply
+              :format="format"
+            ></VueDatePicker>
+            <button class="diary__now-date-button" @click="setNowDate()">
+              now
+            </button>
           </div>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="writer-gender-male"
-              class="diary__radio"
-              value="male"
-              v-model="promptSettings.writerGenderKey"
-            />
-            <label for="writer-gender-male" class="diary__setting-label"
-              >男性</label
-            >
-          </div>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="writer-gender-female"
-              class="diary__radio"
-              value="female"
-              v-model="promptSettings.writerGenderKey"
-            />
-            <label for="writer-gender-female" class="diary__setting-label"
-              >女性</label
-            >
-          </div>
-        </fieldset>
-        <fieldset class="diary__setting-group">
-          <legend class="diary__caption">Geminiの性別</legend>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="gemini-gender-other"
-              class="diary__radio"
-              value="other"
-              v-model="promptSettings.geminiGenderKey"
-            />
-            <label for="gemini-gender-other" class="diary__setting-label"
-              >無し</label
-            >
-          </div>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="gemini-gender-male"
-              class="diary__radio"
-              value="male"
-              v-model="promptSettings.geminiGenderKey"
-            />
-            <label for="gemini-gender-male" class="diary__setting-label"
-              >男性</label
-            >
-          </div>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="gemini-gender-female"
-              class="diary__radio"
-              value="female"
-              v-model="promptSettings.geminiGenderKey"
-            />
-            <label for="gemini-gender-female" class="diary__setting-label"
-              >女性</label
-            >
-          </div>
-        </fieldset>
-        <fieldset class="diary__setting-group">
-          <legend class="diary__caption">日記の書き手との関係性</legend>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="relation-other"
-              class="diary__radio"
-              value="other"
-              v-model="promptSettings.relationKey"
-            />
-            <label for="relation-other" class="diary__setting-label"
-              >無し</label
-            >
-          </div>
-          <div
-            v-if="promptSettings.geminiGenderKey === 'male'"
-            class="diary__radio-item"
+        </div>
+        <div class="diary__form-group">
+          <label class="diary__input-label" for="diary__input-text"
+            >日記内容</label
           >
-            <input
-              type="radio"
-              id="relation-older-brother"
-              class="diary__radio"
-              value="olderBrother"
-              v-model="promptSettings.relationKey"
-            />
-            <label for="relation-older-brother" class="diary__setting-label"
-              >兄</label
-            >
-          </div>
-          <div
-            v-if="promptSettings.geminiGenderKey === 'male'"
-            class="diary__radio-item"
+          <textarea
+            id="diary__input-text"
+            class="diary__input-text"
+            v-model.trim="diaryForm.text"
+            rows="6"
+            placeholder="（例）今日は天気が良くて気持ちよかったから、近所の公園を散歩した。"
+          ></textarea>
+        </div>
+        <button
+          class="diary__submit-gemini-button"
+          :disabled="isLoadingGeminiComment"
+          @click="getGeminiComment()"
+        >
+          <span
+            v-if="isLoadingGeminiComment"
+            class="diary__gemini-button-text loading"
+            >Gemini考え中…</span
           >
-            <input
-              type="radio"
-              id="relation-younger-brother"
-              class="diary__radio"
-              value="youngerBrother"
-              v-model="promptSettings.relationKey"
-            />
-            <label for="relation-younger-brother" class="diary__setting-label"
-              >弟</label
-            >
-          </div>
-          <div
-            v-if="promptSettings.geminiGenderKey === 'female'"
-            class="diary__radio-item"
+          <span v-else class="diary__gemini-button-text"
+            >Geminiにコメントをもらう</span
           >
-            <input
-              type="radio"
-              id="relation-older-sister"
-              class="diary__radio"
-              value="olderSister"
-              v-model="promptSettings.relationKey"
-            />
-            <label for="relation-older-sister" class="diary__setting-label"
-              >姉</label
+        </button>
+        <div
+          v-if="diaryForm.geminiComment"
+          ref="geminiCommentSection"
+          class="diary__gemini-comment"
+        >
+          <p class="diary__gemini-comment-title">Geminiからのコメント</p>
+          <p class="diary__gemini-comment-text">
+            {{ diaryForm.geminiComment }}
+          </p>
+        </div>
+        <div class="diary__edit-button-wrapper">
+          <template v-if="isEditMode">
+            <button
+              class="diary__update-button"
+              :disabled="isLoadingGeminiComment"
+              @click="saveDiary()"
             >
-          </div>
-          <div
-            v-if="promptSettings.geminiGenderKey === 'female'"
-            class="diary__radio-item"
+              <EditIcon class="diary__edit-icon" />更新
+            </button>
+            <button class="diary__delete-button">
+              <DeleteIcon
+                class="diary__delete-icon"
+                :disabled="isLoadingGeminiComment"
+                @click="deleteDiary()"
+              />削除
+            </button>
+          </template>
+          <template v-else>
+            <button
+              class="diary__register-button"
+              :disabled="isLoadingGeminiComment"
+              @click="saveDiary()"
+            >
+              <PenIcon class="diary__pen-icon" />日記登録
+            </button>
+          </template>
+        </div>
+      </div>
+      <div class="diary__link-wrapper">
+        <template v-if="isEditMode">
+          <RouterLink class="diary__link-prev" :to="`/diary/${prevDiaryId}`"
+            ><CaretLeftIcon
+              class="diary__caret-left-icon"
+            />前の日記</RouterLink
           >
-            <input
-              type="radio"
-              id="relation-younger-sister"
-              class="diary__radio"
-              value="youngerSister"
-              v-model="promptSettings.relationKey"
-            />
-            <label for="relation-younger-sister" class="diary__setting-label"
-              >妹</label
-            >
-          </div>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="relation-friend"
-              class="diary__radio"
-              value="friend"
-              v-model="promptSettings.relationKey"
-            />
-            <label for="relation-friend" class="diary__setting-label"
-              >友人</label
-            >
-          </div>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="relation-lover"
-              class="diary__radio"
-              value="lover"
-              v-model="promptSettings.relationKey"
-            />
-            <label for="relation-lover" class="diary__setting-label"
-              >恋人</label
-            >
-          </div>
-        </fieldset>
-        <fieldset class="diary__setting-group">
-          <legend class="diary__caption">Geminiのコメントスタイル</legend>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="comment-style-empathy"
-              class="diary__radio"
-              value="empathy"
-              v-model="promptSettings.styleKey"
-            />
-            <label for="comment-style-empathy" class="diary__setting-label"
-              >共感</label
-            >
-          </div>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="comment-style-advice"
-              class="diary__radio"
-              value="advice"
-              v-model="promptSettings.styleKey"
-            />
-            <label for="comment-style-advice" class="diary__setting-label"
-              >アドバイス</label
-            >
-          </div>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="comment-style-encouragement"
-              class="diary__radio"
-              value="encouragement"
-              v-model="promptSettings.styleKey"
-            />
-            <label
-              for="comment-style-encouragement"
-              class="diary__setting-label"
-              >激励</label
-            >
-          </div>
-          <div class="diary__radio-item">
-            <input
-              type="radio"
-              id="comment-style-suggestion"
-              class="diary__radio"
-              value="suggestion"
-              v-model="promptSettings.styleKey"
-            />
-            <label for="comment-style-suggestion" class="diary__setting-label"
-              >提案</label
-            >
-          </div>
-        </fieldset>
+          <RouterLink class="diary__link-next" :to="`/diary/${nextDiaryId}`"
+            >次の日記<CaretLeftIcon class="diary__caret-right-icon"
+          /></RouterLink>
+        </template>
+        <RouterLink class="diary__link-views" to="/diaries"
+          ><BookIcon class="diary__book-icon" />一覧</RouterLink
+        >
+        <RouterLink class="diary__link-home" to="/home"
+          ><HomeIcon class="diary__home-icon" />Home</RouterLink
+        >
       </div>
     </div>
-    <button
-      class="diary__submit-gemini-button"
-      :disabled="isLoadingGeminiComment"
-      @click="getGeminiComment()"
-    >
-      <span
-        v-if="isLoadingGeminiComment"
-        class="diary__gemini-button-text loading"
-        >Gemini考え中…</span
-      >
-      <span v-else class="diary__gemini-button-text"
-        >Geminiにコメントをもらう</span
-      >
-    </button>
-    <div
-      v-if="diaryForm.geminiComment"
-      ref="geminiCommentSection"
-      class="diary__gemini-comment"
-    >
-      <p class="diary__gemini-comment-title">Geminiからのコメント</p>
-      <p class="diary__gemini-comment-text">{{ diaryForm.geminiComment }}</p>
-    </div>
-    <button
-      v-if="isEditMode"
-      class="diary__update-button"
-      :disabled="isLoadingGeminiComment"
-      @click="saveDiary()"
-    >
-      更新
-    </button>
-    <button
-      v-else
-      class="diary__register-button"
-      :disabled="isLoadingGeminiComment"
-      @click="saveDiary()"
-    >
-      登録
-    </button>
 
     <ConfirmModal
       :show="showResultModal"
@@ -683,41 +766,257 @@ onMounted(() => {
   </div>
 </template>
 <style lang="scss" scoped>
-//TODOメモ css(デザイン)はほとんど全部まだ仮です、最後に作成します。
+//TODO リンクのhover設定は後でやる
 .diary {
   $parent: &;
+  display: grid;
+  gap: 1.6rem;
 
-  &__form-group {
+  @include tab {
+    gap: 2.4rem;
+  }
+
+  @include pc {
+    align-items: start;
+    grid-template-columns: minmax(340px, 40rem) auto;
+    gap: 10rem;
+  }
+
+  &__gemini-settings-wrapper {
+    padding: 1.6rem;
+    background-color: $white;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
+    gap: 2.4rem;
+
+    @include tab {
+      width: 75%;
+      margin-inline: auto;
+      padding: 2rem;
+      gap: 2.8rem;
+    }
+
+    @include pc {
+      width: 100%;
+      margin-inline: 0;
+      padding: 2.4rem;
+      gap: 3.2rem;
+    }
+  }
+
+  &__settings-title {
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    font-size: clamp(18px, 1.8rem, 20px);
+
+    @include tab {
+      font-size: clamp(20px, 2rem, 22px);
+    }
+
+    @include pc {
+      font-size: clamp(20px, 2.2rem, 22px);
+    }
+  }
+
+  &__prompt-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 2.4rem;
+
+    @include tab {
+      gap: 2.8rem;
+    }
+
+    @include pc {
+      gap: 3.2rem;
+    }
+  }
+
+  &__setting-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+
+    @include tab {
+      gap: 1.2rem;
+    }
+
+    @include pc {
+      gap: 1.6rem;
+    }
+  }
+
+  &__setting-heading {
+    font-size: clamp(14px, 1.4rem, 15px);
+
+    @include tab {
+      font-size: clamp(15px, 1.5rem, 16px);
+    }
+
+    @include pc {
+      font-size: clamp(15px, 1.6rem, 16px);
+    }
+  }
+
+  &__radio-wrapper {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+
+    @include tab {
+      gap: 1.3rem;
+    }
+
+    @include pc {
+      gap: 1.6rem;
+    }
+  }
+
+  &__radio-item {
+    &.row-2 {
+      grid-row: 2 / 3;
+    }
   }
 
   &__radio {
     display: none;
 
-    &:checked + #{$parent}__setting-label {
+    &:checked + #{$parent}__radio-label {
       background-color: $orange;
       color: $white-brown;
     }
   }
 
-  &__setting-label {
+  &__radio-label {
     cursor: pointer;
-    display: block;
-    padding: 1rem;
-    border: 1px solid $orange;
+    padding: 1em;
     border-radius: 4px;
-    font-size: clamp(12px, 1.2rem, 14px);
+    border: 1px solid $orange;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: $orange;
+    font-size: clamp(14px, 1.4rem, 15px);
     transition: background-color 0.3s ease-out, color 0.3s ease-out;
 
     @include tab {
-      padding: 1.2rem;
-      font-size: clamp(14px, 1.4rem, 16px);
+      font-size: clamp(15px, 1.5rem, 16px);
     }
 
     @include pc {
-      padding: 1.4rem;
-      font-size: clamp(14px, 1.6rem, 16px);
+      font-size: clamp(15px, 1.6rem, 16px);
+    }
+  }
+
+  &__pc-link-wrapper {
+    display: none;
+
+    @include pc {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+  &__link-views,
+  &__link-home {
+    @include button-style-fill($brown, $white-brown);
+    width: 13rem;
+    gap: 1em;
+
+    @include tab {
+      width: 14rem;
+    }
+
+    @include pc {
+      min-width: 120px;
+      width: 15rem;
+    }
+  }
+
+  &__book-icon,
+  &__home-icon {
+    height: 1.5em;
+    fill: $white-brown;
+  }
+
+  &__right-box {
+  }
+
+  &__sub-title {
+    @include sub-title-style;
+    margin-bottom: 1.6rem;
+
+    @include tab {
+      margin-bottom: 2rem;
+    }
+
+    @include pc {
+      margin-bottom: 2.4rem;
+    }
+  }
+
+  &__input-area {
+    padding: 1.6rem;
+    background-color: $white;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2.4rem;
+
+    @include tab {
+      padding: 2rem;
+      gap: 2.8rem;
+    }
+
+    @include pc {
+      padding: 2.4rem;
+      gap: 3.2rem;
+    }
+  }
+
+  &__form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+
+    @include tab {
+      gap: 0.9rem;
+    }
+
+    @include pc {
+      gap: 1rem;
+    }
+  }
+
+  &__input-label {
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    font-size: clamp(16px, 1.6rem, 17px);
+
+    @include tab {
+      font-size: clamp(17px, 1.7rem, 18px);
+    }
+
+    @include pc {
+      font-size: clamp(17px, 1.8rem, 18px);
+    }
+  }
+
+  &__input-date-wrapper {
+    display: flex;
+  }
+
+  &__input-date {
+    width: 220px;
+
+    @include tab {
+      width: 240px;
+    }
+
+    @include pc {
+      width: 260px;
     }
   }
 
