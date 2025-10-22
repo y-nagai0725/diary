@@ -380,16 +380,24 @@ onMounted(() => {
     </div>
     <ConfirmModal
       :show="showDeleteModal"
-      :message="`${deleteTargetDate} の日記を削除します。よろしいですか？`"
+      :title="'日記削除'"
+      :message="`${deleteTargetDate} の日記を削除します。本当によろしいですか？`"
+      :confirmButtonText="'削除する'"
+      :confirmButtonClass="'delete'"
+      :cancelButtonText="'キャンセル'"
       @confirm="confirmDelete"
       @cancel="cancelDelete"
     />
 
     <ConfirmModal
       :show="showResultModal"
+      :title="'削除完了'"
       :message="resultMessage"
+      :confirmButtonText="'OK'"
+      :confirmButtonClass="'confirm'"
       :confirmOnly="true"
       @confirm="closeResultModal"
+      @cancel="closeResultModal"
     />
   </div>
 </template>

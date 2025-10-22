@@ -62,6 +62,11 @@ const showResultModal = ref(false);
 const resultMessage = ref('');
 
 /**
+ * 結果モーダルのタイトル
+ */
+const resultTitle = ref('');
+
+/**
  * 結果モーダルのコールバック処理
  */
 let resultModalCallBack = null;
@@ -81,6 +86,7 @@ const saveDiary = async () => {
 
   //日付の入力チェック
   if (!isValidDate(date)) {
+    resultTitle.value = '未入力エラー';
     resultMessage.value = '日付が未入力または不正な値が設定されています。';
     showResultModal.value = true;
     return;
@@ -91,6 +97,7 @@ const saveDiary = async () => {
 
   //日記内容の入力チェック
   if (!text) {
+    resultTitle.value = '未入力エラー';
     resultMessage.value = '日記内容を入力して下さい。';
     showResultModal.value = true;
     return;
@@ -109,12 +116,14 @@ const saveDiary = async () => {
       await apiClient.put(`/api/diaries/${props.id}`, postData);
 
       //結果モーダルにメッセージを設定し、モーダルを表示する
+      resultTitle.value = '日記更新';
       resultMessage.value = '日記を更新しました。';
       showResultModal.value = true;
     } catch (error) {
       console.error('日記更新が失敗しました。', error);
 
       //結果モーダルにエラーメッセージを設定し、モーダルを表示する
+      resultTitle.value = '更新エラー';
       resultMessage.value = '日記更新が失敗しました。';
       showResultModal.value = true;
     }
@@ -131,12 +140,14 @@ const saveDiary = async () => {
       };
 
       //結果モーダルにメッセージを設定し、モーダルを表示する
+      resultTitle.value = '日記登録';
       resultMessage.value = '日記を登録しました。';
       showResultModal.value = true;
     } catch (error) {
       console.error('日記登録が失敗しました。', error);
 
       //結果モーダルにエラーメッセージを設定し、モーダルを表示する
+      resultTitle.value = '登録エラー';
       resultMessage.value = '日記登録が失敗しました。';
       showResultModal.value = true;
     }
@@ -156,6 +167,7 @@ const getGeminiComment = async () => {
 
   //入力値チェック
   if (!diaryText) {
+    resultTitle.value = '未入力エラー';
     resultMessage.value = '日記内容を入力して下さい。';
     showResultModal.value = true;
     return;
@@ -165,6 +177,7 @@ const getGeminiComment = async () => {
     !relationKey ||
     !styleKey
   ) {
+    resultTitle.value = '未選択エラー';
     resultMessage.value = 'Gemini APIの設定を全て選択して下さい。';
     showResultModal.value = true;
     return;
@@ -201,6 +214,7 @@ const getGeminiComment = async () => {
     }
   } catch (error) {
     console.error('Geminiからのコメント取得に失敗しました。', error);
+    resultTitle.value = 'Gemini API エラー';
     resultMessage.value = 'Geminiからのコメント取得に失敗しました。';
     showResultModal.value = true;
   }
@@ -279,6 +293,7 @@ const initDisplay = async () => {
       diaryForm.value.geminiComment = response.data.geminiComment;
     } catch (error) {
       console.error('日記の取得に失敗しました。', error);
+      resultTitle.value = '日記取得エラー';
       resultMessage.value = '日記の取得に失敗しました。';
       showResultModal.value = true;
       resultModalCallBack = () => {
@@ -657,9 +672,13 @@ onMounted(() => {
 
     <ConfirmModal
       :show="showResultModal"
+      :title="resultTitle"
       :message="resultMessage"
+      :confirmButtonText="'OK'"
+      :confirmButtonClass="'confirm'"
       :confirmOnly="true"
       @confirm="closeResultModal"
+      @cancel="closeResultModal"
     />
   </div>
 </template>
