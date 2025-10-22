@@ -4,6 +4,9 @@ import apiClient from '@/api';
 import UserForm from '@/components/UserForm.vue';
 import { login } from '@/auth.js';
 
+/**
+ * エラーメッセージ表示用
+ */
 const message = ref('');
 
 // UserFormからデータを受け取って、ユーザー登録処理を実行
@@ -25,6 +28,7 @@ const handleRegister = async (formData) => {
     login(loginResponse.data.token);
   } catch (error) {
     //サーバーからのエラーメッセージを表示
+    console.error('ユーザー登録に失敗しました。', error);
     message.value = error.response.data.error;
   }
 };
@@ -52,6 +56,8 @@ const handleRegister = async (formData) => {
   border-radius: 10px;
 
   @include tab {
+    width: 75%;
+    margin-inline: auto;
     padding: 0 3rem;
   }
 
@@ -79,6 +85,8 @@ const handleRegister = async (formData) => {
     letter-spacing: 0.1em;
 
     @include tab {
+      width: calc(100% + 6rem);
+      margin-inline: -3rem;
       padding-left: 3rem;
       font-size: clamp(28px, 2.8rem, 30px);
     }
@@ -99,14 +107,13 @@ const handleRegister = async (formData) => {
     padding: 4rem 0;
 
     @include tab {
-      width: 50%;
-      margin-inline: auto;
       padding: 6rem 0;
     }
 
     @include pc {
       min-width: 320px;
       width: 44.8rem;
+      margin-inline: auto;
       padding: 8rem 0;
     }
   }

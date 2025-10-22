@@ -372,7 +372,7 @@ onUnmounted(() => {
 
   &__line {
     position: absolute;
-    width: 50%;
+    width: 46%;
     height: 2px;
     left: 50%;
     transform: translateX(-50%);

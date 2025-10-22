@@ -1,16 +1,38 @@
 <script setup>
 import { ref } from 'vue';
 
-// 親からもらうデータ定義
+/**
+ *
+ */
 defineProps({
   buttonText: String, //ボタンテキスト
 });
 
+/**
+ *
+ */
 const emit = defineEmits(['submit-form']);
+
+/**
+ * 入力フォーム：ユーザー名、パスワード
+ */
 const userForm = ref({ name: '', password: '' });
 
-//ボタンクリック時の処理
+/**
+ * ユーザー名エラーテキスト
+ */
+const nameErrorText = ref('');
+
+/**
+ * パスワードエラーテキスト
+ */
+const passwordErrorText = ref('');
+
+/**
+ * ボタンクリック時の処理
+ */
 const handleSubmit = () => {
+  //@submit-formに設定された処理を実行
   emit('submit-form', userForm.value);
 };
 </script>
@@ -28,6 +50,9 @@ const handleSubmit = () => {
         placeholder="ユーザー名"
         v-model.trim="userForm.name"
       />
+      <p v-if="nameErrorText" class="user-form__input-name-error">
+        {{ nameErrorText }}
+      </p>
     </div>
     <div class="user-form__form-group">
       <label class="user-form__label" for="user-form__input-password"
@@ -40,6 +65,9 @@ const handleSubmit = () => {
         placeholder="パスワード"
         v-model.trim="userForm.password"
       />
+      <p v-if="passwordErrorText" class="user-form__input-password-error">
+        {{ passwordErrorText }}
+      </p>
     </div>
     <button class="user-form__button" @click="handleSubmit">
       {{ buttonText }}
@@ -84,6 +112,20 @@ const handleSubmit = () => {
   &__input-name,
   &__input-password {
     @include input-text-style;
+  }
+
+  &__input-name-error,
+  &__input-password-error {
+    color: $red;
+    font-size: clamp(14px, 1.4rem, 15px);
+
+    @include tab {
+      font-size: clamp(15px, 1.5rem, 16px);
+    }
+
+    @include pc {
+      font-size: clamp(15px, 1.6rem, 16px);
+    }
   }
 
   &__button {

@@ -4,6 +4,9 @@ import apiClient from '@/api';
 import UserForm from '@/components/UserForm.vue';
 import { login } from '@/auth.js';
 
+/**
+ * エラーメッセージ表示用
+ */
 const message = ref('');
 
 // UserFormからデータを受け取って、ログイン処理を実行
@@ -22,6 +25,7 @@ const handleLogin = async (formData) => {
     login(response.data.token);
   } catch (error) {
     //サーバーからのログインエラーメッセージを表示
+    console.error('ログインに失敗しました。', error);
     message.value = error.response.data.error;
   }
 };
@@ -49,6 +53,8 @@ const handleLogin = async (formData) => {
   border-radius: 10px;
 
   @include tab {
+    width: 75%;
+    margin-inline: auto;
     padding: 0 3rem;
   }
 
@@ -76,6 +82,8 @@ const handleLogin = async (formData) => {
     letter-spacing: 0.1em;
 
     @include tab {
+      width: calc(100% + 6rem);
+      margin-inline: -3rem;
       padding-left: 3rem;
       font-size: clamp(28px, 2.8rem, 30px);
     }
@@ -96,14 +104,13 @@ const handleLogin = async (formData) => {
     padding: 4rem 0;
 
     @include tab {
-      width: 50%;
-      margin-inline: auto;
       padding: 6rem 0;
     }
 
     @include pc {
       min-width: 320px;
       width: 44.8rem;
+      margin-inline: auto;
       padding: 8rem 0;
     }
   }
