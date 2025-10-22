@@ -665,7 +665,7 @@ onMounted(() => {
               :format="format"
             ></VueDatePicker>
             <button class="diary__now-date-button" @click="setNowDate()">
-              now
+              <ClockIcon class="diary__clock-icon" />now
             </button>
           </div>
         </div>
@@ -673,16 +673,17 @@ onMounted(() => {
           <label class="diary__input-label" for="diary__input-text"
             >日記内容</label
           >
-          <textarea
-            id="diary__input-text"
-            class="diary__input-text"
-            v-model.trim="diaryForm.text"
-            rows="6"
-            placeholder="（例）今日は天気が良くて気持ちよかったから、近所の公園を散歩した。"
-          ></textarea>
+          <div class="diary__input-text-wrapper">
+            <textarea
+              id="diary__input-text"
+              class="diary__input-text"
+              v-model.trim="diaryForm.text"
+              placeholder="（例）今日は天気が良くて気持ちよかったから、近所の公園を散歩した。"
+            ></textarea>
+          </div>
         </div>
         <button
-          class="diary__submit-gemini-button"
+          class="diary__gemini-button"
           :disabled="isLoadingGeminiComment"
           @click="getGeminiComment()"
         >
@@ -695,15 +696,13 @@ onMounted(() => {
             >Geminiにコメントをもらう</span
           >
         </button>
-        <div
-          v-if="diaryForm.geminiComment"
-          ref="geminiCommentSection"
-          class="diary__gemini-comment"
-        >
-          <p class="diary__gemini-comment-title">Geminiからのコメント</p>
-          <p class="diary__gemini-comment-text">
-            {{ diaryForm.geminiComment }}
-          </p>
+        <div class="diary__form-group">
+          <p class="diary__input-label">Geminiからのコメント</p>
+          <div ref="geminiCommentSection" class="diary__gemini-comment">
+            <p class="diary__gemini-comment-text">
+              {{ diaryForm.geminiComment }}
+            </p>
+          </div>
         </div>
         <div class="diary__edit-button-wrapper">
           <template v-if="isEditMode">
@@ -966,11 +965,15 @@ onMounted(() => {
     gap: 2.4rem;
 
     @include tab {
+      width: 75%;
+      margin-inline: auto;
       padding: 2rem;
       gap: 2.8rem;
     }
 
     @include pc {
+      width: 100%;
+      margin-inline: 0;
       padding: 2.4rem;
       gap: 3.2rem;
     }
@@ -1022,11 +1025,95 @@ onMounted(() => {
 
   &__now-date-button {
     cursor: pointer;
+    width: 6.5rem;
+    margin-left: 1.6rem;
+    border: 1px solid $brown;
+    border-radius: 100vmax;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6em;
+    color: $brown;
+    font-size: clamp(14px, 1.4rem, 15px);
+
+    @include tab {
+      width: 8rem;
+      margin-left: 2rem;
+      font-size: clamp(15px, 1.5rem, 16px);
+    }
+
+    @include pc {
+      width: 94px;
+      margin-left: 24px;
+      font-size: clamp(14px, 1.6rem, 16px);
+    }
   }
 
-  &__submit-gemini-button {
-    cursor: pointer;
-    display: block;
+  &__clock-icon {
+    height: 1em;
+    fill: none;
+    stroke: $brown;
+    stroke-width: 2;
+  }
+
+  &__input-text-wrapper {
+    width: 100%;
+    padding: 1.6rem;
+    border-radius: 10px;
+    background-color: $white-brown;
+
+    @include tab {
+      padding: 1.8rem;
+    }
+
+    @include pc {
+      padding: 2rem;
+    }
+  }
+
+  &__input-text {
+    min-height: calc(20em + 1px); //10行表示
+    width: 100%;
+    background-image: linear-gradient(
+        90deg,
+        transparent 0%,
+        transparent 50%,
+        $white-brown 50%,
+        $white-brown 100%
+      ),
+      linear-gradient(180deg, $brown 1px, transparent 1px);
+    background-size: 6px 100%, 100% 2em;
+    line-height: 2em;
+    font-size: clamp(16px, 1.6rem, 17px);
+
+    &::placeholder {
+      color: $gray;
+    }
+
+    @include tab {
+      min-height: calc(16em + 1px); //8行表示
+      font-size: clamp(17px, 1.7rem, 18px);
+    }
+
+    @include pc {
+      min-height: calc(14em + 1px); //7行表示
+      font-size: clamp(17px, 1.8rem, 18px);
+    }
+  }
+
+  &__gemini-button {
+    @include button-style-fill($brown, $white-brown);
+
+    @include tab {
+      width: 60%;
+      margin-inline: auto;
+    }
+
+    @include pc {
+      width: 50%;
+      min-width: 260px;
+      margin-inline: auto;
+    }
 
     &:disabled {
       cursor: not-allowed;
@@ -1043,8 +1130,8 @@ onMounted(() => {
       width: 1.5em;
       aspect-ratio: 1;
       border-radius: 100vmax;
-      border: 3px solid gray;
-      border-top-color: black;
+      border: 3px solid $gray;
+      border-top-color: $white-brown;
       animation: spinner 1.5s linear infinite;
     }
 
@@ -1052,6 +1139,46 @@ onMounted(() => {
       to {
         transform: rotate(360deg);
       }
+    }
+  }
+
+  &__gemini-comment {
+    padding: 1.6rem;
+    border-radius: 10px;
+    background-color: $white-brown;
+
+    @include tab {
+      padding: 1.8rem;
+    }
+
+    @include pc {
+      padding: 2rem;
+    }
+  }
+
+  &__gemini-comment-text {
+    min-height: calc(16em + 1px); //8行表示
+    padding-bottom: 1px;
+    background-image: linear-gradient(
+        90deg,
+        transparent 0%,
+        transparent 50%,
+        $white-brown 50%,
+        $white-brown 100%
+      ),
+      linear-gradient(180deg, $brown 1px, transparent 1px);
+    background-size: 6px 100%, 100% 2em;
+    line-height: 2em;
+    font-size: clamp(16px, 1.6rem, 17px);
+
+    @include tab {
+      min-height: calc(12em + 1px); //6行表示
+      font-size: clamp(17px, 1.7rem, 18px);
+    }
+
+    @include pc {
+      min-height: calc(8em + 1px); //4行表示
+      font-size: clamp(17px, 1.8rem, 18px);
     }
   }
 
@@ -1063,12 +1190,6 @@ onMounted(() => {
     &:disabled {
       cursor: not-allowed;
     }
-  }
-
-  &__update-button {
-  }
-
-  &__register-button {
   }
 }
 </style>
