@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useResponsive } from '@/composables/useResponsive.js';
 import apiClient from '@/api';
 import CheckmarkIcon from '@/components/icons/CheckmarkIcon.vue';
 import UserIcon from '@/components/icons/UserIcon.vue';
@@ -11,6 +12,11 @@ import { userName } from '@/auth.js';
 const notice = ref('');
 const recentDiaries = ref([]);
 const totalDiariesCount = ref(null);
+
+/**
+ * PC表示かどうか
+ */
+const { isPc } = useResponsive();
 
 /**
  * 日記未登録時のメッセージ
@@ -154,8 +160,8 @@ onMounted(async () => {
         </li>
       </ul>
     </div>
-    <RouterLink class="home__create-diary-button" to="/diary/new"
-      ><PenIcon class="home__create-diary-icon"
+    <RouterLink v-if="!isPc" class="home__sp-create-button" to="/diary/new"
+      ><PenIcon class="home__sp-create-icon"
     /></RouterLink>
   </div>
 </template>
@@ -482,7 +488,7 @@ onMounted(async () => {
     line-height: 1.8;
   }
 
-  &__create-diary-button {
+  &__sp-create-button {
     position: fixed;
     bottom: 4rem;
     right: 2rem;
@@ -499,13 +505,9 @@ onMounted(async () => {
       right: 3rem;
       height: 5.2rem;
     }
-
-    @include pc {
-      display: none;
-    }
   }
 
-  &__create-diary-icon {
+  &__sp-create-icon {
     width: 45%;
     fill: none;
     stroke: $white-brown;

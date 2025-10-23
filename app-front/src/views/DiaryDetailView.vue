@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { useResponsive } from '@/composables/useResponsive.js';
 import apiClient from '@/api';
 import { useRouter } from 'vue-router';
 import ConfirmModal from '@/components/ConfirmModal.vue';
@@ -13,6 +14,11 @@ import EditIcon from '@/components/icons/EditIcon.vue';
 import BookIcon from '@/components/icons/BookIcon.vue';
 import ClockIcon from '@/components/icons/ClockIcon.vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
+
+/**
+ * PC表示かどうか
+ */
+const { isPc } = useResponsive();
 
 /**
  * vue-router
@@ -46,11 +52,16 @@ const nextDiaryId = ref(null);
 const prevDiaryId = ref(null);
 
 /**
- * Gemini API設定のアコーディオンメニュー制御用
- * TODO 今はとりあえずデフォルトをtrueにしておく
- * TODO PC表示の時は常に表示（true）にする仕組み作成したい。computed()でisPc変数を使って実装？ヘッダーで使ってるisPc変数を全ファイルで呼び出せるように変更しなきゃいけない
+ * Gemini API設定の表示・非表示
  */
-const isGeminiSettingsOpen = ref(true);
+const isGeminiSettingsOpen = computed(() =>
+  isPc.value ? isPc.value : isAccordionMenuOpen.value
+);
+
+/**
+ * アコーディオンメニュー制御用
+ */
+const isAccordionMenuOpen = ref(false);
 
 /**
  * Gemini APIへの設定
@@ -466,7 +477,7 @@ onMounted(() => {
       <p
         class="diary__settings-title"
         :class="{ 'is-opened-menu': isGeminiSettingsOpen }"
-        @click="isGeminiSettingsOpen = !isGeminiSettingsOpen"
+        @click="isAccordionMenuOpen = !isAccordionMenuOpen"
       >
         Gemini API 設定
       </p>
@@ -710,7 +721,7 @@ onMounted(() => {
           </div>
         </div>
       </div>
-      <div class="diary__pc-link-wrapper">
+      <div v-if="isPc" class="diary__pc-link-wrapper">
         <RouterLink class="diary__link-views" to="/diaries"
           ><BookIcon class="diary__book-icon" />一覧</RouterLink
         >
@@ -721,7 +732,7 @@ onMounted(() => {
     </div>
     <div class="diary__right-box">
       <RouterLink
-        v-if="isEditMode"
+        v-if="isEditMode && isPc"
         class="diary__pc-create-button"
         to="/diary/new"
         ><PenIcon class="diary__pc-create-icon" />作成</RouterLink
@@ -817,7 +828,7 @@ onMounted(() => {
           >次の日記<CaretRightIcon class="diary__caret-right-icon"
         /></RouterLink>
       </div>
-      <div class="diary__sp-link-wrapper">
+      <div v-if="!isPc" class="diary__sp-link-wrapper">
         <RouterLink class="diary__link-views" to="/diaries"
           ><BookIcon class="diary__book-icon" />一覧</RouterLink
         >
@@ -827,7 +838,7 @@ onMounted(() => {
       </div>
     </div>
     <RouterLink
-      v-if="isEditMode"
+      v-if="isEditMode && !isPc"
       class="diary__sp-create-button"
       to="/diary/new"
       ><PenIcon class="diary__sp-create-icon"
@@ -1023,12 +1034,8 @@ onMounted(() => {
   }
 
   &__pc-link-wrapper {
-    display: none;
-
-    @include pc {
-      display: flex;
-      justify-content: space-between;
-    }
+    display: flex;
+    justify-content: space-between;
   }
 
   &__link-views,
@@ -1058,17 +1065,13 @@ onMounted(() => {
   }
 
   &__pc-create-button {
-    display: none;
-
-    @include pc {
-      @include button-style-fill($orange, $white-brown);
-      min-width: 140px;
-      width: 15rem;
-      gap: 1em;
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
+    @include button-style-fill($orange, $white-brown);
+    min-width: 140px;
+    width: 15rem;
+    gap: 1em;
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 
   &__pc-create-icon {
@@ -1434,10 +1437,6 @@ onMounted(() => {
     flex-direction: column;
     align-items: center;
     gap: 4rem;
-
-    @include pc {
-      display: none;
-    }
   }
 
   &__sp-create-button {
@@ -1456,10 +1455,6 @@ onMounted(() => {
       bottom: 5rem;
       right: 3rem;
       height: 5.2rem;
-    }
-
-    @include pc {
-      display: none;
     }
   }
 
