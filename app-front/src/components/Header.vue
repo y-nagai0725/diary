@@ -1,40 +1,18 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { isLoggedIn, logout, userName } from '@/auth.js';
+import { useResponsive } from '@/composables/useResponsive.js';
 import UserIcon from '@/components/icons/UserIcon.vue';
 
 /**
- * 画面幅
+ * PC表示かどうか
  */
-const windowWidth = ref(window.innerWidth);
-
-/**
- * PC表示（画面幅1024px以上）かどうか
- */
-const isPc = computed(() => windowWidth.value >= 1024);
+const { isPc } = useResponsive();
 
 /**
  * sp用ナビゲーションメニュー開閉状態
  */
 const isOpenedSpMenu = ref(false);
-
-/**
- * リサイズイベント時のタイマー処理
- */
-let resizeTimeout = null;
-
-/**
- * 画面幅リサイズ時処理
- */
-const handleResize = () => {
-  //以前のタイマー処理を削除
-  clearTimeout(resizeTimeout);
-
-  //150ミリ秒待ってから実行
-  resizeTimeout = setTimeout(() => {
-    windowWidth.value = window.innerWidth;
-  }, 150);
-};
 
 watch(isPc, (newValue) => {
   //SP用メニューが開かれた状態で、PC表示になった場合はメニューを閉じる
@@ -53,18 +31,7 @@ watch(isOpenedSpMenu, (newValue) => {
   }
 });
 
-onMounted(() => {
-  //リサイズイベント時の処理設定
-  window.addEventListener('resize', handleResize);
-});
-
 onUnmounted(() => {
-  //リサイズイベント時の処理削除
-  window.removeEventListener('resize', handleResize);
-
-  //タイマー処理を削除
-  clearTimeout(resizeTimeout);
-
   //スクロール禁止を解除
   document.body.style.overflow = '';
 });
