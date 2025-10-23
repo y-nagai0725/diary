@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { useResponsive } from '@/composables/useResponsive.js';
 import apiClient from '@/api';
 import CaretRightIcon from '@/components/icons/CaretRightIcon.vue';
 import CaretLeftIcon from '@/components/icons/CaretLeftIcon.vue';
@@ -12,6 +13,11 @@ import { formatDate } from '@/utils/date.js';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import Simplebar from 'simplebar-vue';
 import 'simplebar-vue/dist/simplebar.min.css';
+
+/**
+ * PC表示かどうか
+ */
+const { isPc } = useResponsive();
 
 const inputDateYm = ref(null);
 const inputDateYmd = ref(null);
@@ -291,7 +297,7 @@ onMounted(() => {
           placeholder="日記内容を検索..."
         />
       </div>
-      <div class="diaries__pc-link-wrapper">
+      <div v-if="isPc" class="diaries__pc-link-wrapper">
         <RouterLink class="diaries__link-create" to="/diary/new"
           ><PenIcon class="diaries__pen-icon" />作成</RouterLink
         >
@@ -370,7 +376,7 @@ onMounted(() => {
         </button>
       </div>
     </div>
-    <div class="diaries__sp-link-wrapper">
+    <div v-if="!isPc" class="diaries__sp-link-wrapper">
       <RouterLink class="diaries__link-create" to="/diary/new"
         ><PenIcon class="diaries__pen-icon" />作成</RouterLink
       >
@@ -537,12 +543,8 @@ onMounted(() => {
   }
 
   &__pc-link-wrapper {
-    display: none;
-
-    @include pc {
-      display: flex;
-      justify-content: space-between;
-    }
+    display: flex;
+    justify-content: space-between;
   }
 
   &__link-create,
@@ -873,9 +875,7 @@ onMounted(() => {
   }
 
   &__sp-link-wrapper {
-    padding: 1.6rem;
-    background-color: $white;
-    border-radius: 100vmax;
+    padding: 0 1.6rem;
     display: flex;
     justify-content: space-between;
 
@@ -883,10 +883,6 @@ onMounted(() => {
       width: 55%;
       margin-inline: auto;
       padding: 2rem;
-    }
-
-    @include pc {
-      display: none;
     }
   }
 }
