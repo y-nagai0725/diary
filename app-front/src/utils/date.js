@@ -13,7 +13,7 @@ export const formatDate = (date, separator = '/', addHm = false) => {
   if (addHm) {
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
-    return `${year}${separator}${month}${separator}${day}T${hours}:${minutes}`
+    return `${year}${separator}${month}${separator}${day} ${hours}:${minutes}`
   } else {
     return `${year}${separator}${month}${separator}${day}`;
   }

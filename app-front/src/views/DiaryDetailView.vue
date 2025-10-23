@@ -46,6 +46,13 @@ const nextDiaryId = ref(null);
 const prevDiaryId = ref(null);
 
 /**
+ * Gemini API設定のアコーディオンメニュー制御用
+ * TODO 今はとりあえずデフォルトをtrueにしておく
+ * TODO PC表示の時は常に表示（true）にする仕組み作成したい。computed()でisPc変数を使って実装？ヘッダーで使ってるisPc変数を全ファイルで呼び出せるように変更しなきゃいけない
+ */
+const isGeminiSettingsOpen = ref(true);
+
+/**
  * Gemini APIへの設定
  */
 const promptSettings = ref({
@@ -69,6 +76,21 @@ const isLoadingGeminiComment = ref(false);
  * 編集モードかどうか（編集 or 新規作成モード）
  */
 const isEditMode = computed(() => !!props.id);
+
+/**
+ * 削除モーダルの表示・非表示
+ */
+const showDeleteModal = ref(false);
+
+/**
+ * 削除対象の日記ID
+ */
+const deleteTargetId = ref(null);
+
+/**
+ * 削除対象の日記の日付
+ */
+const deleteTargetDate = ref('');
 
 /**
  * 結果モーダルの表示・非表示
@@ -95,7 +117,7 @@ let resultModalCallBack = null;
  */
 const saveDiary = async () => {
   //日付
-  let date = diaryForm.value.date;
+  const date = diaryForm.value.date;
 
   //日記内容
   const text = diaryForm.value.text.trim();
@@ -109,9 +131,6 @@ const saveDiary = async () => {
     resultMessage.value = '日付が未入力または不正な値が設定されています。';
     showResultModal.value = true;
     return;
-  } else {
-    //登録用にUTCに変換
-    date = new Date(date).toISOString();
   }
 
   //日記内容の入力チェック
@@ -174,9 +193,42 @@ const saveDiary = async () => {
 };
 
 /**
+ * 削除ボタンが押された時の処理
+ */
+const handleDeleteDiary = () => {
+  // 削除確認モーダルを表示する
+  showDeleteModal.value = true;
+};
+
+/**
  * 日記削除処理
  */
-const deleteDiary = async () => {};
+const deleteDiary = async () => {
+  // モーダルを閉じる
+  showDeleteModal.value = false;
+
+  try {
+    // データベースから削除
+    await apiClient.delete(`/api/diaries/${deleteTargetId.value}`);
+
+    //結果モーダルのコールバック処理設定
+    resultModalCallBack = () => {
+      //一覧画面へ遷移
+      router.push('/diaries');
+    };
+
+    // 完了メッセージを設定して、結果モーダルを表示
+    resultTitle.value = '削除完了';
+    resultMessage.value = `${deleteTargetDate.value} の日記を削除しました。`;
+    showResultModal.value = true;
+  } catch (error) {
+    console.error('日記データの削除に失敗しました。', error);
+    // エラーメッセージを設定して、結果モーダルを表示
+    resultTitle.value = '削除エラー';
+    resultMessage.value = `${deleteTargetDate.value} の日記の削除に失敗しました。`;
+    showResultModal.value = true;
+  }
+};
 
 /**
  * 日記内容に対してGeminiからコメントを取得する
@@ -274,9 +326,17 @@ const closeResultModal = () => {
 };
 
 /**
+ * 削除確認モーダルで「キャンセル」が押された時の処理
+ */
+const cancelDelete = () => {
+  // モーダルを閉じる
+  showDeleteModal.value = false;
+};
+
+/**
  * 日付選択ボックス用フォーマッター
  */
-const format = (date) => {
+const formatter = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -320,14 +380,19 @@ const initDisplay = async () => {
 
   if (isEditMode.value) {
     // --- 更新モードの時の処理 ---
+    //TODO 前の日記と次の日記のidを取得する処理実装
     try {
       //更新対象の日記データ取得
       const response = await apiClient.get(`/api/diaries/${props.id}`);
 
       //取得日記データから日付、日記内容、Geminiからのコメントを表示
-      diaryForm.value.date = formatDate(response.data.date, '-', true);
+      diaryForm.value.date = response.data.date;
       diaryForm.value.text = response.data.text;
       diaryForm.value.geminiComment = response.data.geminiComment;
+
+      //削除用にidと日付データ取得
+      deleteTargetId.value = response.data.id;
+      deleteTargetDate.value = formatDate(response.data.date, '-', true);
     } catch (error) {
       console.error('日記の取得に失敗しました。', error);
       resultTitle.value = '日記取得エラー';
@@ -340,6 +405,11 @@ const initDisplay = async () => {
     }
   } else {
     // --- 新規作成モードの時の処理 ---
+
+    //日記内容、Geminiコメントを空に
+    diaryForm.value.text = '';
+    diaryForm.value.geminiComment = '';
+
     //日付ボックスに現在日付時刻を設定
     setNowDate();
   }
@@ -381,12 +451,7 @@ watch(
  * （編集 or 新規作成）モード変更時処理
  */
 watch(isEditMode, () => {
-  if (!isEditMode.value) {
-    //新規作成モードに変わった場合は、入力内容を全てクリア
-    diaryForm.value.text = '';
-    diaryForm.value.geminiComment = '';
-    setNowDate();
-  }
+  initDisplay();
 });
 
 onMounted(() => {
@@ -398,8 +463,14 @@ onMounted(() => {
 <template>
   <div class="diary">
     <div class="diary__gemini-settings-wrapper">
-      <p class="diary__settings-title">Gemini API 設定</p>
-      <div class="diary__prompt-settings">
+      <p
+        class="diary__settings-title"
+        :class="{ 'is-opened-menu': isGeminiSettingsOpen }"
+        @click="isGeminiSettingsOpen = !isGeminiSettingsOpen"
+      >
+        Gemini API 設定
+      </p>
+      <div v-show="isGeminiSettingsOpen" class="diary__prompt-settings">
         <div class="diary__setting-group">
           <p class="diary__setting-heading">日記の書き手の性別</p>
           <div class="diary__radio-wrapper">
@@ -649,6 +720,12 @@ onMounted(() => {
       </div>
     </div>
     <div class="diary__right-box">
+      <RouterLink
+        v-if="isEditMode"
+        class="diary__pc-create-button"
+        to="/diary/new"
+        ><PenIcon class="diary__pc-create-icon" />作成</RouterLink
+      >
       <p class="diary__sub-title">
         {{ isEditMode ? '日記更新' : '日記作成' }}
       </p>
@@ -662,7 +739,7 @@ onMounted(() => {
               placeholder="---- 年 -- 月 -- 日 --:--"
               locale="ja"
               auto-apply
-              :format="format"
+              :format="formatter"
             ></VueDatePicker>
             <button class="diary__now-date-button" @click="setNowDate()">
               <ClockIcon class="diary__clock-icon" />now
@@ -711,14 +788,14 @@ onMounted(() => {
               :disabled="isLoadingGeminiComment"
               @click="saveDiary()"
             >
-              <EditIcon class="diary__edit-icon" />更新
+              <EditIcon class="diary__update-icon" />更新
             </button>
-            <button class="diary__delete-button">
-              <DeleteIcon
-                class="diary__delete-icon"
-                :disabled="isLoadingGeminiComment"
-                @click="deleteDiary()"
-              />削除
+            <button
+              class="diary__delete-button"
+              :disabled="isLoadingGeminiComment"
+              @click="handleDeleteDiary()"
+            >
+              <DeleteIcon class="diary__delete-icon" />削除
             </button>
           </template>
           <template v-else>
@@ -727,22 +804,20 @@ onMounted(() => {
               :disabled="isLoadingGeminiComment"
               @click="saveDiary()"
             >
-              <PenIcon class="diary__pen-icon" />日記登録
+              <PenIcon class="diary__register-icon" />日記登録
             </button>
           </template>
         </div>
       </div>
-      <div class="diary__link-wrapper">
-        <template v-if="isEditMode">
-          <RouterLink class="diary__link-prev" :to="`/diary/${prevDiaryId}`"
-            ><CaretLeftIcon
-              class="diary__caret-left-icon"
-            />前の日記</RouterLink
-          >
-          <RouterLink class="diary__link-next" :to="`/diary/${nextDiaryId}`"
-            >次の日記<CaretLeftIcon class="diary__caret-right-icon"
-          /></RouterLink>
-        </template>
+      <div v-if="isEditMode" class="diary__edit-link-wrapper">
+        <RouterLink class="diary__link-prev" :to="`/diary/${prevDiaryId}`"
+          ><CaretLeftIcon class="diary__caret-left-icon" />前の日記</RouterLink
+        >
+        <RouterLink class="diary__link-next" :to="`/diary/${nextDiaryId}`"
+          >次の日記<CaretRightIcon class="diary__caret-right-icon"
+        /></RouterLink>
+      </div>
+      <div class="diary__sp-link-wrapper">
         <RouterLink class="diary__link-views" to="/diaries"
           ><BookIcon class="diary__book-icon" />一覧</RouterLink
         >
@@ -751,7 +826,22 @@ onMounted(() => {
         >
       </div>
     </div>
-
+    <RouterLink
+      v-if="isEditMode"
+      class="diary__sp-create-button"
+      to="/diary/new"
+      ><PenIcon class="diary__sp-create-icon"
+    /></RouterLink>
+    <ConfirmModal
+      :show="showDeleteModal"
+      :title="'日記削除'"
+      :message="`${deleteTargetDate} の日記を削除します。本当によろしいですか？`"
+      :confirmButtonText="'削除する'"
+      :confirmButtonClass="'delete'"
+      :cancelButtonText="'キャンセル'"
+      @confirm="deleteDiary"
+      @cancel="cancelDelete"
+    />
     <ConfirmModal
       :show="showResultModal"
       :title="resultTitle"
@@ -801,6 +891,8 @@ onMounted(() => {
       margin-inline: 0;
       padding: 2.4rem;
       gap: 3.2rem;
+      position: sticky;
+      top: 100px;
     }
   }
 
@@ -809,6 +901,23 @@ onMounted(() => {
     font-weight: 700;
     letter-spacing: 0.1em;
     font-size: clamp(18px, 1.8rem, 20px);
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 0;
+      width: 0.55em;
+      aspect-ratio: 1;
+      border-bottom: 2px solid $brown;
+      border-right: 2px solid $brown;
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    &.is-opened-menu::before {
+      transform: translateY(-50%) rotate(-135deg);
+    }
 
     @include tab {
       font-size: clamp(20px, 2rem, 22px);
@@ -816,34 +925,38 @@ onMounted(() => {
 
     @include pc {
       font-size: clamp(20px, 2.2rem, 22px);
+
+      &::before {
+        display: none;
+      }
     }
   }
 
   &__prompt-settings {
     display: flex;
     flex-direction: column;
-    gap: 2.4rem;
+    gap: 1.6rem;
 
     @include tab {
-      gap: 2.8rem;
+      gap: 2rem;
     }
 
     @include pc {
-      gap: 3.2rem;
+      gap: 2.4rem;
     }
   }
 
   &__setting-group {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.4rem;
 
     @include tab {
-      gap: 1.2rem;
+      gap: 0.6rem;
     }
 
     @include pc {
-      gap: 1.6rem;
+      gap: 0.8rem;
     }
   }
 
@@ -890,7 +1003,7 @@ onMounted(() => {
 
   &__radio-label {
     cursor: pointer;
-    padding: 1em;
+    padding: 0.75em;
     border-radius: 4px;
     border: 1px solid $orange;
     display: flex;
@@ -941,6 +1054,28 @@ onMounted(() => {
   }
 
   &__right-box {
+    position: relative;
+  }
+
+  &__pc-create-button {
+    display: none;
+
+    @include pc {
+      @include button-style-fill($orange, $white-brown);
+      min-width: 140px;
+      width: 15rem;
+      gap: 1em;
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+
+  &__pc-create-icon {
+    height: 1.5em;
+    fill: none;
+    stroke: $white-brown;
+    stroke-width: 2;
   }
 
   &__sub-title {
@@ -957,6 +1092,7 @@ onMounted(() => {
   }
 
   &__input-area {
+    margin-bottom: 3.2rem;
     padding: 1.6rem;
     background-color: $white;
     border-radius: 10px;
@@ -967,6 +1103,7 @@ onMounted(() => {
     @include tab {
       width: 75%;
       margin-inline: auto;
+      margin-bottom: 3.6rem;
       padding: 2rem;
       gap: 2.8rem;
     }
@@ -974,6 +1111,7 @@ onMounted(() => {
     @include pc {
       width: 100%;
       margin-inline: 0;
+      margin-bottom: 4rem;
       padding: 2.4rem;
       gap: 3.2rem;
     }
@@ -1182,14 +1320,154 @@ onMounted(() => {
     }
   }
 
+  &__edit-button-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4rem;
+  }
+
   &__update-button,
+  &__delete-button,
   &__register-button {
-    cursor: pointer;
-    display: block;
+    min-width: 120px;
+    width: 13rem;
+    gap: 1em;
+
+    @include tab {
+      width: 14rem;
+    }
+
+    @include pc {
+      width: 15rem;
+    }
 
     &:disabled {
       cursor: not-allowed;
     }
+  }
+
+  &__update-button {
+    @include button-style-fill($green, $white-brown);
+  }
+
+  &__update-icon {
+    height: 1.5em;
+    fill: $white-brown;
+  }
+
+  &__delete-button {
+    @include button-style-fill($red, $white-brown);
+  }
+
+  &__delete-icon {
+    height: 1.5em;
+    fill: none;
+    stroke: $white-brown;
+    stroke-width: 3;
+  }
+
+  &__register-button {
+    @include button-style-fill($orange, $white-brown);
+    min-width: 140px;
+    width: 15rem;
+    gap: 1em;
+
+    @include tab {
+      width: 16rem;
+    }
+
+    @include pc {
+      width: 17rem;
+    }
+  }
+
+  &__register-icon {
+    height: 1.5em;
+    fill: none;
+    stroke: $white-brown;
+    stroke-width: 2;
+  }
+
+  &__edit-link-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3.2rem;
+
+    @include tab {
+      width: 75%;
+      margin-inline: auto;
+      margin-bottom: 3.6rem;
+    }
+
+    @include pc {
+      width: 100%;
+      margin-inline: 0;
+      margin-bottom: 4rem;
+    }
+  }
+
+  &__link-prev,
+  &__link-next {
+    @include button-style-border($brown);
+    min-width: 120px;
+    width: 13rem;
+    gap: 1em;
+
+    @include tab {
+      width: 14rem;
+    }
+
+    @include pc {
+      width: 15rem;
+    }
+  }
+
+  &__caret-left-icon,
+  &__caret-right-icon {
+    fill: $brown;
+    height: 0.85em;
+  }
+
+  &__sp-link-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4rem;
+
+    @include pc {
+      display: none;
+    }
+  }
+
+  &__sp-create-button {
+    position: fixed;
+    bottom: 4rem;
+    right: 2rem;
+    height: 4.8rem;
+    aspect-ratio: 1;
+    border-radius: 100vmax;
+    background-color: $orange;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    @include tab {
+      bottom: 5rem;
+      right: 3rem;
+      height: 5.2rem;
+    }
+
+    @include pc {
+      display: none;
+    }
+  }
+
+  &__sp-create-icon {
+    width: 45%;
+    fill: none;
+    stroke: $white-brown;
+    stroke-width: 2;
   }
 }
 </style>
