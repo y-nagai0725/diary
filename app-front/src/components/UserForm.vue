@@ -2,6 +2,16 @@
 import { ref } from 'vue';
 
 /**
+ * ユーザー名エラーテキスト
+ */
+const NAME_ERROR_TEXT = 'ユーザー名は10文字以内で入力して下さい。';
+
+/**
+ * パスワードエラーテキスト
+ */
+const PASSWORD_ERROR_TEXT = 'パスワードは4文字以上で入力して下さい。';
+
+/**
  *
  */
 defineProps({
@@ -19,14 +29,14 @@ const emit = defineEmits(['submit-form']);
 const userForm = ref({ name: '', password: '' });
 
 /**
- * ユーザー名エラーテキスト
+ * ユーザー名エラー表示・非表示
  */
-const nameErrorText = ref('');
+const isErroredName = ref(false);
 
 /**
- * パスワードエラーテキスト
+ * パスワードエラー表示・非表示
  */
-const passwordErrorText = ref('');
+const isErroredPassword = ref(false);
 
 /**
  * ボタンクリック時の処理
@@ -50,8 +60,8 @@ const handleSubmit = () => {
         placeholder="ユーザー名"
         v-model.trim="userForm.name"
       />
-      <p v-if="nameErrorText" class="user-form__input-name-error">
-        {{ nameErrorText }}
+      <p v-if="isErroredName" class="user-form__input-name-error">
+        {{ NAME_ERROR_TEXT }}
       </p>
     </div>
     <div class="user-form__form-group">
@@ -65,8 +75,8 @@ const handleSubmit = () => {
         placeholder="パスワード"
         v-model.trim="userForm.password"
       />
-      <p v-if="passwordErrorText" class="user-form__input-password-error">
-        {{ passwordErrorText }}
+      <p v-if="isErroredPassword" class="user-form__input-password-error">
+        {{ PASSWORD_ERROR_TEXT }}
       </p>
     </div>
     <button class="user-form__button" @click="handleSubmit">
