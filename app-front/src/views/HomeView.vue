@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useResponsive } from '@/composables/useResponsive.js';
 import apiClient from '@/api';
 import UserIcon from '@/components/icons/UserIcon.vue';
@@ -33,6 +33,11 @@ const notice = ref('');
  * 直近7件の日記データ
  */
 const recentDiaries = ref([]);
+
+/**
+ * 表示用日記データ
+ */
+const displayDiaries = computed(() => createDisplayData(recentDiaries.value));
 
 /**
  * 合計の投稿数
@@ -109,7 +114,7 @@ const createDisplayData = (diaries) => {
 onMounted(async () => {
   //直近7件の日記データ取得、表示
   const responseData = await getRecentDiaries();
-  recentDiaries.value = createDisplayData(responseData.recentDiaries);
+  recentDiaries.value = responseData.recentDiaries;
   totalDiariesCount.value = responseData.totalDiaries;
 
   //お知らせメッセージ表示
@@ -147,7 +152,7 @@ onMounted(async () => {
       </p>
       <ul v-else class="home__diaries-list">
         <li
-          v-for="diary in recentDiaries"
+          v-for="diary in displayDiaries"
           :key="diary.id"
           class="home__diary-item"
         >
