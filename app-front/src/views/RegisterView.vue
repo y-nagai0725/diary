@@ -7,16 +7,10 @@ import { login } from '@/auth.js';
 /**
  * エラーメッセージ表示用
  */
-const message = ref('');
+const serverErrorMessage = ref('');
 
 // UserFormからデータを受け取って、ユーザー登録処理を実行
 const handleRegister = async (formData) => {
-  // 入力値チェック
-  if (!formData.name || !formData.password) {
-    message.value = 'ユーザー名とパスワードを入力してください。';
-    return;
-  }
-
   try {
     // ユーザー登録
     await apiClient.post('/api/register', formData);
@@ -29,8 +23,16 @@ const handleRegister = async (formData) => {
   } catch (error) {
     //サーバーからのエラーメッセージを表示
     console.error('ユーザー登録に失敗しました。', error);
-    message.value = error.response.data.error;
+    serverErrorMessage.value = error.response.data.error;
   }
+};
+
+/**
+ * 入力フォームへの入力時の処理
+ */
+const handleInput = () => {
+  //サーバーからのエラーメッセージを消す
+  serverErrorMessage.value = '';
 };
 </script>
 
@@ -38,8 +40,12 @@ const handleRegister = async (formData) => {
   <div class="register">
     <h1 class="register__title">ユーザー登録</h1>
     <div class="register__box">
-      <UserForm buttonText="ユーザー登録" @submit-form="handleRegister" />
-      <p class="register__message">{{ message }}</p>
+      <UserForm
+        buttonText="ユーザー登録"
+        @submit-form="handleRegister"
+        @input-form="handleInput"
+      />
+      <p class="register__server-error-message">{{ serverErrorMessage }}</p>
       <p class="register__notice">登録済みの方はこちらから</p>
       <RouterLink class="register__link" to="/login">ログイン</RouterLink>
     </div>
@@ -118,7 +124,7 @@ const handleRegister = async (formData) => {
     }
   }
 
-  &__message {
+  &__server-error-message {
     padding: 1.6rem 0;
     margin-bottom: 1.6rem;
     border-bottom: 1px solid $brown;

@@ -7,16 +7,10 @@ import { login } from '@/auth.js';
 /**
  * エラーメッセージ表示用
  */
-const message = ref('');
+const serverErrorMessage = ref('');
 
 // UserFormからデータを受け取って、ログイン処理を実行
 const handleLogin = async (formData) => {
-  // 入力値チェック
-  if (!formData.name || !formData.password) {
-    message.value = 'ユーザー名とパスワードを入力してください。';
-    return;
-  }
-
   try {
     //ログイン
     const response = await apiClient.post('/api/login', formData);
@@ -26,8 +20,16 @@ const handleLogin = async (formData) => {
   } catch (error) {
     //サーバーからのログインエラーメッセージを表示
     console.error('ログインに失敗しました。', error);
-    message.value = error.response.data.error;
+    serverErrorMessage.value = error.response.data.error;
   }
+};
+
+/**
+ * 入力フォームへの入力時の処理
+ */
+const handleInput = () => {
+  //サーバーからのエラーメッセージを消す
+  serverErrorMessage.value = '';
 };
 </script>
 
@@ -35,8 +37,12 @@ const handleLogin = async (formData) => {
   <div class="login">
     <h1 class="login__title">ログイン</h1>
     <div class="login__box">
-      <UserForm buttonText="ログイン" @submit-form="handleLogin" />
-      <p class="login__message">{{ message }}</p>
+      <UserForm
+        buttonText="ログイン"
+        @submit-form="handleLogin"
+        @input-form="handleInput"
+      />
+      <p class="login__server-error-message">{{ serverErrorMessage }}</p>
       <p class="login__notice">ユーザー未登録の方はこちらから</p>
       <RouterLink class="login__link" to="/register">ユーザー登録</RouterLink>
     </div>
@@ -115,7 +121,7 @@ const handleLogin = async (formData) => {
     }
   }
 
-  &__message {
+  &__server-error-message {
     padding: 1.6rem 0;
     margin-bottom: 1.6rem;
     border-bottom: 1px solid $brown;

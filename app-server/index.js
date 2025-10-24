@@ -141,9 +141,41 @@ const validateDiaryData = (req, res, next) => {
 };
 
 /**
+ * ユーザー登録・ログインデータのバリデーションチェック
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns
+ */
+const validateUserData = (req, res, next) => {
+  // ユーザー名、パスワード
+  const { name, password } = req.body;
+
+  // --- ユーザー名のチェック ---
+  // 空チェック
+  if (!name || typeof name !== 'string' || name.length === 0) {
+    return res.status(400).json({ error: 'ユーザー名を入力して下さい。' });
+  }
+
+  // 10文字以内かチェック
+  if (name.length > 10) {
+    return res.status(400).json({ error: 'ユーザー名は10文字以内で入力して下さい。' });
+  }
+
+  // --- パスワードのチェック ---
+  // 4文字以上かチェック
+  if (!password || typeof password !== 'string' || password.length < 4) {
+    return res.status(400).json({ error: 'パスワードは4文字以上で入力して下さい。' });
+  }
+
+  // 問題ない場合は進む
+  next();
+};
+
+/**
  * ユーザー登録
  */
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', validateUserData, async (req, res) => {
   try {
     //ユーザー名、パスワード
     const { name, password } = req.body;
@@ -174,7 +206,7 @@ app.post('/api/register', async (req, res) => {
 /**
  * ログイン
  */
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', validateUserData, async (req, res) => {
   try {
     //ユーザー名、パスワード
     const { name, password } = req.body;
@@ -283,7 +315,7 @@ app.get('/api/diaries/recent', authenticateToken, async (req, res) => {
     //登録されている日記の数
     const totalDiaries = await prisma.diary.count({ where: { authorId } });
 
-    res.json({recentDiaries, totalDiaries});
+    res.json({ recentDiaries, totalDiaries });
   } catch (error) {
     //500サーバーエラー
     console.error(error);

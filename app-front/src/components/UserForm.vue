@@ -26,7 +26,7 @@ defineProps({
 /**
  * emit定義
  */
-const emit = defineEmits(['submit-form']);
+const emit = defineEmits(['submit-form', 'input-form']);
 
 /**
  * 入力フォーム：ユーザー名、パスワード
@@ -52,6 +52,7 @@ const passwordInputRef = ref(null);
 watch(
   () => userForm.value.name,
   (newName) => {
+    emit('input-form');
     // 10文字より多い場合にエラー
     if (newName.length > 10) {
       nameError.value = NAME_LENGTH_ERROR_TEXT;
@@ -66,6 +67,7 @@ watch(
 watch(
   () => userForm.value.password,
   (newPassword) => {
+    emit('input-form');
     // 0文字より大きく、4文字未満の場合にエラー
     if (0 < newPassword.length && newPassword.length < 4) {
       passwordError.value = PASSWORD_ERROR_TEXT;
