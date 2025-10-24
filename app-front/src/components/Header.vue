@@ -94,7 +94,7 @@ onUnmounted(() => {
         <button
           v-else
           class="header__hamburger-button"
-          :class="{ isOpened: isOpenedSpMenu }"
+          :class="{ 'is-opened': isOpenedSpMenu }"
           @click="isOpenedSpMenu = !isOpenedSpMenu"
         >
           <span class="header__line top"></span>
@@ -106,7 +106,7 @@ onUnmounted(() => {
     <nav
       v-if="!isPc"
       class="header__gnav-sp"
-      :class="{ isOpened: isOpenedSpMenu }"
+      :class="{ 'is-opened': isOpenedSpMenu }"
     >
       <ul class="header__sp-link-list">
         <template v-if="isLoggedIn">
@@ -282,9 +282,6 @@ onUnmounted(() => {
     }
   }
 
-  &__gnav-pc {
-  }
-
   &__pc-link-list {
     display: flex;
     flex-direction: row;
@@ -311,11 +308,19 @@ onUnmounted(() => {
     width: 48px;
     aspect-ratio: 1;
     border-radius: 100vmax;
+    border: 1px solid $orange;
     background-color: $orange;
     position: relative;
     z-index: 10001;
+    transition: background-color 0.3s ease-out;
 
-    &.isOpened {
+    &.is-opened {
+      background-color: $white-brown;
+
+      #{$parent}__line {
+        background-color: $orange;
+      }
+
       #{$parent}__line.top {
         top: 50%;
         transform: translateX(-50%) translateY(-50%) rotate(45deg);
@@ -344,8 +349,8 @@ onUnmounted(() => {
     left: 50%;
     transform: translateX(-50%);
     background-color: $white-brown;
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out,
-      top 0.3s ease-out;
+    transition: transform 0.3s ease-out, background-color 0.3s ease-out,
+      opacity 0.3s ease-out, top 0.3s ease-out;
 
     &.top {
       top: 33%;
@@ -374,7 +379,7 @@ onUnmounted(() => {
     transition: opacity 0.3s ease-out, background-color 0.3s ease-out;
     z-index: 10000;
 
-    &.isOpened {
+    &.is-opened {
       opacity: 1;
       pointer-events: all;
       background-color: $white-brown;
