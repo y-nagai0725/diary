@@ -15,33 +15,108 @@ import Simplebar from 'simplebar-vue';
 import 'simplebar-vue/dist/simplebar.min.css';
 
 /**
+ * 日記一覧の件数が0の時のメッセージ
+ */
+const NO_DIARIES_MESSAGE = '検索条件に該当する日記はありません。';
+
+/**
  * PC表示かどうか
  */
 const { isPc } = useResponsive();
 
+/**
+ * 年月入力値
+ */
 const inputDateYm = ref(null);
-const inputDateYmd = ref(null);
-
-const diaries = ref([]);
-const currentPage = ref(1);
-const totalDiaries = ref(0);
-const sortOrder = ref('desc');
-const searchWord = ref('');
-const searchDate = ref('');
-const itemsPerPage = 10;
-const totalPages = computed(() => Math.ceil(totalDiaries.value / itemsPerPage));
-
-// --- モーダル用の設定 ---
-const showDeleteModal = ref(false); //削除モーダルの表示状態
-const deleteTargetId = ref(null); // 削除対象の日記ID
-const deleteTargetDate = ref(''); // 削除対象の日記の日付
-const showResultModal = ref(false); // 削除完了モーダルの表示状態
-const resultMessage = ref(''); // 完了メッセージ
 
 /**
- * 日記一覧の件数が0の時のメッセージ
+ * 年月日入力値
  */
-const NO_DIARIES_MESSAGE = '検索条件に該当する日記はありません。';
+const inputDateYmd = ref(null);
+
+/**
+ * 検索設定の表示・非表示
+ */
+const isSearchSettingsOpen = computed(() =>
+  isPc.value ? isPc.value : isAccordionMenuOpen.value
+);
+
+/**
+ * アコーディオンメニュー制御用
+ */
+const isAccordionMenuOpen = ref(false);
+
+/**
+ * （検索結果の）日記一覧
+ */
+const diaries = ref([]);
+
+/**
+ * 現在の表示ページ
+ */
+const currentPage = ref(1);
+
+/**
+ * （検索結果の）日記の合計数
+ */
+const totalDiaries = ref(0);
+
+/**
+ * 検索用の並び順（デフォルトは降順）
+ */
+const searchSortOrder = ref('desc');
+
+/**
+ * 検索用キーワード
+ */
+const searchWord = ref('');
+
+/**
+ * 検索用日付
+ */
+const searchDate = ref('');
+
+/**
+ * 一覧の1ページ当たりの表示数
+ */
+const itemsPerPage = 10;
+
+/**
+ * 一覧の合計ページ数
+ */
+const totalPages = computed(() => Math.ceil(totalDiaries.value / itemsPerPage));
+
+/**
+ * 削除モーダルの表示状態
+ */
+const showDeleteModal = ref(false);
+
+/**
+ * 削除対象の日記ID
+ */
+const deleteTargetId = ref(null);
+
+/**
+ * 削除対象の日記の日付
+ */
+const deleteTargetDate = ref('');
+
+/**
+ * 結果モーダルの表示状態
+ */
+const showResultModal = ref(false);
+
+/**
+ * 結果モーダルのメッセージ
+ */
+const resultMessage = ref('');
+
+/**
+ * ページネーションに表示する数字リスト（省略記号...も含む）
+ */
+const paginationList = computed(() =>
+  createPaginationList(totalPages.value, currentPage.value)
+);
 
 /**
  * 指定されたページの日記を取得
@@ -53,7 +128,7 @@ const fetchDiaries = async (page) => {
       params: {
         page,
         limit: itemsPerPage,
-        order: sortOrder.value,
+        order: searchSortOrder.value,
         search: searchWord.value,
       },
     });
@@ -63,17 +138,6 @@ const fetchDiaries = async (page) => {
   } catch (error) {
     console.error('日記一覧の取得に失敗しました。', error);
   }
-};
-
-/**
- * 並び順を切り替える
- */
-const toggleSortOrder = () => {
-  //現在の反対の並び順に
-  sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc';
-
-  // 並び順を変えたら、1ページ目からデータを取り直す
-  fetchDiaries(1);
 };
 
 /**
@@ -196,23 +260,29 @@ const createPaginationList = (totalPages, currentPage) => {
 };
 
 /**
- * ページネーションに表示する数字リスト（省略記号...も含む）
+ * 検索ワード、並び順の選択監視
  */
-const paginationList = computed(() =>
-  createPaginationList(totalPages.value, currentPage.value)
-);
-
-watch(searchWord, () => {
-  // 検索キーワードが変わったら、必ず1ページ目から検索し直す
+watch([searchWord, searchSortOrder], () => {
+  // 検索ワード、並び順が変わったら、必ず1ページ目から検索し直す
   fetchDiaries(1);
 });
 
-watch(inputDateYm, (newValue) => {
-  console.log(newValue);
+/**
+ * 年月入力の監視
+ */
+watch(inputDateYm, (newDateYm) => {
+  console.log(newDateYm);
+  //TODO 入力された年月を使って検索処理
+  //fetchDiaries(1);
 });
 
-watch(inputDateYmd, (newValue) => {
-  console.log(newValue);
+/**
+ * 年月日入力の監視
+ */
+watch(inputDateYmd, (newDateYmd) => {
+  console.log(newDateYmd);
+  //TODO 入力された年月日を使って検索処理
+  //fetchDiaries(1);
 });
 
 onMounted(() => {
@@ -224,78 +294,114 @@ onMounted(() => {
 <template>
   <div class="diaries">
     <div class="diaries__search-area">
-      <div class="diaries__date-wrapper">
-        <label class="diaries__form-label" for="">対象期間</label>
-        <div class="diaries__date-box">
-          <div class="diaries__date-radio-wrapper">
+      <p
+        class="diaries__search-title"
+        :class="{ 'is-opened-menu': isSearchSettingsOpen }"
+        @click="isAccordionMenuOpen = !isAccordionMenuOpen"
+      >
+        検索設定
+      </p>
+      <div v-show="isSearchSettingsOpen" class="diaries__search-settings">
+        <div class="diaries__order-wrapper">
+          <label class="diaries__form-label">並び順</label>
+          <div class="diaries__order-radio-wrapper">
             <input
-              id="diaries__date-all"
-              class="diaries__date-radio"
+              id="diaries__order-desc"
+              class="diaries__order-radio"
               type="radio"
-              name="search-date"
-              v-model="searchDate"
-              value="all"
-              checked
+              name="search-order"
+              v-model="searchSortOrder"
+              value="desc"
             />
-            <label class="diaries__date-label" for="diaries__date-all"
-              >すべて</label
+            <label class="diaries__order-label" for="diaries__order-desc"
+              >新しい順</label
             >
             <input
-              id="diaries__date-ym"
-              class="diaries__date-radio"
+              id="diaries__order-asc"
+              class="diaries__order-radio"
               type="radio"
-              name="search-date"
-              v-model="searchDate"
-              value="ym"
+              name="search-order"
+              v-model="searchSortOrder"
+              value="asc"
             />
-            <label class="diaries__date-label" for="diaries__date-ym"
-              >年月</label
-            >
-            <input
-              id="diaries__date-ymd"
-              class="diaries__date-radio"
-              type="radio"
-              name="search-date"
-              v-model="searchDate"
-              value="ymd"
-            />
-            <label class="diaries__date-label" for="diaries__date-ymd"
-              >年月日</label
+            <label class="diaries__order-label" for="diaries__order-asc"
+              >古い順</label
             >
           </div>
-          <VueDatePicker
-            v-if="searchDate === 'ym'"
-            class="diaries__input-date"
-            v-model="inputDateYm"
-            placeholder="---- 年 -- 月"
-            locale="ja"
-            month-picker
-            auto-apply
-            :format="formatYm"
-          ></VueDatePicker>
-          <VueDatePicker
-            v-else-if="searchDate === 'ymd'"
-            class="diaries__input-date"
-            v-model="inputDateYmd"
-            placeholder="---- 年 -- 月 -- 日"
-            locale="ja"
-            auto-apply
-            :enable-time-picker="false"
-            :format="formatYmd"
-          ></VueDatePicker>
         </div>
-      </div>
-      <div class="diaries__search-word-wrapper">
-        <label class="diaries__form-label" for="diaries__input-search-word"
-          >検索ワード</label
-        >
-        <input
-          id="diaries__input-search-word"
-          class="diaries__input-search-word"
-          type="text"
-          v-model="searchWord"
-          placeholder="日記内容を検索..."
-        />
+        <div class="diaries__date-wrapper">
+          <label class="diaries__form-label">対象期間</label>
+          <div class="diaries__date-box">
+            <div class="diaries__date-radio-wrapper">
+              <input
+                id="diaries__date-all"
+                class="diaries__date-radio"
+                type="radio"
+                name="search-date"
+                v-model="searchDate"
+                value="all"
+                checked
+              />
+              <label class="diaries__date-label" for="diaries__date-all"
+                >すべて</label
+              >
+              <input
+                id="diaries__date-ym"
+                class="diaries__date-radio"
+                type="radio"
+                name="search-date"
+                v-model="searchDate"
+                value="ym"
+              />
+              <label class="diaries__date-label" for="diaries__date-ym"
+                >年月</label
+              >
+              <input
+                id="diaries__date-ymd"
+                class="diaries__date-radio"
+                type="radio"
+                name="search-date"
+                v-model="searchDate"
+                value="ymd"
+              />
+              <label class="diaries__date-label" for="diaries__date-ymd"
+                >年月日</label
+              >
+            </div>
+            <VueDatePicker
+              v-if="searchDate === 'ym'"
+              class="diaries__input-date"
+              v-model="inputDateYm"
+              placeholder="---- 年 -- 月"
+              locale="ja"
+              month-picker
+              auto-apply
+              :format="formatYm"
+            ></VueDatePicker>
+            <VueDatePicker
+              v-else-if="searchDate === 'ymd'"
+              class="diaries__input-date"
+              v-model="inputDateYmd"
+              placeholder="---- 年 -- 月 -- 日"
+              locale="ja"
+              auto-apply
+              :enable-time-picker="false"
+              :format="formatYmd"
+            ></VueDatePicker>
+          </div>
+        </div>
+        <div class="diaries__search-word-wrapper">
+          <label class="diaries__form-label" for="diaries__input-search-word"
+            >検索ワード</label
+          >
+          <input
+            id="diaries__input-search-word"
+            class="diaries__input-search-word"
+            type="text"
+            v-model="searchWord"
+            placeholder="日記内容を検索..."
+          />
+        </div>
       </div>
       <div v-if="isPc" class="diaries__pc-link-wrapper">
         <RouterLink class="diaries__link-create" to="/diary/new"
@@ -317,9 +423,6 @@ onMounted(() => {
           {{ NO_DIARIES_MESSAGE }}
         </p>
         <ul v-else class="diaries__result-list">
-          <!-- <button class="diaries__order-button" @click="toggleSortOrder">
-          並び替え: {{ sortOrder === 'desc' ? '新しい順' : '古い順' }}
-        </button> -->
           <li
             v-for="diary in diaries"
             :key="diary.id"
@@ -450,17 +553,38 @@ onMounted(() => {
     }
   }
 
-  &__date-wrapper {
-    display: grid;
-    grid-template-columns: max-content auto;
-    gap: 2.4rem;
+  &__search-title {
+    @include accordion-menu-style;
+  }
+
+  &__search-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
 
     @include tab {
-      gap: 3.2rem;
+      gap: 2rem;
     }
 
     @include pc {
-      gap: 4rem;
+      gap: 2.4rem;
+    }
+  }
+
+  &__order-wrapper,
+  &__date-wrapper {
+    display: grid;
+    grid-template-columns: 60px auto;
+    gap: 1.6rem;
+
+    @include tab {
+      grid-template-columns: 65px auto;
+      gap: 2rem;
+    }
+
+    @include pc {
+      grid-template-columns: 70px auto;
+      gap: 2.4rem;
     }
   }
 
@@ -473,6 +597,19 @@ onMounted(() => {
 
     @include pc {
       font-size: clamp(15px, 1.6rem, 16px);
+    }
+  }
+
+  &__order-radio-wrapper {
+    display: flex;
+    gap: 2rem;
+
+    @include tab {
+      gap: 2.2rem;
+    }
+
+    @include pc {
+      gap: 2.4rem;
     }
   }
 
@@ -495,15 +632,18 @@ onMounted(() => {
     justify-content: space-between;
   }
 
+  &__order-radio,
   &__date-radio {
     display: none;
 
+    &:checked + #{$parent}__order-label,
     &:checked + #{$parent}__date-label {
       color: $white;
       background-color: $orange;
     }
   }
 
+  &__order-label,
   &__date-label {
     cursor: pointer;
     padding: 0.75em;
@@ -520,9 +660,6 @@ onMounted(() => {
     @include pc {
       font-size: clamp(15px, 1.6rem, 16px);
     }
-  }
-
-  &__input-date {
   }
 
   &__search-word-wrapper {

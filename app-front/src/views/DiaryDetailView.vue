@@ -902,39 +902,7 @@ onMounted(() => {
   }
 
   &__settings-title {
-    text-align: center;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    font-size: clamp(18px, 1.8rem, 20px);
-    position: relative;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      right: 0;
-      width: 0.55em;
-      aspect-ratio: 1;
-      border-bottom: 2px solid $brown;
-      border-right: 2px solid $brown;
-      transform: translateY(-50%) rotate(45deg);
-    }
-
-    &.is-opened-menu::before {
-      transform: translateY(-50%) rotate(-135deg);
-    }
-
-    @include tab {
-      font-size: clamp(20px, 2rem, 22px);
-    }
-
-    @include pc {
-      font-size: clamp(20px, 2.2rem, 22px);
-
-      &::before {
-        display: none;
-      }
-    }
+    @include accordion-menu-style;
   }
 
   &__prompt-settings {
