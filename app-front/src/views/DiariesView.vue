@@ -506,7 +506,7 @@ onMounted(() => {
         >
           <CaretLeftIcon class="diaries__caret-left-icon" />
         </button>
-        <template v-for="page in paginationList">
+        <template v-for="(page, index) in paginationList">
           <button
             v-if="page !== '...'"
             class="diaries__page-button"
@@ -514,11 +514,11 @@ onMounted(() => {
               selected: currentPage === page,
             }"
             @click="fetchDiaries(page)"
-            :key="page.index"
+            :key="page"
           >
             {{ page }}
           </button>
-          <span v-else class="diaries__page-dot" :key="page.index">{{
+          <span v-else class="diaries__page-dot" :key="`dot-${index}`">{{
             page
           }}</span>
         </template>
