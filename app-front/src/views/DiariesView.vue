@@ -384,9 +384,6 @@ onMounted(() => {
         ><HomeIcon class="diaries__home-icon" />Home</RouterLink
       >
     </div>
-    <RouterLink v-if="!isPc" class="diaries__sp-create-button" to="/diary/new"
-      ><PenIcon class="diaries__sp-create-icon"
-    /></RouterLink>
     <ConfirmModal
       :show="showDeleteModal"
       :title="'日記削除'"
@@ -887,32 +884,6 @@ onMounted(() => {
       margin-inline: auto;
       padding: 2rem;
     }
-  }
-
-  &__sp-create-button {
-    position: fixed;
-    bottom: 4rem;
-    right: 2rem;
-    height: 4.8rem;
-    aspect-ratio: 1;
-    border-radius: 100vmax;
-    background-color: $orange;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    @include tab {
-      bottom: 5rem;
-      right: 3rem;
-      height: 5.2rem;
-    }
-  }
-
-  &__sp-create-icon {
-    width: 45%;
-    fill: none;
-    stroke: $white-brown;
-    stroke-width: 2;
   }
 }
 </style>

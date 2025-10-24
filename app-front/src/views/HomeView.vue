@@ -2,21 +2,11 @@
 import { ref, onMounted } from 'vue';
 import { useResponsive } from '@/composables/useResponsive.js';
 import apiClient from '@/api';
-import CheckmarkIcon from '@/components/icons/CheckmarkIcon.vue';
 import UserIcon from '@/components/icons/UserIcon.vue';
 import PenIcon from '@/components/icons/PenIcon.vue';
 import BookIcon from '@/components/icons/BookIcon.vue';
 import { formatDate } from '@/utils/date.js';
 import { userName } from '@/auth.js';
-
-const notice = ref('');
-const recentDiaries = ref([]);
-const totalDiariesCount = ref(null);
-
-/**
- * PC表示かどうか
- */
-const { isPc } = useResponsive();
 
 /**
  * 日記未登録時のメッセージ
@@ -30,6 +20,26 @@ const NO_DIARIES_MESSAGE =
 const NOT_EXISTS_TODAY_DIARY_MESSAGE = '今日の日記がまだ登録されていません。';
 
 /**
+ * PC表示かどうか
+ */
+const { isPc } = useResponsive();
+
+/**
+ * お知らせメッセージ
+ */
+const notice = ref('');
+
+/**
+ * 直近7件の日記データ
+ */
+const recentDiaries = ref([]);
+
+/**
+ * 合計の投稿数
+ */
+const totalDiariesCount = ref(null);
+
+/**
  * 直近7件の日記データ取得
  */
 const getRecentDiaries = async () => {
@@ -37,7 +47,7 @@ const getRecentDiaries = async () => {
     const response = await apiClient.get('/api/diaries/recent');
     return response.data;
   } catch (error) {
-    console.error('直近5件の日記データの取得に失敗しました。', error);
+    console.error('直近7件の日記データの取得に失敗しました。', error);
     return { recentDiaries: [], totalDiaries: null };
   }
 };
@@ -103,7 +113,7 @@ onMounted(async () => {
   totalDiariesCount.value = responseData.totalDiaries;
 
   //お知らせメッセージ表示
-  if (recentDiaries.value.length === 0 || !existsTodayDiaryData()) {
+  if (!existsTodayDiaryData()) {
     notice.value = NOT_EXISTS_TODAY_DIARY_MESSAGE;
   }
 });
@@ -160,9 +170,6 @@ onMounted(async () => {
         </li>
       </ul>
     </div>
-    <RouterLink v-if="!isPc" class="home__sp-create-button" to="/diary/new"
-      ><PenIcon class="home__sp-create-icon"
-    /></RouterLink>
   </div>
 </template>
 <style lang="scss" scoped>
@@ -346,18 +353,7 @@ onMounted(async () => {
   }
 
   &__sub-title {
-    text-align: center;
-    font-weight: 700;
-    font-size: clamp(22px, 2.2rem, 26px);
-    letter-spacing: 0.1em;
-
-    @include tab {
-      font-size: clamp(26px, 2.6rem, 30px);
-    }
-
-    @include pc {
-      font-size: clamp(30px, 4rem, 40px);
-    }
+    @include sub-title-style;
   }
 
   &__no-diaries {
@@ -389,9 +385,6 @@ onMounted(async () => {
     @include pc {
       gap: 4rem;
     }
-  }
-
-  &__diary-item {
   }
 
   &__diary-edit-link {
@@ -486,32 +479,6 @@ onMounted(async () => {
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.8;
-  }
-
-  &__sp-create-button {
-    position: fixed;
-    bottom: 4rem;
-    right: 2rem;
-    height: 4.8rem;
-    aspect-ratio: 1;
-    border-radius: 100vmax;
-    background-color: $orange;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    @include tab {
-      bottom: 5rem;
-      right: 3rem;
-      height: 5.2rem;
-    }
-  }
-
-  &__sp-create-icon {
-    width: 45%;
-    fill: none;
-    stroke: $white-brown;
-    stroke-width: 2;
   }
 }
 </style>
