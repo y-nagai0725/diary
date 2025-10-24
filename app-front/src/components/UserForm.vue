@@ -1,10 +1,15 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 /**
- * ユーザー名エラーテキスト
+ * ユーザー名エラーテキスト（空文字）
  */
-const NAME_ERROR_TEXT = 'ユーザー名は10文字以内で入力して下さい。';
+const NAME_EMPTY_ERROR_TEXT = 'ユーザー名を入力して下さい。';
+
+/**
+ * ユーザー名エラーテキスト（文字数）
+ */
+const NAME_LENGTH_ERROR_TEXT = 'ユーザー名は10文字以内で入力して下さい。';
 
 /**
  * パスワードエラーテキスト
@@ -12,14 +17,14 @@ const NAME_ERROR_TEXT = 'ユーザー名は10文字以内で入力して下さ�
 const PASSWORD_ERROR_TEXT = 'パスワードは4文字以上で入力して下さい。';
 
 /**
- *
+ * props定義
  */
 defineProps({
   buttonText: String, //ボタンテキスト
 });
 
 /**
- *
+ * emit定義
  */
 const emit = defineEmits(['submit-form']);
 
@@ -29,21 +34,100 @@ const emit = defineEmits(['submit-form']);
 const userForm = ref({ name: '', password: '' });
 
 /**
- * ユーザー名エラー表示・非表示
+ * ユーザー名エラー
  */
-const isErroredName = ref(false);
+const nameError = ref('');
 
 /**
- * パスワードエラー表示・非表示
+ * パスワードエラー
  */
-const isErroredPassword = ref(false);
+const passwordError = ref('');
+
+/**
+ * パスワード入力欄
+ */
+const passwordInputRef = ref(null);
+
+// --- ユーザー名の入力値を監視 ---
+watch(
+  () => userForm.value.name,
+  (newName) => {
+    // 10文字より多い場合にエラー
+    if (newName.length > 10) {
+      nameError.value = NAME_LENGTH_ERROR_TEXT;
+    } else {
+      // 10文字以内ならば、エラーを消す
+      nameError.value = '';
+    }
+  }
+);
+
+// --- パスワードの入力値を監視 ---
+watch(
+  () => userForm.value.password,
+  (newPassword) => {
+    // 0文字より大きく、4文字未満の場合にエラー
+    if (0 < newPassword.length && newPassword.length < 4) {
+      passwordError.value = PASSWORD_ERROR_TEXT;
+    } else {
+      // 4文字以上ならば、エラーを消す
+      passwordError.value = '';
+    }
+  }
+);
 
 /**
  * ボタンクリック時の処理
  */
 const handleSubmit = () => {
-  //@submit-formに設定された処理を実行
-  emit('submit-form', userForm.value);
+  // エラーフラグをリセット
+  nameError.value = '';
+  passwordError.value = '';
+
+  // フォームが有効かどうかのフラグ
+  let isValid = true;
+
+  // ユーザー名のチェック
+  if (userForm.value.name.length === 0) {
+    // 空文字のエラー
+    nameError.value = NAME_EMPTY_ERROR_TEXT;
+    isValid = false;
+  } else if (userForm.value.name.length > 10) {
+    // 文字数オーバーのエラー
+    nameError.value = NAME_LENGTH_ERROR_TEXT;
+    isValid = false;
+  }
+
+  // パスワードのチェック
+  if (userForm.value.password.length < 4) {
+    // 4文字未満の場合エラー
+    passwordError.value = PASSWORD_ERROR_TEXT;
+    isValid = false;
+  }
+
+  // 親にイベントを送信
+  if (isValid) {
+    //@submit-formに設定された処理を実行
+    emit('submit-form', userForm.value);
+  }
+};
+
+/**
+ * ユーザー名入力欄でEnterが押された時の処理
+ */
+const handleNameEnter = () => {
+  // パスワード入力欄にフォーカスを当てる
+  if (passwordInputRef.value) {
+    passwordInputRef.value.focus();
+  }
+};
+
+/**
+ * パスワード入力欄でEnterが押された時の処理
+ */
+const handlePasswordEnter = () => {
+  // ボタンクリック処理を実行
+  handleSubmit();
 };
 </script>
 
@@ -59,9 +143,10 @@ const handleSubmit = () => {
         type="text"
         placeholder="ユーザー名"
         v-model.trim="userForm.name"
+        @keydown.enter.prevent="handleNameEnter"
       />
-      <p v-if="isErroredName" class="user-form__input-name-error">
-        {{ NAME_ERROR_TEXT }}
+      <p v-if="nameError" class="user-form__input-name-error">
+        {{ nameError }}
       </p>
     </div>
     <div class="user-form__form-group">
@@ -74,9 +159,11 @@ const handleSubmit = () => {
         type="password"
         placeholder="パスワード"
         v-model.trim="userForm.password"
+        ref="passwordInputRef"
+        @keydown.enter.prevent="handlePasswordEnter"
       />
-      <p v-if="isErroredPassword" class="user-form__input-password-error">
-        {{ PASSWORD_ERROR_TEXT }}
+      <p v-if="passwordError" class="user-form__input-password-error">
+        {{ passwordError }}
       </p>
     </div>
     <button class="user-form__button" @click="handleSubmit">
