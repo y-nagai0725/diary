@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { useResponsive } from '@/composables/useResponsive.js';
 import apiClient from '@/api';
 import CaretRightIcon from '@/components/icons/CaretRightIcon.vue';
@@ -23,6 +23,11 @@ const NO_DIARIES_MESSAGE = '検索条件に該当する日記はありません�
  * PC表示かどうか
  */
 const { isPc } = useResponsive();
+
+/**
+ * simplebar要素
+ */
+const simplebarRef = ref(null);
 
 /**
  * 年月入力値
@@ -166,10 +171,28 @@ const fetchDiaries = async (page) => {
     //検索対象の日記取得
     const response = await apiClient.get('/api/diaries', { params });
 
-    //データ更新
+    //表示更新
     diaries.value = response.data.diaries;
     totalDiaries.value = response.data.totalDiaries;
     currentPage.value = page;
+
+    //DOMの更新を待つ
+    await nextTick();
+
+    if (!isPc.value) {
+      // SP表示の時
+      if (simplebarRef.value && simplebarRef.value.$el) {
+        const scrollElement = simplebarRef.value.$el.querySelector(
+          '.simplebar-content-wrapper'
+        );
+        if (scrollElement) {
+          scrollElement.scrollTop = 0; // simplebar要素のスクロール位置を一番上に
+        }
+      }
+    } else {
+      // PC表示の時
+      window.scrollTo({ top: 0 });
+    }
   } catch (error) {
     console.error('日記一覧の取得に失敗しました。', error);
     // エラーメッセージを設定して、結果モーダルを表示
@@ -470,6 +493,7 @@ onMounted(() => {
         class="diaries__list-wrapper"
         :class="{ 'no-data': diaries.length === 0 }"
         :auto-hide="false"
+        ref="simplebarRef"
       >
         <p v-if="diaries.length === 0" class="diaries__no-data">
           {{ NO_DIARIES_MESSAGE }}
