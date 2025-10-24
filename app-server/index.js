@@ -259,6 +259,12 @@ app.get('/api/diaries', authenticateToken, async (req, res) => {
     //検索キーワード
     const searchTerm = req.query.search || '';
 
+    //検索日付種類
+    const searchDateType = req.query.searchDateType;
+
+    //検索日付
+    const searchDateValue = req.query.searchDateValue;
+
     //日記の著者id
     const authorId = req.user.userId;
 
@@ -266,11 +272,53 @@ app.get('/api/diaries', authenticateToken, async (req, res) => {
     const where = {
       authorId,
     };
+
+    //検索キーワード
     if (searchTerm) {
-      //テキストに検索キーワードを含む条件を追加
       where.text = {
         contains: searchTerm,
       };
+    }
+
+    //日付検索
+    if (searchDateType && searchDateValue) {
+      try {
+        if (searchDateType === 'ym') {
+          // 'yyyy-MM' の場合
+          const year = parseInt(searchDateValue.substring(0, 4));
+          const month = parseInt(searchDateValue.substring(5, 7));
+
+          // その月の最初の日
+          const startDate = new Date(year, month - 1, 1);
+
+          // 次の月の最初の日
+          const endDate = new Date(year, month, 1);
+
+          where.date = {
+            gte: startDate.toISOString(), // 以上(>=)
+            lt: endDate.toISOString(), // より小さい(<)
+          };
+        } else if (searchDateType === 'ymd') {
+          // 'yyyy-MM-dd' の場合
+          const year = parseInt(searchDateValue.substring(0, 4));
+          const month = parseInt(searchDateValue.substring(5, 7));
+          const day = parseInt(searchDateValue.substring(8, 10));
+
+          // その日の始まり
+          const startDate = new Date(year, month - 1, day);
+
+          // 次の日の始まり
+          const endDate = new Date(year, month - 1, day + 1);
+
+          where.date = {
+            gte: startDate.toISOString(), // 以上(>=)
+            lt: endDate.toISOString(), // より小さい(<)
+          };
+        }
+      } catch (dateError) {
+        console.error('日付の解析に失敗しました:', dateError);
+        return res.status(400).json({ error: '入力された日付の形式が正しくありません。' });
+      }
     }
 
     //必要な分の日記を取得
@@ -279,7 +327,7 @@ app.get('/api/diaries', authenticateToken, async (req, res) => {
       skip: skip,
       take: limit,
       orderBy: {
-        date: order, //日付で並び替え
+        date: order,
       },
     });
 

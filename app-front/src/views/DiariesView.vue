@@ -62,7 +62,7 @@ const currentPage = ref(1);
 const totalDiaries = ref(0);
 
 /**
- * 検索用の並び順（デフォルトは降順）
+ * 検索用の並び順（デフォルトは'新しい順'）
  */
 const searchSortOrder = ref('desc');
 
@@ -72,9 +72,26 @@ const searchSortOrder = ref('desc');
 const searchWord = ref('');
 
 /**
+ * 検索用日付種類（デフォルトは'すべて'）
+ */
+const searchDateType = ref('all');
+
+/**
  * 検索用日付
  */
-const searchDate = ref('');
+const searchDateValue = computed(() => {
+  if (searchDateType.value === 'ym' && inputDateYm.value) {
+    // 年月が選ばれてたら 'yyyy-MM' の形にする
+    const year = String(inputDateYm.value.year);
+    const month = String(inputDateYm.value.month + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  } else if (searchDateType.value === 'ymd' && inputDateYmd.value) {
+    // 年月日が選ばれてたら 'yyyy-MM-dd' の形にする
+    return formatDate(inputDateYmd.value, '-');
+  }
+  // 'all'の時や、日付がまだ選ばれてない時はnullを返す
+  return null;
+});
 
 /**
  * 一覧の1ページ当たりの表示数
@@ -85,6 +102,13 @@ const itemsPerPage = 10;
  * 一覧の合計ページ数
  */
 const totalPages = computed(() => Math.ceil(totalDiaries.value / itemsPerPage));
+
+/**
+ * ページネーションに表示する数字リスト（省略記号...も含む）
+ */
+const paginationList = computed(() =>
+  createPaginationList(totalPages.value, currentPage.value)
+);
 
 /**
  * 削除モーダルの表示状態
@@ -107,36 +131,51 @@ const deleteTargetDate = ref('');
 const showResultModal = ref(false);
 
 /**
+ * 結果モーダルのタイトル
+ */
+const resultTitle = ref('');
+
+/**
  * 結果モーダルのメッセージ
  */
 const resultMessage = ref('');
 
 /**
- * ページネーションに表示する数字リスト（省略記号...も含む）
+ * 結果モーダルのコールバック処理
  */
-const paginationList = computed(() =>
-  createPaginationList(totalPages.value, currentPage.value)
-);
+let resultModalCallBack = null;
 
 /**
  * 指定されたページの日記を取得
  */
 const fetchDiaries = async (page) => {
   try {
-    //TODO 日付での検索機能実装
-    const response = await apiClient.get('/api/diaries', {
-      params: {
-        page,
-        limit: itemsPerPage,
-        order: searchSortOrder.value,
-        search: searchWord.value,
-      },
-    });
+    const params = {
+      page,
+      limit: itemsPerPage,
+      order: searchSortOrder.value,
+      search: searchWord.value,
+    };
+
+    //日付が入力されている場合、検索条件に加える
+    if (searchDateValue.value) {
+      params.searchDateType = searchDateType.value;
+      params.searchDateValue = searchDateValue.value;
+    }
+
+    //検索対象の日記取得
+    const response = await apiClient.get('/api/diaries', { params });
+
+    //データ更新
     diaries.value = response.data.diaries;
     totalDiaries.value = response.data.totalDiaries;
     currentPage.value = page;
   } catch (error) {
     console.error('日記一覧の取得に失敗しました。', error);
+    // エラーメッセージを設定して、結果モーダルを表示
+    resultTitle.value = '検索エラー';
+    resultMessage.value = error.response.data.error;
+    showResultModal.value = true;
   }
 };
 
@@ -164,12 +203,20 @@ const confirmDelete = async () => {
     // データベースから削除
     await apiClient.delete(`/api/diaries/${deleteTargetId.value}`);
 
+    //結果モーダルのコールバック処理設定
+    resultModalCallBack = () => {
+      // 日記一覧の再表示
+      fetchDiaries(1);
+    };
+
     // 完了メッセージを設定して、完了モーダルを表示
+    resultTitle.value = '削除完了';
     resultMessage.value = `${deleteTargetDate.value} の日記を削除しました。`;
     showResultModal.value = true;
   } catch (error) {
     console.error('日記データの削除に失敗しました。', error);
     // エラーメッセージを設定して、完了モーダルを表示
+    resultTitle.value = '削除エラー';
     resultMessage.value = `${deleteTargetDate.value} の日記の削除に失敗しました。`;
     showResultModal.value = true;
   }
@@ -188,14 +235,23 @@ const cancelDelete = () => {
 };
 
 /**
- * 削除完了モーダルを閉じる処理
+ * 結果モーダルを閉じる処理
  */
 const closeResultModal = () => {
   // モーダルを閉じる
   showResultModal.value = false;
 
-  // 日記一覧の再表示
-  fetchDiaries(1);
+  //タイトル、メッセージを空に
+  resultTitle.value = '';
+  resultMessage.value = '';
+
+  if (resultModalCallBack) {
+    //設定されているコールバック処理を実行
+    resultModalCallBack();
+
+    //コールバック処理を空に
+    resultModalCallBack = null;
+  }
 };
 
 /**
@@ -262,27 +318,23 @@ const createPaginationList = (totalPages, currentPage) => {
 /**
  * 検索ワード、並び順の選択監視
  */
-watch([searchWord, searchSortOrder], () => {
-  // 検索ワード、並び順が変わったら、必ず1ページ目から検索し直す
+watch([searchWord, searchSortOrder, searchDateValue], () => {
+  // 検索ワード、並び順、日付、変更されたら必ず1ページ目から検索し直す
   fetchDiaries(1);
 });
 
 /**
- * 年月入力の監視
+ * 検索期間のラジオボタンを監視
  */
-watch(inputDateYm, (newDateYm) => {
-  console.log(newDateYm);
-  //TODO 入力された年月を使って検索処理
-  //fetchDiaries(1);
-});
-
-/**
- * 年月日入力の監視
- */
-watch(inputDateYmd, (newDateYmd) => {
-  console.log(newDateYmd);
-  //TODO 入力された年月日を使って検索処理
-  //fetchDiaries(1);
+watch(searchDateType, (newType) => {
+  // all選択時 または ym or ymd 選択時に日付がすでに入力されてたら検索
+  if (
+    (newType === 'ym' && inputDateYm.value) ||
+    (newType === 'ymd' && inputDateYmd.value) ||
+    newType === 'all'
+  ) {
+    fetchDiaries(1);
+  }
 });
 
 onMounted(() => {
@@ -337,8 +389,8 @@ onMounted(() => {
                 id="diaries__date-all"
                 class="diaries__date-radio"
                 type="radio"
-                name="search-date"
-                v-model="searchDate"
+                name="search-date-type"
+                v-model="searchDateType"
                 value="all"
                 checked
               />
@@ -349,8 +401,8 @@ onMounted(() => {
                 id="diaries__date-ym"
                 class="diaries__date-radio"
                 type="radio"
-                name="search-date"
-                v-model="searchDate"
+                name="search-date-type"
+                v-model="searchDateType"
                 value="ym"
               />
               <label class="diaries__date-label" for="diaries__date-ym"
@@ -360,8 +412,8 @@ onMounted(() => {
                 id="diaries__date-ymd"
                 class="diaries__date-radio"
                 type="radio"
-                name="search-date"
-                v-model="searchDate"
+                name="search-date-type"
+                v-model="searchDateType"
                 value="ymd"
               />
               <label class="diaries__date-label" for="diaries__date-ymd"
@@ -369,7 +421,7 @@ onMounted(() => {
               >
             </div>
             <VueDatePicker
-              v-if="searchDate === 'ym'"
+              v-if="searchDateType === 'ym'"
               class="diaries__input-date"
               v-model="inputDateYm"
               placeholder="---- 年 -- 月"
@@ -379,7 +431,7 @@ onMounted(() => {
               :format="formatYm"
             ></VueDatePicker>
             <VueDatePicker
-              v-else-if="searchDate === 'ymd'"
+              v-else-if="searchDateType === 'ymd'"
               class="diaries__input-date"
               v-model="inputDateYmd"
               placeholder="---- 年 -- 月 -- 日"
@@ -500,7 +552,7 @@ onMounted(() => {
 
     <ConfirmModal
       :show="showResultModal"
-      :title="'削除完了'"
+      :title="resultTitle"
       :message="resultMessage"
       :confirmButtonText="'OK'"
       :confirmButtonClass="'confirm'"
