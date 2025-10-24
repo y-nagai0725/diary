@@ -1,5 +1,4 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { isLoggedIn, logout } from '@/auth.js';
 import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
 </script>
