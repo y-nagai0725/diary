@@ -45,16 +45,26 @@ const inputDateYm = ref(null);
 const inputDateYmd = ref(null);
 
 /**
- * 検索設定の表示・非表示
+ * 検索設定の表示・非表示 (SP用)
+ */
+const isSearchSettingsOpenSp = ref(false);
+
+/**
+ * 検索設定が表示されているか (PCでは常にtrue, SPではisSearchSettingsOpenSpに依存)
  */
 const isSearchSettingsOpen = computed(() =>
-  isPc.value ? isPc.value : isAccordionMenuOpen.value
+  isPc.value ? true : isSearchSettingsOpenSp.value
 );
 
 /**
- * アコーディオンメニュー制御用
+ * 検索設定を開閉する (SP用)
  */
-const isAccordionMenuOpen = ref(false);
+const toggleSearchSettings = () => {
+  if (!isPc.value) {
+    // SPの時だけ実行
+    isSearchSettingsOpenSp.value = !isSearchSettingsOpenSp.value;
+  }
+};
 
 /**
  * （検索結果の）日記一覧
@@ -429,112 +439,114 @@ onUnmounted(() => {
       <p
         class="diaries__search-title"
         :class="{ 'is-opened-menu': isSearchSettingsOpen }"
-        @click="isAccordionMenuOpen = !isAccordionMenuOpen"
+        @click="toggleSearchSettings"
       >
         検索設定
       </p>
-      <div v-show="isSearchSettingsOpen" class="diaries__search-settings">
-        <div class="diaries__order-wrapper">
-          <label class="diaries__form-label">並び順</label>
-          <div class="diaries__order-radio-wrapper">
-            <input
-              id="diaries__order-desc"
-              class="diaries__order-radio"
-              type="radio"
-              name="search-order"
-              v-model="searchSortOrder"
-              value="desc"
-            />
-            <label class="diaries__order-label" for="diaries__order-desc"
-              >新しい順</label
-            >
-            <input
-              id="diaries__order-asc"
-              class="diaries__order-radio"
-              type="radio"
-              name="search-order"
-              v-model="searchSortOrder"
-              value="asc"
-            />
-            <label class="diaries__order-label" for="diaries__order-asc"
-              >古い順</label
-            >
-          </div>
-        </div>
-        <div class="diaries__date-wrapper">
-          <label class="diaries__form-label">対象期間</label>
-          <div class="diaries__date-box">
-            <div class="diaries__date-radio-wrapper">
+      <Transition name="search-accordion">
+        <div v-show="isSearchSettingsOpen" class="diaries__search-settings">
+          <div class="diaries__order-wrapper">
+            <label class="diaries__form-label">並び順</label>
+            <div class="diaries__order-radio-wrapper">
               <input
-                id="diaries__date-all"
-                class="diaries__date-radio"
+                id="diaries__order-desc"
+                class="diaries__order-radio"
                 type="radio"
-                name="search-date-type"
-                v-model="searchDateType"
-                value="all"
-                checked
+                name="search-order"
+                v-model="searchSortOrder"
+                value="desc"
               />
-              <label class="diaries__date-label" for="diaries__date-all"
-                >すべて</label
+              <label class="diaries__order-label" for="diaries__order-desc"
+                >新しい順</label
               >
               <input
-                id="diaries__date-ym"
-                class="diaries__date-radio"
+                id="diaries__order-asc"
+                class="diaries__order-radio"
                 type="radio"
-                name="search-date-type"
-                v-model="searchDateType"
-                value="ym"
+                name="search-order"
+                v-model="searchSortOrder"
+                value="asc"
               />
-              <label class="diaries__date-label" for="diaries__date-ym"
-                >年月</label
-              >
-              <input
-                id="diaries__date-ymd"
-                class="diaries__date-radio"
-                type="radio"
-                name="search-date-type"
-                v-model="searchDateType"
-                value="ymd"
-              />
-              <label class="diaries__date-label" for="diaries__date-ymd"
-                >年月日</label
+              <label class="diaries__order-label" for="diaries__order-asc"
+                >古い順</label
               >
             </div>
-            <VueDatePicker
-              v-if="searchDateType === 'ym'"
-              class="diaries__input-date"
-              v-model="inputDateYm"
-              placeholder="---- 年 -- 月"
-              locale="ja"
-              month-picker
-              auto-apply
-              :format="formatYm"
-            ></VueDatePicker>
-            <VueDatePicker
-              v-else-if="searchDateType === 'ymd'"
-              class="diaries__input-date"
-              v-model="inputDateYmd"
-              placeholder="---- 年 -- 月 -- 日"
-              locale="ja"
-              auto-apply
-              :enable-time-picker="false"
-              :format="formatYmd"
-            ></VueDatePicker>
+          </div>
+          <div class="diaries__date-wrapper">
+            <label class="diaries__form-label">対象期間</label>
+            <div class="diaries__date-box">
+              <div class="diaries__date-radio-wrapper">
+                <input
+                  id="diaries__date-all"
+                  class="diaries__date-radio"
+                  type="radio"
+                  name="search-date-type"
+                  v-model="searchDateType"
+                  value="all"
+                  checked
+                />
+                <label class="diaries__date-label" for="diaries__date-all"
+                  >すべて</label
+                >
+                <input
+                  id="diaries__date-ym"
+                  class="diaries__date-radio"
+                  type="radio"
+                  name="search-date-type"
+                  v-model="searchDateType"
+                  value="ym"
+                />
+                <label class="diaries__date-label" for="diaries__date-ym"
+                  >年月</label
+                >
+                <input
+                  id="diaries__date-ymd"
+                  class="diaries__date-radio"
+                  type="radio"
+                  name="search-date-type"
+                  v-model="searchDateType"
+                  value="ymd"
+                />
+                <label class="diaries__date-label" for="diaries__date-ymd"
+                  >年月日</label
+                >
+              </div>
+              <VueDatePicker
+                v-if="searchDateType === 'ym'"
+                class="diaries__input-date"
+                v-model="inputDateYm"
+                placeholder="---- 年 -- 月"
+                locale="ja"
+                month-picker
+                auto-apply
+                :format="formatYm"
+              ></VueDatePicker>
+              <VueDatePicker
+                v-else-if="searchDateType === 'ymd'"
+                class="diaries__input-date"
+                v-model="inputDateYmd"
+                placeholder="---- 年 -- 月 -- 日"
+                locale="ja"
+                auto-apply
+                :enable-time-picker="false"
+                :format="formatYmd"
+              ></VueDatePicker>
+            </div>
+          </div>
+          <div class="diaries__search-word-wrapper">
+            <label class="diaries__form-label" for="diaries__input-search-word"
+              >検索ワード</label
+            >
+            <input
+              id="diaries__input-search-word"
+              class="diaries__input-search-word"
+              type="text"
+              v-model="searchWord"
+              placeholder="日記内容を検索..."
+            />
           </div>
         </div>
-        <div class="diaries__search-word-wrapper">
-          <label class="diaries__form-label" for="diaries__input-search-word"
-            >検索ワード</label
-          >
-          <input
-            id="diaries__input-search-word"
-            class="diaries__input-search-word"
-            type="text"
-            v-model="searchWord"
-            placeholder="日記内容を検索..."
-          />
-        </div>
-      </div>
+      </Transition>
       <div v-if="isPc" class="diaries__pc-link-wrapper">
         <RouterLink class="diaries__link-create" to="/diary/new"
           ><PenIcon class="diaries__pen-icon" />作成</RouterLink
@@ -703,6 +715,10 @@ onUnmounted(() => {
   }
 
   &__search-settings {
+    overflow: hidden;
+    transition: opacity 0.3s ease-out, max-height 0.3s ease-out;
+    max-height: 500px;
+    opacity: 1;
     display: flex;
     flex-direction: column;
     gap: 1.6rem;
@@ -713,7 +729,35 @@ onUnmounted(() => {
 
     @include pc {
       gap: 2.4rem;
+      max-height: none;
+      opacity: 1;
+      overflow: visible;
+      transition: none;
     }
+  }
+
+  // --- アコーディオンが開くとき ---
+  // 開始時
+  .search-accordion-enter-from {
+    max-height: 0;
+    opacity: 0;
+  }
+  // 終了時
+  .search-accordion-enter-to {
+    max-height: 500px;
+    opacity: 1;
+  }
+
+  // --- アコーディオンが閉じるとき ---
+  // 開始時
+  .search-accordion-leave-from {
+    max-height: 500px;
+    opacity: 1;
+  }
+  // 終了時
+  .search-accordion-leave-to {
+    max-height: 0;
+    opacity: 0;
   }
 
   &__order-wrapper,
