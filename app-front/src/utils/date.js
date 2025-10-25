@@ -20,14 +20,19 @@ export const formatDate = (date, separator = '/', addHm = false) => {
 };
 
 /**
- * 日付が有効かどうかをチェックする関数
- * @param {String} dateString
- * @returns {Boolean} 日付が有効かどうか
+ * 有効な日付オブジェクトまたは日付文字列かチェック
+ * @param {Date|String|null} date チェックする値
+ * @returns {boolean} 有効な場合はtrue、無効な場合はfalse
  */
-export const isValidDate = (dateString) => {
+export const isValidDate = (date) => {
+  // nullは無効
+  if (date === null) {
+    return false;
+  }
+
   // Dateオブジェクトに変換、その結果の時間を取得
-  const time = new Date(dateString).getTime();
+  const time = new Date(date).getTime();
 
   // 時間がNaNでなければ、有効な日付だと判断
-  return !isNaN(time);
+  return !isNaN(time) && isNaN(date);
 };

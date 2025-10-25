@@ -163,7 +163,7 @@ const saveDiary = async () => {
   //日付の入力チェック
   if (!isValidDate(date)) {
     resultTitle.value = '未入力エラー';
-    resultMessage.value = '日付が未入力または不正な値が設定されています。';
+    resultMessage.value = '日付が未入力または不正な値です。';
     showResultModal.value = true;
     return;
   }
