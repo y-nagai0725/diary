@@ -15,34 +15,58 @@ defineProps({
 });
 
 const emit = defineEmits(['confirm', 'cancel']);
+
+/**
+ * オーバーレイ（背景）がクリックされた時の処理
+ */
+const handleOverlayClick = () => {
+  // キャンセルイベントを発行する
+  emit('cancel');
+};
+
+/**
+ * 確認ボタンクリック時の処理
+ */
+const handleConfirm = () => {
+  emit('confirm');
+};
+
+/**
+ * キャンセルボタンクリック時の処理
+ */
+const handleCancel = () => {
+  emit('cancel');
+};
 </script>
 
 <template>
-  <div v-if="show" class="modal">
-    <div class="modal__content">
-      <button class="modal__close-button" @click="emit('cancel')">
-        <CloseIcon class="modal__close-icon" />
-      </button>
-      <p class="modal__title">{{ title }}</p>
-      <p class="modal__message">{{ message }}</p>
-      <div class="modal__button-wrapper">
-        <button
-          v-if="!confirmOnly"
-          class="modal__button cancel"
-          @click="emit('cancel')"
-        >
-          {{ cancelButtonText }}
+  <Transition name="modal">
+    <div v-if="show" class="modal" @click.self="handleOverlayClick">
+      <div class="modal__content">
+        <button class="modal__close-button" @click="handleCancel">
+          <CloseIcon class="modal__close-icon" />
         </button>
-        <button
-          class="modal__button"
-          :class="`${confirmButtonClass}`"
-          @click="emit('confirm')"
-        >
-          {{ confirmButtonText }}
-        </button>
+        <p class="modal__title">{{ title }}</p>
+        <p class="modal__message">{{ message }}</p>
+        <div class="modal__button-wrapper">
+          <button
+            v-if="!confirmOnly"
+            class="modal__button cancel"
+            @click="handleCancel"
+          >
+            {{ cancelButtonText }}
+          </button>
+          <button
+            class="modal__button"
+            :class="`${confirmButtonClass}`"
+            @click="handleConfirm"
+          >
+            {{ confirmButtonText }}
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <style lang="scss" scoped>
@@ -165,5 +189,36 @@ const emit = defineEmits(['confirm', 'cancel']);
       width: 150px;
     }
   }
+}
+
+/* Transition用クラス */
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease-out;
+}
+
+.modal-enter-to,
+.modal-leave-from {
+  opacity: 1;
+}
+
+.modal-enter-from .modal__content,
+.modal-leave-to .modal__content {
+  transform: scale(0.75);
+}
+
+.modal-enter-active .modal__content,
+.modal-leave-active .modal__content {
+  transition: transform 0.3s ease-out;
+}
+
+.modal-enter-to .modal__content,
+.modal-leave-from .modal__content {
+  transform: scale(1);
 }
 </style>
