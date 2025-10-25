@@ -401,6 +401,74 @@ app.get('/api/diaries/:id', authenticateToken, async (req, res) => {
 });
 
 /**
+ * 特定の日記の前後の日記IDを取得
+ */
+app.get('/api/diaries/:id/neighbors', authenticateToken, async (req, res) => {
+  try {
+    const currentDiaryId = parseInt(req.params.id);
+    const authorId = req.user.userId;
+
+    // 現在の日記の情報を取得
+    const currentDiary = await prisma.diary.findUnique({
+      where: {
+        id: currentDiaryId,
+        authorId: authorId,
+      },
+      select: { //日付だけ取得
+        date: true,
+      }
+    });
+
+    // 現在の日記が見つからなかったら、エラー
+    if (!currentDiary) {
+      return res.status(404).json({ error: '対象の日記が見つかりません。' });
+    }
+
+    // 前の日記を探す
+    const previousDiary = await prisma.diary.findFirst({
+      where: {
+        authorId: authorId,
+        date: {
+          lt: currentDiary.date, // 今の日記の日付 "より小さい"
+        },
+      },
+      orderBy: {
+        date: 'desc', // 日付が新しい順 (一番近い過去の日記)
+      },
+      select: { // IDだけ取得
+        id: true,
+      },
+    });
+
+    // 次の日記を探す
+    const nextDiary = await prisma.diary.findFirst({
+      where: {
+        authorId: authorId,
+        date: {
+          gt: currentDiary.date, // 今の日記の日付 "より大きい"
+        },
+      },
+      orderBy: {
+        date: 'asc', // 日付が古い順 (一番近い未来の日記)
+      },
+      select: { // IDだけ取得
+        id: true,
+      },
+    });
+
+    // 結果を返す、見つからなかったら null を返す
+    res.json({
+      prevId: previousDiary ? previousDiary.id : null,
+      nextId: nextDiary ? nextDiary.id : null,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: SERVER_ERROR_MESSAGE_500 });
+  }
+});
+
+/**
  * 日記登録
  */
 app.post('/api/diaries', authenticateToken, validateDiaryData, async (req, res) => {

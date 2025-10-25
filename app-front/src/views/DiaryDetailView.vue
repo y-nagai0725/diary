@@ -134,6 +134,20 @@ const resultTitle = ref('');
 let resultModalCallBack = null;
 
 /**
+ * 前後の日記IDを取得する
+ */
+const fetchNeighborIds = async (diaryId) => {
+  if (!diaryId) return; // IDがなかったら何もしない
+  try {
+    const response = await apiClient.get(`/api/diaries/${diaryId}/neighbors`);
+    prevDiaryId.value = response.data.prevId;
+    nextDiaryId.value = response.data.nextId;
+  } catch (error) {
+    console.error('前後の日記IDの取得に失敗しました。', error);
+  }
+};
+
+/**
  * 日記保存処理（作成 or 更新）
  */
 const saveDiary = async () => {
@@ -401,10 +415,12 @@ const initDisplay = async () => {
 
   if (isEditMode.value) {
     // --- 更新モードの時の処理 ---
-    //TODO 前の日記と次の日記のidを取得する処理実装
     try {
+      //urlからidを取得
+      const diaryId = props.id;
+
       //更新対象の日記データ取得
-      const response = await apiClient.get(`/api/diaries/${props.id}`);
+      const response = await apiClient.get(`/api/diaries/${diaryId}`);
 
       //取得日記データから日付、日記内容、Geminiからのコメントを表示
       diaryForm.value.date = response.data.date;
@@ -414,6 +430,9 @@ const initDisplay = async () => {
       //削除用にidと日付データ取得
       deleteTargetId.value = response.data.id;
       deleteTargetDate.value = formatDate(response.data.date, '-', true);
+
+      //前後のidを取得
+      await fetchNeighborIds(diaryId);
     } catch (error) {
       console.error('日記の取得に失敗しました。', error);
       resultTitle.value = '日記取得エラー';
@@ -433,6 +452,10 @@ const initDisplay = async () => {
 
     //日付ボックスに現在日付時刻を設定
     setNowDate();
+
+    // 新規作成時は前後はない
+    prevDiaryId.value = null;
+    nextDiaryId.value = null;
   }
 };
 
@@ -469,11 +492,17 @@ watch(
 );
 
 /**
- * （編集 or 新規作成）モード変更時処理
+ *
  */
-watch(isEditMode, () => {
-  initDisplay();
-});
+watch(
+  () => props.id,
+  (newId, oldId) => {
+    if (newId !== oldId) {
+      // IDが変わったら再表示
+      initDisplay();
+    }
+  }
+);
 
 onMounted(() => {
   //初期表示設定
@@ -833,10 +862,16 @@ onMounted(() => {
         </div>
       </div>
       <div v-if="isEditMode" class="diary__edit-link-wrapper">
-        <RouterLink class="diary__link-prev" :to="`/diary/${prevDiaryId}`"
+        <RouterLink
+          class="diary__link-prev"
+          :to="`/diary/${prevDiaryId}`"
+          :class="{ 'is-disabled': !prevDiaryId }"
           ><CaretLeftIcon class="diary__caret-left-icon" />前の日記</RouterLink
         >
-        <RouterLink class="diary__link-next" :to="`/diary/${nextDiaryId}`"
+        <RouterLink
+          class="diary__link-next"
+          :to="`/diary/${nextDiaryId}`"
+          :class="{ 'is-disabled': !nextDiaryId }"
           >次の日記<CaretRightIcon class="diary__caret-right-icon"
         /></RouterLink>
       </div>
@@ -1356,6 +1391,7 @@ onMounted(() => {
 
     &:disabled {
       cursor: not-allowed;
+      opacity: 0.33;
     }
   }
 
@@ -1425,6 +1461,11 @@ onMounted(() => {
     min-width: 120px;
     width: 13rem;
     gap: 1em;
+
+    &.is-disabled {
+      opacity: 0.33;
+      pointer-events: none;
+    }
 
     @include tab {
       width: 14rem;
