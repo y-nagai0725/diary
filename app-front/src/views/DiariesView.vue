@@ -706,7 +706,7 @@ onUnmounted(() => {
       padding: 2.4rem;
       gap: 2.4rem;
       position: sticky;
-      top: 100px; //ヘッダーの高さ分
+      top: $header-height-pc; //ヘッダーの高さ分
     }
   }
 
@@ -715,7 +715,6 @@ onUnmounted(() => {
   }
 
   &__search-settings {
-    overflow: hidden;
     transition: opacity 0.3s ease-out, max-height 0.3s ease-out;
     max-height: 500px;
     opacity: 1;
@@ -739,11 +738,13 @@ onUnmounted(() => {
   // --- アコーディオンが開くとき ---
   // 開始時
   .search-accordion-enter-from {
+    overflow: hidden;
     max-height: 0;
     opacity: 0;
   }
   // 終了時
   .search-accordion-enter-to {
+    overflow: visible;
     max-height: 500px;
     opacity: 1;
   }
@@ -751,11 +752,13 @@ onUnmounted(() => {
   // --- アコーディオンが閉じるとき ---
   // 開始時
   .search-accordion-leave-from {
+    overflow: visible;
     max-height: 500px;
     opacity: 1;
   }
   // 終了時
   .search-accordion-leave-to {
+    overflow: hidden;
     max-height: 0;
     opacity: 0;
   }

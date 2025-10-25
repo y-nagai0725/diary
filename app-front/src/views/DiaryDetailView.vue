@@ -897,7 +897,7 @@ onMounted(() => {
       padding: 2.4rem;
       gap: 3.2rem;
       position: sticky;
-      top: 100px;
+      top: $header-height-pc;
     }
   }
 

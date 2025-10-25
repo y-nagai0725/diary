@@ -183,17 +183,17 @@ onUnmounted(() => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 70px;
+  height: $header-height-sp;
   display: flex;
   align-items: center;
   z-index: 100;
 
   @include tab {
-    height: 80px;
+    height: $header-height-tab;
   }
 
   @include pc {
-    height: 100px;
+    height: $header-height-pc;
   }
 
   &__inner {

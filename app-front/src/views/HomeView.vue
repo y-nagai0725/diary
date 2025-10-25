@@ -209,7 +209,7 @@ onMounted(async () => {
       margin-inline: initial;
       gap: 3.2rem;
       position: sticky;
-      top: 100px; //ヘッダーの高さ分
+      top: $header-height-pc; //ヘッダーの高さ分
     }
   }
 
