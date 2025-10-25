@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { ref, onMounted, computed, watch, nextTick, onUnmounted } from 'vue';
 import { useResponsive } from '@/composables/useResponsive.js';
 import apiClient from '@/api';
 import CaretRightIcon from '@/components/icons/CaretRightIcon.vue';
@@ -149,6 +149,11 @@ const resultMessage = ref('');
  * 結果モーダルのコールバック処理
  */
 let resultModalCallBack = null;
+
+/**
+ * 検索処理のデバウンス用のタイマー
+ */
+let debounceTimer = null;
 
 /**
  * 指定されたページの日記を取得
@@ -339,10 +344,24 @@ const createPaginationList = (totalPages, currentPage) => {
 };
 
 /**
- * 検索ワード、並び順の選択監視
+ * キーワード検索入力の監視
  */
-watch([searchWord, searchSortOrder, searchDateValue], () => {
-  // 検索ワード、並び順、日付、変更されたら必ず1ページ目から検索し直す
+watch(searchWord, () => {
+  // 前回のタイマー予約があったらキャンセル
+  clearTimeout(debounceTimer);
+
+  // タイマーを予約
+  debounceTimer = setTimeout(() => {
+    // 1ページ目から検索し直す
+    fetchDiaries(1);
+  }, 500);
+});
+
+/**
+ * 日付入力、並び順の選択監視
+ */
+watch([searchSortOrder, searchDateValue], () => {
+  // 並び順、日付が変更されたら必ず1ページ目から検索し直す
   fetchDiaries(1);
 });
 
@@ -363,6 +382,11 @@ watch(searchDateType, (newType) => {
 onMounted(() => {
   //初期表示は、1ページ目のデータを表示
   fetchDiaries(1);
+});
+
+onUnmounted(() => {
+  // 残ってるタイマー予約があったらキャンセル
+  clearTimeout(debounceTimer);
 });
 </script>
 
