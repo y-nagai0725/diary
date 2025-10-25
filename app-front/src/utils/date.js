@@ -34,5 +34,5 @@ export const isValidDate = (date) => {
   const time = new Date(date).getTime();
 
   // 時間がNaNでなければ、有効な日付だと判断
-  return !isNaN(time) && isNaN(date);
+  return !isNaN(time);
 };

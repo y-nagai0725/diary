@@ -384,7 +384,7 @@ const formatter = (date) => {
 /**
  * 初期表示設定
  */
-const initDisplay = async () => {
+const initializeDisplay = async () => {
   //ローカルストレージからGemini APIへの設定を取得、空の場合は初期値設定
   const settings = {
     writerGender: localStorage.getItem('writerGender')
@@ -499,14 +499,14 @@ watch(
   (newId, oldId) => {
     if (newId !== oldId) {
       // IDが変わったら再表示
-      initDisplay();
+      initializeDisplay();
     }
   }
 );
 
 onMounted(() => {
   //初期表示設定
-  initDisplay();
+  initializeDisplay();
 });
 </script>
 
