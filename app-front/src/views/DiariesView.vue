@@ -20,6 +20,11 @@ import 'simplebar-vue/dist/simplebar.min.css';
 const NO_DIARIES_MESSAGE = '検索条件に該当する日記はありません。';
 
 /**
+ * （最低保証の）ローディング表示時間
+ */
+const MIN_LOADING_TIME = 300;
+
+/**
  * PC表示かどうか
  */
 const { isPc } = useResponsive();
@@ -146,6 +151,11 @@ const resultTitle = ref('');
 const resultMessage = ref('');
 
 /**
+ * 検索時のローディング表示制御用
+ */
+const isSearchLoading = ref(false);
+
+/**
  * 結果モーダルのコールバック処理
  */
 let resultModalCallBack = null;
@@ -159,51 +169,74 @@ let debounceTimer = null;
  * 指定されたページの日記を取得
  */
 const fetchDiaries = async (page) => {
-  try {
-    const params = {
-      page,
-      limit: itemsPerPage,
-      order: searchSortOrder.value,
-      search: searchWord.value,
-    };
+  //ローディング表示
+  isSearchLoading.value = true;
 
-    //日付が入力されている場合、検索条件に加える
-    if (searchDateValue.value) {
-      params.searchDateType = searchDateType.value;
-      params.searchDateValue = searchDateValue.value;
-    }
+  const fetchDataPromise = new Promise(async (resolve, reject) => {
+    try {
+      const params = {
+        page,
+        limit: itemsPerPage,
+        order: searchSortOrder.value,
+        search: searchWord.value,
+      };
 
-    //検索対象の日記取得
-    const response = await apiClient.get('/api/diaries', { params });
-
-    //表示更新
-    diaries.value = response.data.diaries;
-    totalDiaries.value = response.data.totalDiaries;
-    currentPage.value = page;
-
-    //DOMの更新を待つ
-    await nextTick();
-
-    if (!isPc.value) {
-      // SP表示の時
-      if (simplebarRef.value && simplebarRef.value.$el) {
-        const scrollElement = simplebarRef.value.$el.querySelector(
-          '.simplebar-content-wrapper'
-        );
-        if (scrollElement) {
-          scrollElement.scrollTop = 0; // simplebar要素のスクロール位置を一番上に
-        }
+      //日付が入力されている場合、検索条件に加える
+      if (searchDateValue.value) {
+        params.searchDateType = searchDateType.value;
+        params.searchDateValue = searchDateValue.value;
       }
-    } else {
-      // PC表示の時
-      window.scrollTo({ top: 0 });
+
+      //検索対象の日記取得
+      const response = await apiClient.get('/api/diaries', { params });
+
+      //表示更新
+      diaries.value = response.data.diaries;
+      totalDiaries.value = response.data.totalDiaries;
+      currentPage.value = page;
+
+      //DOMの更新を待つ
+      await nextTick();
+
+      if (!isPc.value) {
+        // SP表示の時
+        if (simplebarRef.value && simplebarRef.value.$el) {
+          const scrollElement = simplebarRef.value.$el.querySelector(
+            '.simplebar-content-wrapper'
+          );
+          if (scrollElement) {
+            scrollElement.scrollTop = 0; // simplebar要素のスクロール位置を一番上に
+          }
+        }
+      } else {
+        // PC表示の時
+        window.scrollTo({ top: 0 });
+      }
+
+      resolve();
+    } catch (error) {
+      console.error('日記一覧の取得に失敗しました。', error);
+      // エラーメッセージを設定して、結果モーダルを表示
+      resultTitle.value = '検索エラー';
+      resultMessage.value = error.response.data.error;
+      showResultModal.value = true;
+
+      reject(error);
     }
+  });
+
+  //最低表示時間待機用のPromise
+  const waitMinTimePromise = new Promise((resolve) => {
+    setTimeout(resolve, MIN_LOADING_TIME); // 最低時間待つタイマー
+  });
+
+  //データ取得と最低時間待機の両方が終わるのを待つ
+  try {
+    await Promise.all([fetchDataPromise, waitMinTimePromise]);
   } catch (error) {
     console.error('日記一覧の取得に失敗しました。', error);
-    // エラーメッセージを設定して、結果モーダルを表示
-    resultTitle.value = '検索エラー';
-    resultMessage.value = error.response.data.error;
-    showResultModal.value = true;
+  } finally {
+    isSearchLoading.value = false;
   }
 };
 
@@ -513,39 +546,51 @@ onUnmounted(() => {
     </div>
     <div class="diaries__right-box">
       <p class="diaries__sub-title">日記一覧</p>
-      <Simplebar
-        class="diaries__list-wrapper"
-        :class="{ 'no-data': diaries.length === 0 }"
-        :auto-hide="false"
-        ref="simplebarRef"
-      >
-        <p v-if="diaries.length === 0" class="diaries__no-data">
-          {{ NO_DIARIES_MESSAGE }}
-        </p>
-        <ul v-else class="diaries__result-list">
-          <li
-            v-for="diary in diaries"
-            :key="diary.id"
-            class="diaries__diary-item"
+      <div class="diaries__list-outer-wrapper">
+        <Simplebar
+          class="diaries__list-wrapper"
+          :class="{
+            'no-data': diaries.length === 0,
+            'is-loading': isSearchLoading,
+          }"
+          :auto-hide="false"
+          ref="simplebarRef"
+        >
+          <div v-if="isSearchLoading" class="diaries__loader"></div>
+          <p
+            v-if="!isSearchLoading && diaries.length === 0"
+            class="diaries__no-data"
           >
-            <div class="diaries__diary-text-wrapper">
-              <span class="diaries__diary-date">{{
-                formatDate(diary.date, '/', true)
-              }}</span>
-              <span class="diaries__diary-text">{{ diary.text }}</span>
-            </div>
-            <RouterLink class="diaries__edit-link" :to="`/diary/${diary.id}`"
-              ><EditIcon class="diaries__edit-icon"
-            /></RouterLink>
-            <button
-              class="diaries__delete-button"
-              @click="handleDeleteDiary(diary)"
+            {{ NO_DIARIES_MESSAGE }}
+          </p>
+          <ul
+            v-if="!isSearchLoading && diaries.length > 0"
+            class="diaries__result-list"
+          >
+            <li
+              v-for="diary in diaries"
+              :key="diary.id"
+              class="diaries__diary-item"
             >
-              <DeleteIcon class="diaries__delete-icon" />
-            </button>
-          </li>
-        </ul>
-      </Simplebar>
+              <div class="diaries__diary-text-wrapper">
+                <span class="diaries__diary-date">{{
+                  formatDate(diary.date, '/', true)
+                }}</span>
+                <span class="diaries__diary-text">{{ diary.text }}</span>
+              </div>
+              <RouterLink class="diaries__edit-link" :to="`/diary/${diary.id}`"
+                ><EditIcon class="diaries__edit-icon"
+              /></RouterLink>
+              <button
+                class="diaries__delete-button"
+                @click="handleDeleteDiary(diary)"
+              >
+                <DeleteIcon class="diaries__delete-icon" />
+              </button>
+            </li>
+          </ul>
+        </Simplebar>
+      </div>
       <div class="diaries__pagination">
         <button
           class="diaries__page-button diaries__page-button--prev"
@@ -848,11 +893,20 @@ onUnmounted(() => {
     }
   }
 
+  &__list-outer-wrapper {
+    position: relative;
+  }
+
   &__list-wrapper {
     height: 330px;
     padding: 1.6rem;
     border-radius: 10px;
     background-color: $orange;
+    transition: opacity 0.3s ease-out;
+
+    &.is-loading {
+      opacity: 0.7;
+    }
 
     &.no-data {
       display: flex;
@@ -888,8 +942,37 @@ onUnmounted(() => {
     }
 
     @include pc {
-      height: auto;
-      padding: 2.4rem;
+      min-height: 480px;
+      padding: clamp(16px, 2.4rem, 24px);
+
+      &::v-deep(.simplebar-track.simplebar-vertical) {
+        height: calc(100% - 4.8rem);
+        top: 2.4rem;
+        right: clamp(3px, 0.6rem, 6px);
+      }
+    }
+  }
+
+  &__loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 4px solid $white-brown;
+    border-top-color: $brown;
+    border-radius: 100vmax;
+    animation: spin 1s linear infinite;
+    z-index: 10;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
     }
   }
 
