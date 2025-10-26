@@ -771,119 +771,125 @@ onMounted(() => {
         >
       </div>
     </div>
-    <div class="diary__right-box">
-      <RouterLink
-        v-if="isEditMode && isPc"
-        class="diary__pc-create-button"
-        to="/diary/new"
-        ><PenIcon class="diary__pc-create-icon" />作成</RouterLink
-      >
-      <p class="diary__sub-title">
-        {{ isEditMode ? '日記更新' : '日記作成' }}
-      </p>
-      <div class="diary__input-area">
-        <div class="diary__form-group">
-          <label class="diary__input-label" for="diary__input-date">日付</label>
-          <div class="diary__input-date-wrapper">
-            <VueDatePicker
-              class="diary__input-date"
-              v-model="diaryForm.date"
-              placeholder="---- 年 -- 月 -- 日 --:--"
-              locale="ja"
-              auto-apply
-              :format="formatter"
-            ></VueDatePicker>
-            <button class="diary__now-date-button" @click="setNowDate()">
-              <ClockIcon class="diary__clock-icon" />now
-            </button>
-          </div>
-        </div>
-        <div class="diary__form-group">
-          <label class="diary__input-label" for="diary__input-text"
-            >日記内容</label
-          >
-          <div class="diary__input-text-wrapper">
-            <textarea
-              id="diary__input-text"
-              class="diary__input-text"
-              v-model.trim="diaryForm.text"
-              placeholder="（例）今日は天気が良くて気持ちよかったから、近所の公園を散歩した。"
-            ></textarea>
-          </div>
-        </div>
-        <button
-          class="diary__gemini-button"
-          :disabled="isLoadingGeminiComment"
-          @click="getGeminiComment()"
-        >
-          <span
-            v-if="isLoadingGeminiComment"
-            class="diary__gemini-button-text loading"
-            >Gemini考え中…</span
-          >
-          <span v-else class="diary__gemini-button-text"
-            >Geminiにコメントをもらう</span
-          >
-        </button>
-        <div class="diary__form-group">
-          <p class="diary__input-label">Geminiからのコメント</p>
-          <div ref="geminiCommentSection" class="diary__gemini-comment">
-            <p class="diary__gemini-comment-text">
-              {{ diaryForm.geminiComment }}
-            </p>
-          </div>
-        </div>
-        <div class="diary__edit-button-wrapper">
-          <template v-if="isEditMode">
-            <button
-              class="diary__update-button"
-              :disabled="isLoadingGeminiComment"
-              @click="saveDiary()"
-            >
-              <EditIcon class="diary__update-icon" />更新
-            </button>
-            <button
-              class="diary__delete-button"
-              :disabled="isLoadingGeminiComment"
-              @click="handleDeleteDiary()"
-            >
-              <DeleteIcon class="diary__delete-icon" />削除
-            </button>
-          </template>
-          <template v-else>
-            <button
-              class="diary__register-button"
-              :disabled="isLoadingGeminiComment"
-              @click="saveDiary()"
-            >
-              <PenIcon class="diary__register-icon" />日記登録
-            </button>
-          </template>
-        </div>
-      </div>
-      <div v-if="isEditMode" class="diary__edit-link-wrapper">
+    <Transition name="fade-detail" mode="out-in">
+      <div class="diary__right-box" :key="props.id">
         <RouterLink
-          class="diary__link-prev"
-          :to="`/diary/${prevDiaryId}`"
-          :class="{ 'is-disabled': !prevDiaryId }"
-          ><CaretLeftIcon class="diary__caret-left-icon" />前の日記</RouterLink
+          v-if="isEditMode && isPc"
+          class="diary__pc-create-button"
+          to="/diary/new"
+          ><PenIcon class="diary__pc-create-icon" />作成</RouterLink
         >
-        <RouterLink
-          class="diary__link-next"
-          :to="`/diary/${nextDiaryId}`"
-          :class="{ 'is-disabled': !nextDiaryId }"
-          >次の日記<CaretRightIcon class="diary__caret-right-icon"
-        /></RouterLink>
+        <p class="diary__sub-title">
+          {{ isEditMode ? '日記更新' : '日記作成' }}
+        </p>
+        <div class="diary__input-area">
+          <div class="diary__form-group">
+            <label class="diary__input-label" for="diary__input-date"
+              >日付</label
+            >
+            <div class="diary__input-date-wrapper">
+              <VueDatePicker
+                class="diary__input-date"
+                v-model="diaryForm.date"
+                placeholder="---- 年 -- 月 -- 日 --:--"
+                locale="ja"
+                auto-apply
+                :format="formatter"
+              ></VueDatePicker>
+              <button class="diary__now-date-button" @click="setNowDate()">
+                <ClockIcon class="diary__clock-icon" />now
+              </button>
+            </div>
+          </div>
+          <div class="diary__form-group">
+            <label class="diary__input-label" for="diary__input-text"
+              >日記内容</label
+            >
+            <div class="diary__input-text-wrapper">
+              <textarea
+                id="diary__input-text"
+                class="diary__input-text"
+                v-model.trim="diaryForm.text"
+                placeholder="（例）今日は天気が良くて気持ちよかったから、近所の公園を散歩した。"
+              ></textarea>
+            </div>
+          </div>
+          <button
+            class="diary__gemini-button"
+            :disabled="isLoadingGeminiComment"
+            @click="getGeminiComment()"
+          >
+            <span
+              v-if="isLoadingGeminiComment"
+              class="diary__gemini-button-text loading"
+              >Gemini考え中…</span
+            >
+            <span v-else class="diary__gemini-button-text"
+              >Geminiにコメントをもらう</span
+            >
+          </button>
+          <div class="diary__form-group">
+            <p class="diary__input-label">Geminiからのコメント</p>
+            <div ref="geminiCommentSection" class="diary__gemini-comment">
+              <p class="diary__gemini-comment-text">
+                {{ diaryForm.geminiComment }}
+              </p>
+            </div>
+          </div>
+          <div class="diary__edit-button-wrapper">
+            <template v-if="isEditMode">
+              <button
+                class="diary__update-button"
+                :disabled="isLoadingGeminiComment"
+                @click="saveDiary()"
+              >
+                <EditIcon class="diary__update-icon" />更新
+              </button>
+              <button
+                class="diary__delete-button"
+                :disabled="isLoadingGeminiComment"
+                @click="handleDeleteDiary()"
+              >
+                <DeleteIcon class="diary__delete-icon" />削除
+              </button>
+            </template>
+            <template v-else>
+              <button
+                class="diary__register-button"
+                :disabled="isLoadingGeminiComment"
+                @click="saveDiary()"
+              >
+                <PenIcon class="diary__register-icon" />日記登録
+              </button>
+            </template>
+          </div>
+        </div>
+        <div v-if="isEditMode" class="diary__edit-link-wrapper">
+          <RouterLink
+            class="diary__link-prev"
+            :to="`/diary/${prevDiaryId}`"
+            :class="{ 'is-disabled': !prevDiaryId }"
+            ><CaretLeftIcon
+              class="diary__caret-left-icon"
+            />前の日記</RouterLink
+          >
+          <RouterLink
+            class="diary__link-next"
+            :to="`/diary/${nextDiaryId}`"
+            :class="{ 'is-disabled': !nextDiaryId }"
+            >次の日記<CaretRightIcon class="diary__caret-right-icon"
+          /></RouterLink>
+        </div>
+        <div v-if="!isPc" class="diary__sp-link-wrapper">
+          <RouterLink class="diary__link-views" to="/diaries"
+            ><BookIcon class="diary__book-icon" />一覧</RouterLink
+          >
+          <RouterLink class="diary__link-home" to="/home"
+            ><HomeIcon class="diary__home-icon" />Home</RouterLink
+          >
+        </div>
       </div>
-      <div v-if="!isPc" class="diary__sp-link-wrapper">
-        <RouterLink class="diary__link-views" to="/diaries"
-          ><BookIcon class="diary__book-icon" />一覧</RouterLink
-        >
-        <RouterLink class="diary__link-home" to="/home"
-          ><HomeIcon class="diary__home-icon" />Home</RouterLink
-        >
-      </div>
-    </div>
+    </Transition>
     <ConfirmModal
       :show="showDeleteModal"
       :title="'日記削除'"
@@ -908,6 +914,18 @@ onMounted(() => {
 </template>
 <style lang="scss" scoped>
 //TODO リンクのhover設定は後でやる
+
+/* Transition用クラス */
+.fade-detail-enter-active,
+.fade-detail-leave-active {
+  transition: opacity 0.2s ease-out;
+}
+
+.fade-detail-enter-from,
+.fade-detail-leave-to {
+  opacity: 0;
+}
+
 .diary {
   $parent: &;
   display: grid;
