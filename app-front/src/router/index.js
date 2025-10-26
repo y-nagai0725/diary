@@ -85,8 +85,12 @@ router.beforeEach((to, from, next) => {
 
   if (requiresAuth && !token) {
     // ログインページに強制的に移動
-    next('/login');
+    next({
+      path: '/login',
+      query: { redirect: to.fullPath }
+    });
   } else {
+    // ログイン済み、またはログイン不要ページならそのまま進む
     next();
   }
 });

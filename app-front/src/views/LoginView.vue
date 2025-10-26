@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import apiClient from '@/api';
 import UserForm from '@/components/UserForm.vue';
 import { login } from '@/auth.js';
@@ -9,14 +10,35 @@ import { login } from '@/auth.js';
  */
 const serverErrorMessage = ref('');
 
+/**
+ * ページアクセス管理用router
+ */
+const router = useRouter();
+
+/**
+ * ページ情報管理用route
+ */
+const route = useRoute();
+
 // UserFormからデータを受け取って、ログイン処理を実行
 const handleLogin = async (formData) => {
   try {
     //ログイン
     const response = await apiClient.post('/api/login', formData);
 
-    //トークン保存、home画面へ遷移
+    //トークン保存
     login(response.data.token);
+
+    // URL に redirect クエリが付いているかチェック
+    const redirectPath = route.query.redirect;
+
+    if (redirectPath) {
+      // redirect 先があれば、そこへ移動
+      router.replace(redirectPath);
+    } else {
+      // redirect 先がなければ、デフォルトの Home へ移動
+      router.replace('/home');
+    }
   } catch (error) {
     //サーバーからのログインエラーメッセージを表示
     console.error('ログインに失敗しました。', error);

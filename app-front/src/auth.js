@@ -19,7 +19,6 @@ export const login = (token) => {
   localStorage.setItem('token', token);
   isLoggedIn.value = true;
   userName.value = getUserNameFromToken();
-  router.push('/home');
 };
 
 /**
