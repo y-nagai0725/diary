@@ -6,7 +6,7 @@ import HomeIcon from '@/components/icons/HomeIcon.vue';
 <template>
   <div class="not-found">
     <div class="not-found__image-wrapper">
-      <img src="@/assets//images/not-found/404.png" alt="404" />
+      <img src="@/assets/images/not-found/404.jpg" alt="404 Not Found" />
     </div>
     <h1 class="not-found__title">404 Not Found</h1>
     <p class="not-found__message">
