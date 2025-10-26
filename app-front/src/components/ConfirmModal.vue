@@ -10,7 +10,7 @@ defineProps({
   confirmOnly: {
     // OKボタンのみの場合はtrue
     type: Boolean,
-    defalut: false,
+    default: false,
   },
 });
 
