@@ -10,7 +10,11 @@ import FloatingCreateButton from '@/components/FloatingCreateButton.vue';
 
   <main>
     <div class="container">
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <Transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </Transition>
+      </RouterView>
     </div>
   </main>
 
@@ -31,5 +35,15 @@ import FloatingCreateButton from '@/components/FloatingCreateButton.vue';
   @include pc {
     margin-top: calc(100px + 8rem);
   }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
