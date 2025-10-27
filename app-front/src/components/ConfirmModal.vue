@@ -71,6 +71,7 @@ const handleCancel = () => {
 
 <style lang="scss" scoped>
 .modal {
+  $parent: &;
   position: fixed;
   top: 0;
   left: 0;
@@ -116,6 +117,12 @@ const handleCancel = () => {
     position: absolute;
     top: 0;
     right: 0;
+
+    @include hover {
+      #{$parent}__close-icon {
+        stroke: $orange;
+      }
+    }
   }
 
   &__close-icon {
@@ -123,6 +130,7 @@ const handleCancel = () => {
     aspect-ratio: 1;
     stroke: $brown;
     stroke-width: 2;
+    transition: stroke 0.3s ease-out;
   }
 
   &__title {
