@@ -1,4 +1,5 @@
 import '@vuepic/vue-datepicker/dist/main.css';
+import 'simplebar-vue/dist/simplebar.min.css';
 import './assets/main.css'
 
 import { createApp } from 'vue'

@@ -12,7 +12,6 @@ import ConfirmModal from '@/components/ConfirmModal.vue';
 import { formatDate } from '@/utils/date.js';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import Simplebar from 'simplebar-vue';
-import 'simplebar-vue/dist/simplebar.min.css';
 
 /**
  * 日記一覧の件数が0の時のメッセージ
@@ -208,19 +207,13 @@ const fetchDiaries = async (page) => {
       //DOMの更新を待つ
       await nextTick();
 
-      if (!isPc.value) {
-        // SP表示の時
-        if (simplebarRef.value && simplebarRef.value.$el) {
-          const scrollElement = simplebarRef.value.$el.querySelector(
-            '.simplebar-content-wrapper'
-          );
-          if (scrollElement) {
-            scrollElement.scrollTop = 0; // simplebar要素のスクロール位置を一番上に
-          }
+      if (simplebarRef.value && simplebarRef.value.$el) {
+        const scrollElement = simplebarRef.value.$el.querySelector(
+          '.simplebar-content-wrapper'
+        );
+        if (scrollElement) {
+          scrollElement.scrollTop = 0; // simplebar要素のスクロール位置を一番上に
         }
-      } else {
-        // PC表示の時
-        window.scrollTo({ top: 0 });
       }
 
       resolve();
