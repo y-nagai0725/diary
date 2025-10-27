@@ -1313,7 +1313,7 @@ onMounted(() => {
   }
 
   &__input-text {
-    min-height: calc(20em + 1px); //10行表示
+    min-height: calc(26em + 1px); //13行表示
     width: 100%;
     background-image: linear-gradient(
         90deg,
@@ -1332,7 +1332,7 @@ onMounted(() => {
     }
 
     @include tab {
-      min-height: calc(16em + 1px); //8行表示
+      min-height: calc(18em + 1px); //9行表示
       font-size: clamp(17px, 1.7rem, 18px);
     }
 
@@ -1398,7 +1398,7 @@ onMounted(() => {
   }
 
   &__gemini-comment-text {
-    min-height: calc(16em + 1px); //8行表示
+    min-height: calc(18em + 1px); //9行表示
     padding-bottom: 1px;
     background-image: linear-gradient(
         90deg,
