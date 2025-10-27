@@ -1481,7 +1481,7 @@ onMounted(() => {
   &__register-icon {
     height: 1.5em;
     fill: none;
-    stroke: $white-brown;
+    stroke: currentColor;
     stroke-width: 2;
   }
 
