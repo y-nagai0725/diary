@@ -1137,12 +1137,6 @@ onMounted(() => {
     @include button-style-fill($brown, $white-brown);
     width: 13rem;
     gap: 1em;
-    transition: opacity 0.3s ease-out;
-
-    &.is-disabled {
-      opacity: 0.33;
-      pointer-events: none;
-    }
 
     @include tab {
       width: 14rem;
@@ -1172,12 +1166,6 @@ onMounted(() => {
     position: absolute;
     top: 0;
     right: 0;
-    transition: opacity 0.3s ease-out;
-
-    &.is-disabled {
-      opacity: 0.33;
-      pointer-events: none;
-    }
   }
 
   &__pc-create-icon {
@@ -1369,8 +1357,7 @@ onMounted(() => {
     }
 
     &:disabled {
-      cursor: not-allowed;
-      pointer-events: none;
+      opacity: 1;
     }
   }
 
@@ -1449,7 +1436,6 @@ onMounted(() => {
     min-width: 120px;
     width: 13rem;
     gap: 1em;
-    transition: opacity 0.3s ease-out;
 
     @include tab {
       width: 14rem;
@@ -1457,12 +1443,6 @@ onMounted(() => {
 
     @include pc {
       width: 15rem;
-    }
-
-    &:disabled {
-      cursor: not-allowed;
-      pointer-events: none;
-      opacity: 0.33;
     }
   }
 
@@ -1532,12 +1512,6 @@ onMounted(() => {
     min-width: 120px;
     width: 13rem;
     gap: 1em;
-    transition: opacity 0.3s ease-out;
-
-    &.is-disabled {
-      opacity: 0.33;
-      pointer-events: none;
-    }
 
     @include hover {
       color: $brown;

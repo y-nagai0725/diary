@@ -95,7 +95,14 @@
   letter-spacing: 0.1em;
   transition:
     color 0.3s ease-out,
-    background-color 0.3s ease-out;
+    background-color 0.3s ease-out,
+    opacity 0.3s ease-out;
+
+  &.is-disabled,
+  &:disabled {
+    pointer-events: none;
+    opacity: 0.33;
+  }
 
   @include hover {
     color: $fill-color;
