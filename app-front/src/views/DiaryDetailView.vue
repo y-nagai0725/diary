@@ -799,6 +799,7 @@ onMounted(() => {
         <RouterLink
           v-if="isEditMode && isPc"
           class="diary__pc-create-button"
+          :class="{ 'is-disabled': isLoadingGeminiComment }"
           to="/diary/new"
           ><PenIcon class="diary__pc-create-icon" />作成</RouterLink
         >
@@ -1150,6 +1151,11 @@ onMounted(() => {
     position: absolute;
     top: 0;
     right: 0;
+
+    &.is-disabled {
+      opacity: 0.33;
+      pointer-events: none;
+    }
   }
 
   &__pc-create-icon {
