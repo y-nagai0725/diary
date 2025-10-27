@@ -225,12 +225,6 @@ const fetchDiaries = async (page) => {
 
       resolve();
     } catch (error) {
-      console.error('日記一覧の取得に失敗しました。', error);
-      // エラーメッセージを設定して、結果モーダルを表示
-      resultTitle.value = '検索エラー';
-      resultMessage.value = error.response.data.error;
-      showResultModal.value = true;
-
       reject(error);
     }
   });
@@ -244,7 +238,15 @@ const fetchDiaries = async (page) => {
   try {
     await Promise.all([fetchDataPromise, waitMinTimePromise]);
   } catch (error) {
-    console.error('日記一覧の取得に失敗しました。', error);
+    // エラーメッセージを設定して、結果モーダルを表示
+    if (error.response && error.response.status === 400) {
+      resultMessage.value = error.response.data.error;
+    } else {
+      resultMessage.value =
+        'サーバーにてエラーが発生しています。時間を空けてもう一度試してください。';
+    }
+    resultTitle.value = '検索エラー';
+    showResultModal.value = true;
   } finally {
     isSearchLoading.value = false;
   }
@@ -285,10 +287,13 @@ const confirmDelete = async () => {
     resultMessage.value = `${deleteTargetDate.value} の日記を削除しました。`;
     showResultModal.value = true;
   } catch (error) {
-    console.error('日記データの削除に失敗しました。', error);
     // エラーメッセージを設定して、完了モーダルを表示
+    if (error.response && error.response.status === 403) {
+      resultMessage.value = `${deleteTargetDate.value} の日記の削除に失敗しました。日記が存在しないか、既に削除されている可能性があります。`;
+    } else {
+      resultMessage.value = `サーバーにてエラーが発生しています。時間を空けてもう一度試してください。`;
+    }
     resultTitle.value = '削除エラー';
-    resultMessage.value = `${deleteTargetDate.value} の日記の削除に失敗しました。`;
     showResultModal.value = true;
   }
 };

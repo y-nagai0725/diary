@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useResponsive } from '@/composables/useResponsive.js';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 import apiClient from '@/api';
 import UserIcon from '@/components/icons/UserIcon.vue';
 import PenIcon from '@/components/icons/PenIcon.vue';
@@ -45,6 +46,16 @@ const displayDiaries = computed(() => createDisplayData(recentDiaries.value));
 const totalDiariesCount = ref(null);
 
 /**
+ * 結果モーダル表示・非表示
+ */
+const showResultModal = ref(false);
+
+/**
+ * 結果モーダルのメッセージ
+ */
+const resultMessage = ref('');
+
+/**
  * 直近7件の日記データ取得
  */
 const getRecentDiaries = async () => {
@@ -52,7 +63,9 @@ const getRecentDiaries = async () => {
     const response = await apiClient.get('/api/diaries/recent');
     return response.data;
   } catch (error) {
-    console.error('直近7件の日記データの取得に失敗しました。', error);
+    resultMessage.value =
+      'サーバーにてエラーが発生しています。時間を空けてもう一度試してください。';
+    showResultModal.value = true;
     return { recentDiaries: [], totalDiaries: null };
   }
 };
@@ -115,7 +128,7 @@ onMounted(async () => {
   //直近7件の日記データ取得、表示
   const responseData = await getRecentDiaries();
   recentDiaries.value = responseData.recentDiaries;
-  totalDiariesCount.value = responseData.totalDiaries;
+  totalDiariesCount.value = responseData.totalDiaries || '---';
 
   //お知らせメッセージ表示
   if (!existsTodayDiaryData()) {
@@ -176,6 +189,16 @@ onMounted(async () => {
         </li>
       </ul>
     </div>
+    <ConfirmModal
+      :show="showResultModal"
+      :title="'最近の日記取得エラー'"
+      :message="resultMessage"
+      :confirmButtonText="'OK'"
+      :confirmButtonClass="'confirm'"
+      :confirmOnly="true"
+      @confirm="showResultModal = false"
+      @cancel="showResultModal = false"
+    />
   </div>
 </template>
 <style lang="scss" scoped>

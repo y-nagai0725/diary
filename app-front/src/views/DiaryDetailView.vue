@@ -143,7 +143,7 @@ const fetchNeighborIds = async (diaryId) => {
     prevDiaryId.value = response.data.prevId;
     nextDiaryId.value = response.data.nextId;
   } catch (error) {
-    console.error('前後の日記IDの取得に失敗しました。', error);
+    throw error;
   }
 };
 
@@ -193,11 +193,18 @@ const saveDiary = async () => {
       resultMessage.value = '日記を更新しました。';
       showResultModal.value = true;
     } catch (error) {
-      console.error('日記更新が失敗しました。', error);
-
       //結果モーダルにエラーメッセージを設定し、モーダルを表示する
+      if (error.response && error.response.status === 400) {
+        resultMessage.value =
+          '日記更新が失敗しました。' + error.response.data.error;
+      } else if (error.response && error.response.status === 403) {
+        resultMessage.value =
+          '日記更新が失敗しました。対象の日記が存在しない、または既に削除されている可能性があります。';
+      } else {
+        resultMessage.value =
+          'サーバーにてエラーが発生しています。時間を空けてもう一度試してください。';
+      }
       resultTitle.value = '更新エラー';
-      resultMessage.value = '日記更新が失敗しました。';
       showResultModal.value = true;
     }
   } else {
@@ -217,11 +224,15 @@ const saveDiary = async () => {
       resultMessage.value = '日記を登録しました。';
       showResultModal.value = true;
     } catch (error) {
-      console.error('日記登録が失敗しました。', error);
-
       //結果モーダルにエラーメッセージを設定し、モーダルを表示する
+      if (error.response && error.response.status === 400) {
+        resultMessage.value =
+          '日記登録が失敗しました。' + error.response.data.error;
+      } else {
+        resultMessage.value =
+          'サーバーにてエラーが発生しています。時間を空けてもう一度試してください。';
+      }
       resultTitle.value = '登録エラー';
-      resultMessage.value = '日記登録が失敗しました。';
       showResultModal.value = true;
     }
   }
@@ -257,10 +268,13 @@ const deleteDiary = async () => {
     resultMessage.value = `${deleteTargetDate.value} の日記を削除しました。`;
     showResultModal.value = true;
   } catch (error) {
-    console.error('日記データの削除に失敗しました。', error);
     // エラーメッセージを設定して、結果モーダルを表示
+    if (error.response && error.response.status === 403) {
+      resultMessage.value = `${deleteTargetDate.value} の日記の削除に失敗しました。日記が存在しないか、既に削除されている可能性があります。`;
+    } else {
+      resultMessage.value = `サーバーにてエラーが発生しています。時間を空けてもう一度試してください。`;
+    }
     resultTitle.value = '削除エラー';
-    resultMessage.value = `${deleteTargetDate.value} の日記の削除に失敗しました。`;
     showResultModal.value = true;
   }
 };
@@ -324,9 +338,13 @@ const getGeminiComment = async () => {
       });
     }
   } catch (error) {
-    console.error('Geminiからのコメント取得に失敗しました。', error);
+    if (error.response && error.response.status === 400) {
+      resultMessage.value = error.response.data.error;
+    } else {
+      resultMessage.value =
+        'Geminiからのコメント取得に失敗しました。時間を空けてもう一度試してください。';
+    }
     resultTitle.value = 'Gemini API エラー';
-    resultMessage.value = 'Geminiからのコメント取得に失敗しました。';
     showResultModal.value = true;
   }
 
@@ -434,9 +452,14 @@ const initializeDisplay = async () => {
       //前後のidを取得
       await fetchNeighborIds(diaryId);
     } catch (error) {
-      console.error('日記の取得に失敗しました。', error);
+      if (error.response && error.response.status === 404) {
+        resultMessage.value =
+          '日記の取得に失敗しました。対象の日記は存在していない、または既に削除された可能性があります。';
+      } else {
+        resultMessage.value =
+          'サーバーにてエラーが発生しています。時間を空けてもう一度試してください。';
+      }
       resultTitle.value = '日記取得エラー';
-      resultMessage.value = '日記の取得に失敗しました。';
       showResultModal.value = true;
       resultModalCallBack = () => {
         //日記一覧画面へ遷移

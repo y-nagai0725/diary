@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 import apiClient from '@/api';
 import UserForm from '@/components/UserForm.vue';
 import { login } from '@/auth.js';
@@ -26,6 +27,16 @@ const testUserData = {
   password: 'testDiary',
 };
 
+/**
+ * 結果モーダル表示・非表示
+ */
+const showResultModal = ref(false);
+
+/**
+ * 結果モーダルのメッセージ
+ */
+const resultMessage = ref('');
+
 // UserFormからデータを受け取って、ログイン処理を実行
 const handleLogin = async (formData) => {
   try {
@@ -46,8 +57,17 @@ const handleLogin = async (formData) => {
       router.replace('/home');
     }
   } catch (error) {
-    //サーバーからのログインエラーメッセージを表示
-    serverErrorMessage.value = error.response.data.error;
+    if (
+      error.response &&
+      (error.response.status === 400 || error.response.status === 401)
+    ) {
+      //エラーメッセージをログインボタンの下にテキストで表示
+      serverErrorMessage.value = error.response.data.error;
+    } else {
+      resultMessage.value =
+        'サーバーにてエラーが発生しています。時間を空けてもう一度試してください。';
+      showResultModal.value = true;
+    }
   }
 };
 
@@ -82,6 +102,16 @@ const handleInput = () => {
       <p class="login__notice">ユーザー未登録の方はこちらから</p>
       <RouterLink class="login__link" to="/register">ユーザー登録</RouterLink>
     </div>
+    <ConfirmModal
+      :show="showResultModal"
+      :title="'ログインエラー'"
+      :message="resultMessage"
+      :confirmButtonText="'OK'"
+      :confirmButtonClass="'confirm'"
+      :confirmOnly="true"
+      @confirm="showResultModal = false"
+      @cancel="showResultModal = false"
+    />
   </div>
 </template>
 <style lang="scss" scoped>
