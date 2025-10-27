@@ -1,10 +1,15 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import ConfirmModal from '@/components/ConfirmModal.vue';
 import apiClient from '@/api';
 import UserForm from '@/components/UserForm.vue';
 import { login } from '@/auth.js';
+
+/**
+ * 通知メッセージ
+ */
+const notificationMessage = ref('');
 
 /**
  * エラーメッセージ表示用
@@ -78,12 +83,23 @@ const handleInput = () => {
   //サーバーからのエラーメッセージを消す
   serverErrorMessage.value = '';
 };
+
+onMounted(() => {
+  // 画面が表示された時にURLをチェック
+  if (route.query.session === 'expired') {
+    notificationMessage.value =
+      'セッションが無効か期限切れです。再度ログインしてください。';
+  }
+});
 </script>
 
 <template>
   <div class="login">
     <h2 class="login__title">ログイン</h2>
     <div class="login__box">
+      <p v-if="notificationMessage" class="login__notification-message">
+        {{ notificationMessage }}
+      </p>
       <UserForm
         buttonText="ログイン"
         @submit-form="handleLogin"
@@ -99,7 +115,7 @@ const handleInput = () => {
       >
         テストユーザーでお試しログイン
       </button>
-      <p class="login__notice">ユーザー未登録の方はこちらから</p>
+      <p class="login__text">ユーザー未登録の方はこちらから</p>
       <RouterLink class="login__link" to="/register">ユーザー登録</RouterLink>
     </div>
     <ConfirmModal
@@ -173,17 +189,33 @@ const handleInput = () => {
   }
 
   &__box {
-    padding: 4rem 0;
+    padding: 2.4rem 0;
 
     @include tab {
-      padding: 6rem 0;
+      padding: 3.2rem 0;
     }
 
     @include pc {
       min-width: 320px;
       width: 44.8rem;
       margin-inline: auto;
-      padding: 8rem 0;
+      padding: 4rem 0;
+    }
+  }
+
+  &__notification-message {
+    margin-bottom: 1.6rem;
+    color: $red;
+    font-size: clamp(12px, 1.2rem, 13px);
+
+    @include tab {
+      margin-bottom: 1.8rem;
+      font-size: clamp(13px, 1.3rem, 14px);
+    }
+
+    @include pc {
+      margin-bottom: 2rem;
+      font-size: clamp(13px, 1.4rem, 14px);
     }
   }
 
@@ -221,7 +253,7 @@ const handleInput = () => {
   }
 
   &__trial-description,
-  &__notice {
+  &__text {
     text-align: center;
     margin-bottom: 1.6rem;
     font-size: clamp(12px, 1.2rem, 13px);

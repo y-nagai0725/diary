@@ -23,12 +23,15 @@ export const login = (token) => {
 
 /**
  * ログアウト処理
+ * @param {Object} redirectQuery
  */
-export const logout = () => {
+export const logout = (redirectQuery = {}) => {
   localStorage.removeItem('token');
   isLoggedIn.value = false;
   userName.value = null;
-  router.push('/login');
+
+  // 受け取ったクエリパラメータを付けて、ログイン画面に遷移する
+  router.push({ path: '/login', query: redirectQuery });
 };
 
 /**

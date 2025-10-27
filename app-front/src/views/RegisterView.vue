@@ -145,17 +145,17 @@ const handleInput = () => {
   }
 
   &__box {
-    padding: 4rem 0;
+    padding: 2.4rem 0;
 
     @include tab {
-      padding: 6rem 0;
+      padding: 3.2rem 0;
     }
 
     @include pc {
       min-width: 320px;
       width: 44.8rem;
       margin-inline: auto;
-      padding: 8rem 0;
+      padding: 4rem 0;
     }
   }
 

@@ -48,7 +48,7 @@ apiClient.interceptors.response.use(
       // かつ、日記の更新・削除リクエストでもない場合
       if (isAuthError && isNotLoginRequest && !isDiaryUpdateOrDeleteRequest) {
         // トークンが無効か期限切れ、ログアウト処理
-        logout();
+        logout({ session: 'expired' });
       }
     }
 
