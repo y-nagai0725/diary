@@ -86,6 +86,7 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
 </template>
 <style lang="scss" scoped>
 .footer {
+  $parent: &;
   padding: 7rem 0 5rem;
 
   @include tab {
@@ -117,6 +118,11 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
   &__home-link {
     width: 110px;
     padding: 10px 0;
+    transition: opacity 0.3s ease-out;
+
+    @include hover {
+      opacity: 0.8;
+    }
 
     @include tab {
       width: 120px;
@@ -175,6 +181,25 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     font-weight: 700;
     font-size: clamp(14px, 1.4rem, 16px);
     letter-spacing: 0.1em;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 5px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background-color: $brown;
+      transform: scaleX(0);
+      transition: transform 0.3s ease-out;
+    }
+
+    @include hover {
+      &::after {
+        transform: scaleX(1);
+      }
+    }
 
     @include tab {
       font-size: clamp(16px, 1.6rem, 18px);
@@ -228,6 +253,12 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     font-size: clamp(12px, 1.2rem, 13px);
     letter-spacing: 0.1em;
 
+    @include hover {
+      #{$parent}__external-link-icon {
+        transform: translateY(-3px);
+      }
+    }
+
     @include tab {
       font-size: clamp(13px, 1.3rem, 14px);
     }
@@ -242,6 +273,7 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     width: 1em;
     aspect-ratio: 1;
     fill: $brown;
+    transition: transform 0.3s ease-out;
   }
 
   &__copyright {

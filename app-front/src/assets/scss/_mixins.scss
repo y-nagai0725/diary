@@ -81,10 +81,19 @@
   align-items: center;
   background-color: $fill-color;
   border-radius: 100vmax;
+  border: 1px solid $fill-color;
   color: $text-color;
   font-weight: 700;
   font-size: clamp(14px, 1.4rem, 15px);
   letter-spacing: 0.1em;
+  transition:
+    color 0.3s ease-out,
+    background-color 0.3s ease-out;
+
+  @include hover {
+    color: $fill-color;
+    background-color: transparent;
+  }
 
   @include tab {
     height: 5.2rem;
@@ -100,6 +109,11 @@
 @mixin button-style-border($border-color) {
   @include button-style-fill(initial, $border-color);
   border: 1px solid $border-color;
+
+  @include hover {
+    color: $white-brown;
+    background-color: $border-color;
+  }
 }
 
 @mixin accordion-menu-style {
@@ -119,6 +133,7 @@
     border-bottom: 2px solid $brown;
     border-right: 2px solid $brown;
     transform: translateY(-50%) rotate(45deg);
+    transition: transform 0.3s ease-out;
   }
 
   &.is-opened-menu::before {

@@ -936,12 +936,11 @@ onMounted(() => {
   </div>
 </template>
 <style lang="scss" scoped>
-//TODO リンクのhover設定は後でやる
 
-/* Transition用クラス */
+// --- 日記切り替えTransiton設定 ---
 .fade-detail-enter-active,
 .fade-detail-leave-active {
-  transition: opacity 0.2s ease-out;
+  transition: opacity 0.3s ease-out;
 }
 
 .fade-detail-enter-from,
@@ -1014,32 +1013,22 @@ onMounted(() => {
     }
   }
 
-  // --- アコーディオンが開くとき ---
-  // 開始時
-  .gemini-accordion-enter-from {
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-  }
-  // 終了時
-  .gemini-accordion-enter-to {
-    overflow: visible;
-    max-height: 500px;
-    opacity: 1;
-  }
-
-  // --- アコーディオンが閉じるとき ---
-  // 開始時
-  .gemini-accordion-leave-from {
-    overflow: visible;
-    max-height: 500px;
-    opacity: 1;
-  }
-  // 終了時
+  // --- アコーディオンのTransiton設定 ---
+  .gemini-accordion-enter-from,
   .gemini-accordion-leave-to {
     overflow: hidden;
     max-height: 0;
     opacity: 0;
+  }
+  .gemini-accordion-enter-active,
+  .gemini-accordion-leave-active {
+    transition: opacity 0.3s ease-out, max-height 0.3s ease-out;
+  }
+  .gemini-accordion-enter-to,
+  .gemini-accordion-leave-from {
+    overflow: visible;
+    max-height: 500px;
+    opacity: 1;
   }
 
   &__setting-group {
@@ -1109,6 +1098,11 @@ onMounted(() => {
     font-size: clamp(14px, 1.4rem, 15px);
     transition: background-color 0.3s ease-out, color 0.3s ease-out;
 
+    @include hover {
+      color: $white;
+      background-color: $orange;
+    }
+
     @include tab {
       font-size: clamp(15px, 1.5rem, 16px);
     }
@@ -1142,7 +1136,7 @@ onMounted(() => {
   &__book-icon,
   &__home-icon {
     height: 1.5em;
-    fill: $white-brown;
+    fill: currentColor;
   }
 
   &__right-box {
@@ -1162,7 +1156,7 @@ onMounted(() => {
   &__pc-create-icon {
     height: 1.5em;
     fill: none;
-    stroke: $white-brown;
+    stroke: currentColor;
     stroke-width: 2;
   }
 
@@ -1261,6 +1255,12 @@ onMounted(() => {
     gap: 0.6em;
     color: $brown;
     font-size: clamp(14px, 1.4rem, 15px);
+    transition: color 0.3s ease-out, background-color 0.3s ease-out;
+
+    @include hover {
+      color: $white-brown;
+      background-color: $brown;
+    }
 
     @include tab {
       width: 8rem;
@@ -1278,7 +1278,7 @@ onMounted(() => {
   &__clock-icon {
     height: 1em;
     fill: none;
-    stroke: $brown;
+    stroke: currentColor;
     stroke-width: 2;
   }
 
@@ -1442,7 +1442,7 @@ onMounted(() => {
 
   &__update-icon {
     height: 1.5em;
-    fill: $white-brown;
+    fill: currentColor;
   }
 
   &__delete-button {
@@ -1452,7 +1452,7 @@ onMounted(() => {
   &__delete-icon {
     height: 1.5em;
     fill: none;
-    stroke: $white-brown;
+    stroke: currentColor;
     stroke-width: 3;
   }
 
@@ -1508,6 +1508,19 @@ onMounted(() => {
       pointer-events: none;
     }
 
+    @include hover {
+      color: $brown;
+      background-color: transparent;
+
+      #{$parent}__caret-left-icon {
+        transform: translateX(-6px);
+      }
+
+      #{$parent}__caret-right-icon {
+        transform: translateX(6px);
+      }
+    }
+
     @include tab {
       width: 14rem;
     }
@@ -1519,8 +1532,9 @@ onMounted(() => {
 
   &__caret-left-icon,
   &__caret-right-icon {
-    fill: $brown;
+    fill: currentColor;
     height: 0.85em;
+    transition: transform 0.3s ease-out;
   }
 
   &__sp-link-wrapper {

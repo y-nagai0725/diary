@@ -202,7 +202,6 @@ onMounted(async () => {
   </div>
 </template>
 <style lang="scss" scoped>
-//TODOメモ linkのhover処理などは最後にまとめてやります
 .home {
   display: grid;
   gap: 1.6rem;
@@ -348,7 +347,7 @@ onMounted(async () => {
 
   &__pen-icon {
     height: 1.5em;
-    stroke: $white-brown;
+    stroke: currentColor;
     stroke-width: 2;
     fill: none;
   }
@@ -359,7 +358,7 @@ onMounted(async () => {
 
   &__book-icon {
     height: 1.5em;
-    fill: $white-brown;
+    fill: currentColor;
   }
 
   &__notice {
@@ -435,6 +434,11 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+    transition: transform 0.3s ease-out;
+
+    @include hover {
+      transform: scale(1.03);
+    }
 
     @include tab {
       gap: 0.6rem;

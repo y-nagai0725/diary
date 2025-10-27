@@ -209,7 +209,7 @@ const handleCancel = () => {
 
 .modal-enter-from .modal__content,
 .modal-leave-to .modal__content {
-  transform: scale(0.75);
+  transform: scale(0.8);
 }
 
 .modal-enter-active .modal__content,

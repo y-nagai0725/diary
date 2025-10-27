@@ -666,7 +666,6 @@ onUnmounted(() => {
   </div>
 </template>
 <style lang="scss" scoped>
-//TODO hover処理などは最後に
 .diaries {
   $parent: &;
   display: flex;
@@ -733,32 +732,22 @@ onUnmounted(() => {
     }
   }
 
-  // --- アコーディオンが開くとき ---
-  // 開始時
-  .search-accordion-enter-from {
-    overflow: hidden;
-    max-height: 0;
-    opacity: 0;
-  }
-  // 終了時
-  .search-accordion-enter-to {
-    overflow: visible;
-    max-height: 500px;
-    opacity: 1;
-  }
-
-  // --- アコーディオンが閉じるとき ---
-  // 開始時
-  .search-accordion-leave-from {
-    overflow: visible;
-    max-height: 500px;
-    opacity: 1;
-  }
-  // 終了時
+  // --- アコーディオンのTransiton設定 ---
+  .search-accordion-enter-from,
   .search-accordion-leave-to {
     overflow: hidden;
     max-height: 0;
     opacity: 0;
+  }
+  .search-accordion-enter-active,
+  .search-accordion-leave-active {
+    transition: opacity 0.3s ease-out, max-height 0.3s ease-out;
+  }
+  .search-accordion-enter-to,
+  .search-accordion-leave-from {
+    overflow: visible;
+    max-height: 500px;
+    opacity: 1;
   }
 
   &__order-wrapper,
@@ -843,6 +832,11 @@ onUnmounted(() => {
     font-size: clamp(14px, 1.4rem, 15px);
     transition: color 0.3s ease-out, background-color 0.3s ease-out;
 
+    @include hover {
+      color: $white;
+      background-color: $orange;
+    }
+
     @include tab {
       font-size: clamp(15px, 1.5rem, 16px);
     }
@@ -895,7 +889,7 @@ onUnmounted(() => {
 
   &__pen-icon {
     height: 1.5em;
-    stroke: $white-brown;
+    stroke: currentColor;
     stroke-width: 2;
     fill: none;
   }
@@ -906,7 +900,7 @@ onUnmounted(() => {
 
   &__home-icon {
     height: 1.5em;
-    fill: $white-brown;
+    fill: currentColor;
   }
 
   &__right-box {
@@ -1127,19 +1121,35 @@ onUnmounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: background-color 0.3s ease-out;
+
+    @include hover {
+      background-color: transparent;
+
+      #{$parent}__edit-icon {
+        fill: $green;
+      }
+
+      #{$parent}__delete-icon {
+        stroke: $red;
+      }
+    }
   }
 
   &__edit-link {
     background-color: $green;
+    border: 1px solid $green;
   }
 
   &__delete-button {
     background-color: $red;
+    border: 1px solid $red;
   }
 
   &__edit-icon,
   &__delete-icon {
     width: 60%;
+    transition: fill 0.3s ease-out, stroke 0.3s ease-out;
   }
 
   &__edit-icon {
@@ -1186,6 +1196,7 @@ onUnmounted(() => {
     align-items: center;
     color: $brown;
     font-size: clamp(12px, 1.2rem, 14px);
+    transition: background-color 0.3s ease-out, color 0.3s ease-out;
 
     &.selected {
       background-color: $orange;
@@ -1194,6 +1205,18 @@ onUnmounted(() => {
 
     &:disabled {
       cursor: not-allowed;
+    }
+
+    @include hover {
+      &:not(:disabled) {
+        background-color: $orange;
+        color: $white-brown;
+
+        #{$parent}__caret-left-icon,
+        #{$parent}__caret-right-icon {
+          fill: $white-brown;
+        }
+      }
     }
 
     @include tab {
@@ -1229,6 +1252,7 @@ onUnmounted(() => {
   &__caret-right-icon {
     width: 0.5rem;
     fill: $brown;
+    transition: fill 0.3s ease-out;
 
     @include tab {
       width: 0.6rem;

@@ -217,6 +217,11 @@ onUnmounted(() => {
   &__home-link {
     padding: 10px 0;
     width: 110px;
+    transition: opacity 0.3s ease-out;
+
+    @include hover {
+      opacity: 0.8;
+    }
 
     @include tab {
       width: 120px;
@@ -291,19 +296,32 @@ onUnmounted(() => {
     gap: 4rem;
   }
 
-  &__pc-link {
-    padding: 10px 0;
-    font-weight: 700;
-    font-size: clamp(14px, 1.6rem, 16px);
-    letter-spacing: 0.1em;
-  }
-
+  &__pc-link,
   &__pc-logout-button {
     cursor: pointer;
     padding: 10px 0;
     font-weight: 700;
     font-size: clamp(14px, 1.6rem, 16px);
     letter-spacing: 0.1em;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 5px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background-color: $brown;
+      transform: scaleX(0);
+      transition: transform 0.3s ease-out;
+    }
+
+    @include hover {
+      &::after {
+        transform: scaleX(1);
+      }
+    }
   }
 
   &__hamburger-button {

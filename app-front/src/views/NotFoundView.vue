@@ -81,7 +81,7 @@ import HomeIcon from '@/components/icons/HomeIcon.vue';
 
   &__home-icon {
     height: 1.5em;
-    fill: $white-brown;
+    fill: currentColor;
   }
 }
 </style>
