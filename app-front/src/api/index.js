@@ -1,5 +1,4 @@
 import axios from 'axios';
-import router from '@/router';
 import { logout } from '@/auth.js';
 
 //api呼び出し時のbaseURLを設定
@@ -8,14 +7,18 @@ const apiClient = axios.create({
 });
 
 //リクエスト時の事前処理
-apiClient.interceptors.request.use((config) => {
-  //トークンがある場合はヘッダーに設定する
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+apiClient.interceptors.request.use(
+  (config) => {
+    //トークンがある場合はヘッダーに設定する
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  });
 
 //レスポンス時の事後処理
 apiClient.interceptors.response.use(
@@ -25,12 +28,28 @@ apiClient.interceptors.response.use(
   },
   //通信失敗時
   (error) => {
-    //エラーが「401 Unauthorized」か「403 Forbidden」且つ、ログイン処理のapiではない場合
-    if (error.response && [401, 403].includes(error.response.status) && error.config.url !== '/api/login') {
-      console.error('トークンが無効か期限切れです。ログイン画面に移動します。');
+    if (error.response) {
+      const status = error.response.status;
+      const config = error.config;
 
-      //トークン削除、ログイン画面に遷移
-      logout();
+      // 401 (認証エラー) または 403 (権限エラー) かどうか
+      const isAuthError = [401, 403].includes(status);
+
+      // 日記更新or削除APIのリクエストかどうか
+      const isDiaryUpdateOrDeleteRequest =
+        config.url.startsWith('/api/diaries/') &&
+        (config.method === 'put' || config.method === 'delete');
+
+      // ログインAPIのリクエストではないかどうか
+      const isNotLoginRequest = config.url !== '/api/login';
+
+      // 認証エラー(401 or 403) で、
+      // ログインAPIへのリクエストではなく、
+      // かつ、日記の更新・削除リクエストでもない場合
+      if (isAuthError && isNotLoginRequest && !isDiaryUpdateOrDeleteRequest) {
+        // トークンが無効か期限切れ、ログアウト処理
+        logout();
+      }
     }
 
     //それ以外のエラーの場合は、そのままエラーを次に渡す
