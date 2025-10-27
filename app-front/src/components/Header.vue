@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { isLoggedIn, logout, userName } from '@/auth.js';
 import { useResponsive } from '@/composables/useResponsive.js';
+import { loadingState } from '@/loadingState.js';
 import UserIcon from '@/components/icons/UserIcon.vue';
 
 /**
@@ -13,6 +14,11 @@ const { isPc } = useResponsive();
  * sp用ナビゲーションメニュー開閉状態
  */
 const isOpenedSpMenu = ref(false);
+
+/**
+ * ボタンを非活性にするかどうか
+ */
+const isDisabled = computed(() => loadingState.isGeminiLoading);
 
 watch(isPc, (newValue) => {
   //SP用メニューが開かれた状態で、PC表示になった場合はメニューを閉じる
@@ -41,7 +47,11 @@ onUnmounted(() => {
   <header class="header">
     <div class="header__inner">
       <h1 class="header__title">
-        <RouterLink class="header__home-link" to="/home">
+        <RouterLink
+          class="header__home-link"
+          :class="{ 'is-disabled': isDisabled }"
+          to="/home"
+        >
           <img
             class="header__home-logo"
             src="@/assets/images/common/site-logo.svg"
@@ -58,20 +68,35 @@ onUnmounted(() => {
           <ul class="header__pc-link-list">
             <template v-if="isLoggedIn">
               <li class="header__pc-item">
-                <RouterLink class="header__pc-link" to="/home">Home</RouterLink>
+                <RouterLink
+                  class="header__pc-link"
+                  :class="{ 'is-disabled': isDisabled }"
+                  to="/home"
+                  >Home</RouterLink
+                >
               </li>
               <li class="header__pc-item">
-                <RouterLink class="header__pc-link" to="/diary/new"
+                <RouterLink
+                  class="header__pc-link"
+                  :class="{ 'is-disabled': isDisabled }"
+                  to="/diary/new"
                   >日記作成</RouterLink
                 >
               </li>
               <li class="header__pc-item">
-                <RouterLink class="header__pc-link" to="/diaries"
+                <RouterLink
+                  class="header__pc-link"
+                  :class="{ 'is-disabled': isDisabled }"
+                  to="/diaries"
                   >日記一覧</RouterLink
                 >
               </li>
               <li class="header__pc-item">
-                <button class="header__pc-logout-button" @click="logout()">
+                <button
+                  class="header__pc-logout-button"
+                  :class="{ 'is-disabled': isDisabled }"
+                  @click="logout()"
+                >
                   ログアウト
                 </button>
               </li>
@@ -96,7 +121,7 @@ onUnmounted(() => {
         <button
           v-else
           class="header__hamburger-button"
-          :class="{ 'is-opened': isOpenedSpMenu }"
+          :class="{ 'is-opened': isOpenedSpMenu, 'is-disabled': isDisabled }"
           @click="isOpenedSpMenu = !isOpenedSpMenu"
         >
           <span class="header__line top"></span>
@@ -219,6 +244,11 @@ onUnmounted(() => {
     width: 110px;
     transition: opacity 0.3s ease-out;
 
+    &.is-disabled {
+      opacity: 0.33;
+      pointer-events: none;
+    }
+
     @include hover {
       opacity: 0.8;
     }
@@ -304,6 +334,12 @@ onUnmounted(() => {
     font-size: clamp(14px, 1.6rem, 16px);
     letter-spacing: 0.1em;
     position: relative;
+    transition: opacity 0.3s ease-out;
+
+    &.is-disabled {
+      opacity: 0.33;
+      pointer-events: none;
+    }
 
     &::after {
       content: '';
@@ -332,7 +368,12 @@ onUnmounted(() => {
     background-color: $orange;
     position: relative;
     z-index: 10001;
-    transition: background-color 0.3s ease-out;
+    transition: background-color 0.3s ease-out, opacity 0.3s ease-out;
+
+    &.is-disabled {
+      opacity: 0.33;
+      pointer-events: none;
+    }
 
     &.is-opened {
       background-color: $white-brown;

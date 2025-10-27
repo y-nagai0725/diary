@@ -481,7 +481,6 @@ onUnmounted(() => {
                   name="search-date-type"
                   v-model="searchDateType"
                   value="all"
-                  checked
                 />
                 <label class="diaries__date-label" for="diaries__date-all"
                   >すべて</label

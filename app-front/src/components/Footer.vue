@@ -1,12 +1,23 @@
 <script setup>
+import { computed } from 'vue';
 import { isLoggedIn, logout } from '@/auth.js';
+import { loadingState } from '@/loadingState.js';
 import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
+
+/**
+ * ボタンを非活性にするかどうか
+ */
+const isDisabled = computed(() => loadingState.isGeminiLoading);
 </script>
 <template>
   <footer class="footer">
     <div class="footer__inner">
       <div class="footer__logo-wrapper">
-        <RouterLink class="footer__home-link" to="/home">
+        <RouterLink
+          class="footer__home-link"
+          :class="{ 'is-disabled': isDisabled }"
+          to="/home"
+        >
           <img
             class="footer__home-logo"
             src="@/assets/images/common/site-logo.svg"
@@ -18,20 +29,35 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
         <ul class="footer__link-list">
           <template v-if="isLoggedIn">
             <li class="footer__item">
-              <RouterLink class="footer__link" to="/home">Home</RouterLink>
+              <RouterLink
+                class="footer__link"
+                :class="{ 'is-disabled': isDisabled }"
+                to="/home"
+                >Home</RouterLink
+              >
             </li>
             <li class="footer__item">
-              <RouterLink class="footer__link" to="/diary/new"
+              <RouterLink
+                class="footer__link"
+                :class="{ 'is-disabled': isDisabled }"
+                to="/diary/new"
                 >日記作成</RouterLink
               >
             </li>
             <li class="footer__item">
-              <RouterLink class="footer__link" to="/diaries"
+              <RouterLink
+                class="footer__link"
+                :class="{ 'is-disabled': isDisabled }"
+                to="/diaries"
                 >日記一覧</RouterLink
               >
             </li>
             <li class="footer__item">
-              <button class="footer__logout-button" @click="logout()">
+              <button
+                class="footer__logout-button"
+                :class="{ 'is-disabled': isDisabled }"
+                @click="logout()"
+              >
                 ログアウト
               </button>
             </li>
@@ -57,6 +83,7 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
             <a
               href="https://portfolio.mikanbako.jp"
               class="footer__external-link"
+              :class="{ 'is-disabled': isDisabled }"
               target="_blank"
               >ポートフォリオ<ExternalLinkIcon
                 class="footer__external-link-icon"
@@ -66,6 +93,7 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
             <a
               href="https://github.com/y-nagai0725"
               class="footer__external-link"
+              :class="{ 'is-disabled': isDisabled }"
               target="_blank"
               >GitHub<ExternalLinkIcon class="footer__external-link-icon"
             /></a>
@@ -74,6 +102,7 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
             <a
               href="https://blog.mikanbako.jp"
               class="footer__external-link"
+              :class="{ 'is-disabled': isDisabled }"
               target="_blank"
               >技術ブログ<ExternalLinkIcon class="footer__external-link-icon"
             /></a>
@@ -119,6 +148,11 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     width: 110px;
     padding: 10px 0;
     transition: opacity 0.3s ease-out;
+
+    &.is-disabled {
+      opacity: 0.33;
+      pointer-events: none;
+    }
 
     @include hover {
       opacity: 0.8;
@@ -182,6 +216,12 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     font-size: clamp(14px, 1.4rem, 16px);
     letter-spacing: 0.1em;
     position: relative;
+    transition: opacity 0.3s ease-out;
+
+    &.is-disabled {
+      opacity: 0.33;
+      pointer-events: none;
+    }
 
     &::after {
       content: '';
@@ -252,6 +292,12 @@ import ExternalLinkIcon from '@/components/icons/ExternalLinkIcon.vue';
     padding: 10px 0;
     font-size: clamp(12px, 1.2rem, 13px);
     letter-spacing: 0.1em;
+    transition: opacity 0.3s ease-out;
+
+    &.is-disabled {
+      opacity: 0.33;
+      pointer-events: none;
+    }
 
     @include hover {
       #{$parent}__external-link-icon {

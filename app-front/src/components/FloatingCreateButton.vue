@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useResponsive } from '@/composables/useResponsive';
 import { isLoggedIn } from '@/auth.js';
+import { loadingState } from '@/loadingState.js';
 import PenIcon from '@/components/icons/PenIcon.vue';
 
 /**
@@ -31,10 +32,20 @@ const isVisible = computed(() => {
   // 3つの条件を満たしている時は表示させる
   return isSpView && isAuthed && isNotCreatePage;
 });
+
+/**
+ * ボタンを非活性にするかどうか
+ */
+const isDisabled = computed(() => loadingState.isGeminiLoading);
 </script>
 
 <template>
-  <RouterLink v-if="isVisible" class="floating-create-button" to="/diary/new">
+  <RouterLink
+    v-if="isVisible"
+    class="floating-create-button"
+    :class="{ 'is-disabled': isDisabled }"
+    to="/diary/new"
+  >
     <PenIcon class="floating-create-button__icon" />
   </RouterLink>
 </template>
@@ -51,6 +62,12 @@ const isVisible = computed(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: opacity 0.3s ease-out;
+
+  &.is-disabled {
+    opacity: 0.33;
+    pointer-events: none;
+  }
 
   @include tab {
     bottom: 5rem;

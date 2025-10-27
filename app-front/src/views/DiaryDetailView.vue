@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { loadingState } from '@/loadingState.js';
 import { useResponsive } from '@/composables/useResponsive.js';
 import apiClient from '@/api';
 import { useRouter } from 'vue-router';
@@ -52,6 +53,11 @@ const nextDiaryId = ref(null);
 const prevDiaryId = ref(null);
 
 /**
+ * ボタンを非活性にするかどうか
+ */
+const isDisabled = computed(() => loadingState.isGeminiLoading);
+
+/**
  * Gemini API設定の表示・非表示 (SP用)
  */
 const isGeminiSettingsOpenSp = ref(false);
@@ -87,11 +93,6 @@ const promptSettings = ref({
  * Geminiコメント表示要素
  */
 const geminiCommentSection = ref(null);
-
-/**
- * Gemini APIとのやり取り中かどうか
- */
-const isLoadingGeminiComment = ref(false);
 
 /**
  * 編集モードかどうか（編集 or 新規作成モード）
@@ -309,7 +310,7 @@ const getGeminiComment = async () => {
   }
 
   //ボタンをローディング状態にする
-  isLoadingGeminiComment.value = true;
+  loadingState.isGeminiLoading = true;
 
   //Geminiコメントの表示をクリア
   diaryForm.value.geminiComment = '';
@@ -349,7 +350,7 @@ const getGeminiComment = async () => {
   }
 
   //ローディング状態解除
-  isLoadingGeminiComment.value = false;
+  loadingState.isGeminiLoading = false;
 };
 
 /**
@@ -786,10 +787,16 @@ onMounted(() => {
         </div>
       </Transition>
       <div v-if="isPc" class="diary__pc-link-wrapper">
-        <RouterLink class="diary__link-views" to="/diaries"
+        <RouterLink
+          class="diary__link-views"
+          :class="{ 'is-disabled': isDisabled }"
+          to="/diaries"
           ><BookIcon class="diary__book-icon" />一覧</RouterLink
         >
-        <RouterLink class="diary__link-home" to="/home"
+        <RouterLink
+          class="diary__link-home"
+          :class="{ 'is-disabled': isDisabled }"
+          to="/home"
           ><HomeIcon class="diary__home-icon" />Home</RouterLink
         >
       </div>
@@ -799,7 +806,7 @@ onMounted(() => {
         <RouterLink
           v-if="isEditMode && isPc"
           class="diary__pc-create-button"
-          :class="{ 'is-disabled': isLoadingGeminiComment }"
+          :class="{ 'is-disabled': isDisabled }"
           to="/diary/new"
           ><PenIcon class="diary__pc-create-icon" />作成</RouterLink
         >
@@ -840,12 +847,10 @@ onMounted(() => {
           </div>
           <button
             class="diary__gemini-button"
-            :disabled="isLoadingGeminiComment"
+            :disabled="isDisabled"
             @click="getGeminiComment()"
           >
-            <span
-              v-if="isLoadingGeminiComment"
-              class="diary__gemini-button-text loading"
+            <span v-if="isDisabled" class="diary__gemini-button-text loading"
               >Gemini考え中…</span
             >
             <span v-else class="diary__gemini-button-text"
@@ -864,14 +869,14 @@ onMounted(() => {
             <template v-if="isEditMode">
               <button
                 class="diary__update-button"
-                :disabled="isLoadingGeminiComment"
+                :disabled="isDisabled"
                 @click="saveDiary()"
               >
                 <EditIcon class="diary__update-icon" />更新
               </button>
               <button
                 class="diary__delete-button"
-                :disabled="isLoadingGeminiComment"
+                :disabled="isDisabled"
                 @click="handleDeleteDiary()"
               >
                 <DeleteIcon class="diary__delete-icon" />削除
@@ -880,7 +885,7 @@ onMounted(() => {
             <template v-else>
               <button
                 class="diary__register-button"
-                :disabled="isLoadingGeminiComment"
+                :disabled="isDisabled"
                 @click="saveDiary()"
               >
                 <PenIcon class="diary__register-icon" />日記登録
@@ -892,7 +897,9 @@ onMounted(() => {
           <RouterLink
             class="diary__link-prev"
             :to="`/diary/${prevDiaryId}`"
-            :class="{ 'is-disabled': !prevDiaryId || isLoadingGeminiComment }"
+            :class="{
+              'is-disabled': !prevDiaryId || isDisabled,
+            }"
             ><CaretLeftIcon
               class="diary__caret-left-icon"
             />前の日記</RouterLink
@@ -900,15 +907,23 @@ onMounted(() => {
           <RouterLink
             class="diary__link-next"
             :to="`/diary/${nextDiaryId}`"
-            :class="{ 'is-disabled': !nextDiaryId || isLoadingGeminiComment }"
+            :class="{
+              'is-disabled': !nextDiaryId || isDisabled,
+            }"
             >次の日記<CaretRightIcon class="diary__caret-right-icon"
           /></RouterLink>
         </div>
         <div v-if="!isPc" class="diary__sp-link-wrapper">
-          <RouterLink class="diary__link-views" to="/diaries"
+          <RouterLink
+            class="diary__link-views"
+            :class="{ 'is-disabled': isDisabled }"
+            to="/diaries"
             ><BookIcon class="diary__book-icon" />一覧</RouterLink
           >
-          <RouterLink class="diary__link-home" to="/home"
+          <RouterLink
+            class="diary__link-home"
+            :class="{ 'is-disabled': isDisabled }"
+            to="/home"
             ><HomeIcon class="diary__home-icon" />Home</RouterLink
           >
         </div>
@@ -1122,6 +1137,12 @@ onMounted(() => {
     @include button-style-fill($brown, $white-brown);
     width: 13rem;
     gap: 1em;
+    transition: opacity 0.3s ease-out;
+
+    &.is-disabled {
+      opacity: 0.33;
+      pointer-events: none;
+    }
 
     @include tab {
       width: 14rem;
@@ -1151,6 +1172,7 @@ onMounted(() => {
     position: absolute;
     top: 0;
     right: 0;
+    transition: opacity 0.3s ease-out;
 
     &.is-disabled {
       opacity: 0.33;
@@ -1427,6 +1449,7 @@ onMounted(() => {
     min-width: 120px;
     width: 13rem;
     gap: 1em;
+    transition: opacity 0.3s ease-out;
 
     @include tab {
       width: 14rem;
@@ -1509,6 +1532,7 @@ onMounted(() => {
     min-width: 120px;
     width: 13rem;
     gap: 1em;
+    transition: opacity 0.3s ease-out;
 
     &.is-disabled {
       opacity: 0.33;
