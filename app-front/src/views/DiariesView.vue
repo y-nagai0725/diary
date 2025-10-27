@@ -557,7 +557,7 @@ onUnmounted(() => {
       </div>
     </div>
     <div class="diaries__right-box">
-      <p class="diaries__sub-title">日記一覧</p>
+      <h2 class="diaries__sub-title">日記一覧</h2>
       <div class="diaries__list-outer-wrapper">
         <Simplebar
           class="diaries__list-wrapper"

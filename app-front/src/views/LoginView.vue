@@ -62,7 +62,7 @@ const handleInput = () => {
 
 <template>
   <div class="login">
-    <h1 class="login__title">ログイン</h1>
+    <h2 class="login__title">ログイン</h2>
     <div class="login__box">
       <UserForm
         buttonText="ログイン"
@@ -70,8 +70,13 @@ const handleInput = () => {
         @input-form="handleInput"
       />
       <p class="login__server-error-message">{{ serverErrorMessage }}</p>
-      <p class="login__notice">日記機能をお試しで使ってみたい方はこちらから</p>
-      <button class="login__trial-login-button" @click="handleLogin(testUserData)">
+      <p class="login__trial-description">
+        日記機能をお試しで使ってみたい方はこちらから
+      </p>
+      <button
+        class="login__trial-login-button"
+        @click="handleLogin(testUserData)"
+      >
         テストユーザーでお試しログイン
       </button>
       <p class="login__notice">ユーザー未登録の方はこちらから</p>
@@ -185,6 +190,7 @@ const handleInput = () => {
     }
   }
 
+  &__trial-description,
   &__notice {
     text-align: center;
     margin-bottom: 1.6rem;

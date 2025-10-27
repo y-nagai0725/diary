@@ -779,9 +779,9 @@ onMounted(() => {
           to="/diary/new"
           ><PenIcon class="diary__pc-create-icon" />作成</RouterLink
         >
-        <p class="diary__sub-title">
+        <h2 class="diary__sub-title">
           {{ isEditMode ? '日記更新' : '日記作成' }}
-        </p>
+        </h2>
         <div class="diary__input-area">
           <div class="diary__form-group">
             <label class="diary__input-label" for="diary__input-date"

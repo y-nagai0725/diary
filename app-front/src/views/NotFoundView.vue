@@ -8,7 +8,7 @@ import HomeIcon from '@/components/icons/HomeIcon.vue';
     <div class="not-found__image-wrapper">
       <img src="@/assets/images/not-found/404.jpg" alt="404 Not Found" />
     </div>
-    <h1 class="not-found__title">404 Not Found</h1>
+    <h2 class="not-found__title">404 Not Found</h2>
     <p class="not-found__message">
       お探しのページは見つかりませんでした。移動した可能性があります。
     </p>

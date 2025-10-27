@@ -40,13 +40,15 @@ onUnmounted(() => {
 <template>
   <header class="header">
     <div class="header__inner">
-      <RouterLink class="header__home-link" to="/home">
-        <img
-          class="header__home-logo"
-          src="@/assets/images/common/site-logo.svg"
-          alt="Diary日記帳アプリロゴ"
-        />
-      </RouterLink>
+      <h1 class="header__title">
+        <RouterLink class="header__home-link" to="/home">
+          <img
+            class="header__home-logo"
+            src="@/assets/images/common/site-logo.svg"
+            alt="Diary日記帳アプリロゴ"
+          />
+        </RouterLink>
+      </h1>
       <div class="header__right-box">
         <div v-if="isLoggedIn" class="header__user-information">
           <UserIcon class="header__user-icon" />

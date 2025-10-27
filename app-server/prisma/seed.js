@@ -11,14 +11,14 @@ async function main() {
   console.log('既存のデータを削除しました。');
 
   // テスト用のユーザーを作成
-  const hashedPassword = await bcrypt.hash('password', 10);
+  const hashedPassword = await bcrypt.hash('testDiary', 10);
   const user = await prisma.user.create({
     data: {
-      name: 'test',
+      name: 'testUser',
       password: hashedPassword,
     },
   });
-  console.log(`ユーザー「${user.name}」を作成しました。 (パスワード: password)`);
+  console.log(`ユーザー「${user.name}」を作成しました。 (パスワード: testDiary)`);
 
   // テスト用の日記データを20件作成
   const diaryPromises = [];

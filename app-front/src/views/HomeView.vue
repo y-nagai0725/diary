@@ -127,6 +127,7 @@ onMounted(async () => {
   <div class="home">
     <div class="home__user-information-wrapper">
       <div class="home__user-information">
+        <p class="home__user-information-title">ユーザー情報</p>
         <UserIcon class="home__user-icon" />
         <div class="home__information-grid">
           <div class="home__information-grid-header">登録名：</div>
@@ -146,7 +147,7 @@ onMounted(async () => {
       <p v-if="notice" class="home__notice">{{ notice }}</p>
     </div>
     <div class="home__recent-diaries">
-      <p class="home__sub-title">最近の日記</p>
+      <h2 class="home__sub-title">最近の日記</h2>
       <p v-if="recentDiaries.length === 0" class="home__no-diaries">
         {{ NO_DIARIES_MESSAGE }}
       </p>
@@ -230,6 +231,21 @@ onMounted(async () => {
     @include pc {
       padding: 2.4rem;
       gap: 2.4rem;
+    }
+  }
+
+  &__user-information-title {
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    font-size: clamp(16px, 1.6rem, 18px);
+
+    @include tab {
+      font-size: clamp(18px, 1.8rem, 20px);
+    }
+
+    @include pc {
+      font-size: clamp(18px, 2rem, 20px);
     }
   }
 

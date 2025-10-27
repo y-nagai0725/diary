@@ -46,7 +46,7 @@ const handleInput = () => {
 
 <template>
   <div class="register">
-    <h1 class="register__title">ユーザー登録</h1>
+    <h2 class="register__title">ユーザー登録</h2>
     <div class="register__box">
       <UserForm
         buttonText="ユーザー登録"
