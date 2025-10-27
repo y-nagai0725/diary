@@ -55,10 +55,10 @@
   //--dp-primary-disabled-color: #6bacea;
   --dp-primary-text-color: #{$white-brown};
   --dp-secondary-color: #{$gray};
-  --dp-border-color: #{$brown};
+  --dp-border-color: #{$brown-transparent};
   --dp-menu-border-color: #{$brown};
-  //--dp-border-color-hover: #aaaeb7;
-  //--dp-border-color-focus: #aaaeb7;
+  --dp-border-color-hover: #{$brown};
+  --dp-border-color-focus: #{$brown};
   //--dp-disabled-color: #f6f6f6;
   //--dp-scroll-bar-background: #f3f3f3;
   //--dp-scroll-bar-color: #959595;

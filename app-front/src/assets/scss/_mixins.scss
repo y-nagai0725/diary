@@ -55,13 +55,20 @@
 }
 
 @mixin input-text-style {
-  border: 1px solid $brown;
+  border-width: 1px;
+  border-style: solid;
+  border-color: $brown-transparent;
   border-radius: 4px;
   padding: 0.65em;
   font-size: clamp(14px, 1.4rem, 15px);
+  transition: border-color 0.3s ease-out;
 
   &::placeholder {
     color: $gray;
+  }
+
+  &:focus {
+    border-color: $brown;
   }
 
   @include tab {

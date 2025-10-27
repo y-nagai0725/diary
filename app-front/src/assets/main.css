@@ -26,8 +26,10 @@
   --dp-primary-color: #f5ac3c;
   --dp-primary-text-color: #FFFCF7;
   --dp-secondary-color: #acacac;
-  --dp-border-color: #4A200C;
+  --dp-border-color: rgba(74, 32, 12, 0.33);
   --dp-menu-border-color: #4A200C;
+  --dp-border-color-hover: #4A200C;
+  --dp-border-color-focus: #4A200C;
   --dp-icon-color: #4A200C;
 }
 
