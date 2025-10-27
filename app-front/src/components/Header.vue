@@ -95,6 +95,7 @@ onUnmounted(() => {
                 <button
                   class="header__pc-logout-button"
                   :class="{ 'is-disabled': isDisabled }"
+                  :disabled="isDisabled"
                   @click="logout()"
                 >
                   ログアウト

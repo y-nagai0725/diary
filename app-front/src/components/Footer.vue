@@ -56,6 +56,7 @@ const isDisabled = computed(() => loadingState.isGeminiLoading);
               <button
                 class="footer__logout-button"
                 :class="{ 'is-disabled': isDisabled }"
+                :disabled="isDisabled"
                 @click="logout()"
               >
                 ログアウト
