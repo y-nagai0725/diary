@@ -891,7 +891,7 @@ onMounted(() => {
           <RouterLink
             class="diary__link-prev"
             :to="`/diary/${prevDiaryId}`"
-            :class="{ 'is-disabled': !prevDiaryId }"
+            :class="{ 'is-disabled': !prevDiaryId || isLoadingGeminiComment }"
             ><CaretLeftIcon
               class="diary__caret-left-icon"
             />前の日記</RouterLink
@@ -899,7 +899,7 @@ onMounted(() => {
           <RouterLink
             class="diary__link-next"
             :to="`/diary/${nextDiaryId}`"
-            :class="{ 'is-disabled': !nextDiaryId }"
+            :class="{ 'is-disabled': !nextDiaryId || isLoadingGeminiComment }"
             >次の日記<CaretRightIcon class="diary__caret-right-icon"
           /></RouterLink>
         </div>
@@ -936,7 +936,6 @@ onMounted(() => {
   </div>
 </template>
 <style lang="scss" scoped>
-
 // --- 日記切り替えTransiton設定 ---
 .fade-detail-enter-active,
 .fade-detail-leave-active {
@@ -1343,6 +1342,7 @@ onMounted(() => {
 
     &:disabled {
       cursor: not-allowed;
+      pointer-events: none;
     }
   }
 
@@ -1432,6 +1432,7 @@ onMounted(() => {
 
     &:disabled {
       cursor: not-allowed;
+      pointer-events: none;
       opacity: 0.33;
     }
   }
