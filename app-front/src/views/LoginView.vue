@@ -20,6 +20,12 @@ const router = useRouter();
  */
 const route = useRoute();
 
+// テストユーザー情報
+const testUserData = {
+  name: 'testUser',
+  password: 'testDiary',
+};
+
 // UserFormからデータを受け取って、ログイン処理を実行
 const handleLogin = async (formData) => {
   try {
@@ -41,7 +47,6 @@ const handleLogin = async (formData) => {
     }
   } catch (error) {
     //サーバーからのログインエラーメッセージを表示
-    console.error('ログインに失敗しました。', error);
     serverErrorMessage.value = error.response.data.error;
   }
 };
@@ -65,6 +70,10 @@ const handleInput = () => {
         @input-form="handleInput"
       />
       <p class="login__server-error-message">{{ serverErrorMessage }}</p>
+      <p class="login__notice">日記機能をお試しで使ってみたい方はこちらから</p>
+      <button class="login__trial-login-button" @click="handleLogin(testUserData)">
+        テストユーザーでお試しログイン
+      </button>
       <p class="login__notice">ユーザー未登録の方はこちらから</p>
       <RouterLink class="login__link" to="/register">ユーザー登録</RouterLink>
     </div>
@@ -159,6 +168,20 @@ const handleInput = () => {
     @include pc {
       margin-bottom: 2rem;
       font-size: clamp(15px, 1.6rem, 16px);
+    }
+  }
+
+  &__trial-login-button {
+    @include button-style-fill($orange, $white-brown);
+    width: 100%;
+    margin-bottom: 1.6rem;
+
+    @include tab {
+      margin-bottom: 1.8rem;
+    }
+
+    @include pc {
+      margin-bottom: 2rem;
     }
   }
 

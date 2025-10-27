@@ -1,8 +1,14 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import apiClient from '@/api';
 import UserForm from '@/components/UserForm.vue';
 import { login } from '@/auth.js';
+
+/**
+ * ページアクセス管理用router
+ */
+const router = useRouter();
 
 /**
  * エラーメッセージ表示用
@@ -18,11 +24,13 @@ const handleRegister = async (formData) => {
     // そのままログイン処理へ
     const loginResponse = await apiClient.post('/api/login', formData);
 
-    //トークン保存、home画面へ遷移
+    //トークン保存
     login(loginResponse.data.token);
+
+    //home画面へ遷移
+    router.push('/home');
   } catch (error) {
     //サーバーからのエラーメッセージを表示
-    console.error('ユーザー登録に失敗しました。', error);
     serverErrorMessage.value = error.response.data.error;
   }
 };
