@@ -13,7 +13,7 @@ export const userName = ref(getUserNameFromToken());
 
 /**
  * ログイン処理
- * @param {string} token
+ * @param {string} token ログイントークン
  */
 export const login = (token) => {
   localStorage.setItem('token', token);
@@ -23,7 +23,7 @@ export const login = (token) => {
 
 /**
  * ログアウト処理
- * @param {Object} redirectQuery
+ * @param {Object} redirectQuery クエリパラメータ
  */
 export const logout = (redirectQuery = {}) => {
   localStorage.removeItem('token');
@@ -36,6 +36,7 @@ export const logout = (redirectQuery = {}) => {
 
 /**
  * トークンからユーザー名を取得
+ * @returns ログインユーザー名
  */
 function getUserNameFromToken() {
   //ログイン時に発行したトークン
@@ -56,7 +57,6 @@ function getUserNameFromToken() {
     //ユーザー名を返す
     return decodedPayload.userName;
   } catch (error) {
-    console.error('トークンの解析に失敗しました。', error);
     return null;
   }
 }
