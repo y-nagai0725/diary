@@ -32,22 +32,13 @@ apiClient.interceptors.response.use(
       const status = error.response.status;
       const config = error.config;
 
-      // 401 (認証エラー) または 403 (権限エラー) かどうか
-      const isAuthError = [401, 403].includes(status);
-
-      // 日記更新or削除APIのリクエストかどうか
-      const isDiaryUpdateOrDeleteRequest =
-        config.url.startsWith('/api/diaries/') &&
-        (config.method === 'put' || config.method === 'delete');
-
       // ログインAPIのリクエストではないかどうか
       const isNotLoginRequest = config.url !== '/api/login';
 
-      // 認証エラー(401 or 403) で、
-      // ログインAPIへのリクエストではなく、
-      // かつ、日記の更新・削除リクエストでもない場合
-      if (isAuthError && isNotLoginRequest && !isDiaryUpdateOrDeleteRequest) {
-        // トークンが無効か期限切れ、ログアウト処理
+      // --- 401 (認証エラー) の場合 ---
+      // トークン自体が無い、無効、または期限切れ。
+      // ログインAPI以外からの401は、ログアウトさせる。
+      if (status === 401 && isNotLoginRequest) {
         logout({ session: 'expired' });
       }
     }

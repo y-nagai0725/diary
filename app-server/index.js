@@ -101,10 +101,10 @@ const authenticateToken = (req, res, next) => {
   const token = parts[1];
 
   //トークン認証
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    //正規なトークンではない場合、403エラー
-    if (err) {
-      return res.sendStatus(403);
+  jwt.verify(token, process.env.JWT_SECRET, (error, user) => {
+    //正規なトークンではない場合、401エラー
+    if (error) {
+      return res.sendStatus(401);
     }
 
     //正規なトークンが確認次第、ユーザー情報をリクエストデータに保持する
