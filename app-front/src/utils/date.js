@@ -2,15 +2,16 @@
  * 日付を指定された形式の文字列にフォーマットする関数
  * @param {Date | String} date フォーマットしたい日付（Dateオブジェクトか日付文字列）
  * @param {String} separator 区切り文字（デフォルトは '/'）
+ * @param {Boolean} includeTime 時間を含めるかどうか（デフォルトはfalse）
  * @returns {String} フォーマットされた日付文字列
  */
-export const formatDate = (date, separator = '/', addHm = false) => {
+export const formatDate = (date, separator = '/', includeTime = false) => {
   const d = new Date(date);
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
 
-  if (addHm) {
+  if (includeTime) {
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
     return `${year}${separator}${month}${separator}${day} ${hours}:${minutes}`

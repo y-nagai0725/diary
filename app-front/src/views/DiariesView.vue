@@ -253,7 +253,7 @@ const handleDeleteDiary = (diary) => {
   // 削除対象の日記のid
   deleteTargetId.value = diary.id;
   // 削除対象の日記の日付
-  deleteTargetDate.value = formatDate(diary.date);
+  deleteTargetDate.value = formatDate(diary.date, '-', true);
   // 削除確認モーダルを表示する
   showDeleteModal.value = true;
 };

@@ -46,7 +46,7 @@ const router = createRouter({
       name: 'diary-detail',
       component: DiaryDetailView,
       meta: { requiresAuth: true },
-      props: true // URLの:idをコンポーネントのpropsとして渡せるようにするよ
+      props: true // URLの:idをコンポーネントのpropsとして渡せるようにする
     },
     {
       //日記の新規作成
@@ -84,7 +84,7 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
 
   if (requiresAuth && !token) {
-    // ログインページに強制的に移動
+    // ログインページに強制的に移動、行き先パスをクエリで渡す
     next({
       path: '/login',
       query: { redirect: to.fullPath }
