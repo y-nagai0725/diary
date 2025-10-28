@@ -1,4 +1,4 @@
-@import './base.css';
+@import "./reset.css";
 :root {
   --dp-font-family: Zen Maru Gothic, sans-serif;
   --dp-border-radius: 4px;
@@ -52,4 +52,15 @@ body {
   color: #4A200C;
   font-family: "Zen Maru Gothic", sans-serif;
   font-weight: 500;
+}
+
+a,
+img {
+  display: block;
+}
+
+img {
+  width: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
 }/*# sourceMappingURL=main.css.map */
