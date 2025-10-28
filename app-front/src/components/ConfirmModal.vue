@@ -40,33 +40,35 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <Transition name="modal">
-    <div v-if="show" class="modal" @click.self="handleOverlayClick">
-      <div class="modal__content">
-        <button class="modal__close-button" @click="handleCancel">
-          <CloseIcon class="modal__close-icon" />
-        </button>
-        <p class="modal__title">{{ title }}</p>
-        <p class="modal__message">{{ message }}</p>
-        <div class="modal__button-wrapper">
-          <button
-            v-if="!confirmOnly"
-            class="modal__button cancel"
-            @click="handleCancel"
-          >
-            {{ cancelButtonText }}
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="show" class="modal" @click.self="handleOverlayClick">
+        <div class="modal__content">
+          <button class="modal__close-button" @click="handleCancel">
+            <CloseIcon class="modal__close-icon" />
           </button>
-          <button
-            class="modal__button"
-            :class="`${confirmButtonClass}`"
-            @click="handleConfirm"
-          >
-            {{ confirmButtonText }}
-          </button>
+          <p class="modal__title">{{ title }}</p>
+          <p class="modal__message">{{ message }}</p>
+          <div class="modal__button-wrapper">
+            <button
+              v-if="!confirmOnly"
+              class="modal__button cancel"
+              @click="handleCancel"
+            >
+              {{ cancelButtonText }}
+            </button>
+            <button
+              class="modal__button"
+              :class="`${confirmButtonClass}`"
+              @click="handleConfirm"
+            >
+              {{ confirmButtonText }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </Transition>
+    </Transition>
+  </Teleport>
 </template>
 
 <style lang="scss" scoped>
@@ -82,7 +84,7 @@ const handleCancel = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 101;
 
   &__content {
     min-width: 300px;
