@@ -271,10 +271,10 @@ onUnmounted(() => {
   &__right-box {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 0.8rem;
 
     @include tab {
-      gap: 3rem;
+      gap: 1.6rem;
     }
 
     @include tab {
@@ -285,11 +285,11 @@ onUnmounted(() => {
   &__user-information {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.6rem;
   }
 
   &__user-icon {
-    width: 22px;
+    width: 20px;
     aspect-ratio: 1;
     fill: $brown;
 
@@ -303,12 +303,12 @@ onUnmounted(() => {
   }
 
   &__user-name {
-    font-size: clamp(12px, 1.2rem, 13px);
+    font-size: clamp(11px, 1.1rem, 12px);
 
     &::after {
       content: 'さん';
-      margin-left: 0.5em;
-      font-size: 0.75em;
+      margin-left: 0.25em;
+      font-size: 0.7em;
     }
 
     @include tab {
