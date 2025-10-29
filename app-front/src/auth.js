@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import router from '@/router';
+import { jwtDecode } from 'jwt-decode';
 
 /**
  * ログインしているかどうかを管理する変数、ローカルストレージのトークンの有無で初期化
@@ -48,14 +49,11 @@ function getUserNameFromToken() {
   }
 
   try {
-    //トークンのペイロード部分取り出し
-    const payload = token.split('.')[1];
-
-    //Base64でデコードしJSON形式に変換
-    const decodedPayload = JSON.parse(atob(payload));
+    //tokenをデコード
+    const decoded = jwtDecode(token);
 
     //ユーザー名を返す
-    return decodedPayload.userName;
+    return decoded.userName;
   } catch (error) {
     return null;
   }
