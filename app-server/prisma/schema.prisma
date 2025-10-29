@@ -18,6 +18,8 @@ model User {
   name      String   @unique
   password  String
   diaries   Diary[]
+
+  @@map("users")
 }
 
 model Diary {
@@ -29,4 +31,6 @@ model Diary {
   updatedAt     DateTime @updatedAt
   author        User     @relation(fields: [authorId], references: [id])
   authorId      Int
+
+  @@map("diaries")
 }
