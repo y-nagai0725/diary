@@ -118,13 +118,16 @@ const isDisabled = computed(() => loadingState.isGeminiLoading);
 .footer {
   $parent: &;
   padding: 7rem 0 5rem;
+  margin-top: 4rem;
 
   @include tab {
     padding: 8rem 0 6rem;
+    margin-top: 6rem;
   }
 
   @include pc {
     padding: 10.5rem 0 7rem;
+    margin-top: 8rem;
   }
 
   &__inner {
