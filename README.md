@@ -10,7 +10,7 @@
 - [使用技術](#使用技術)
 - [使用フォント](#使用フォント)
 - [デザインカンプ](#デザインカンプ)
-- [データベース定義書](#データベース定義書)
+- [テーブル定義書](#テーブル定義書)
 - [テスト結果表](#テスト結果表)
 - [各画面・機能説明](#各画面機能説明)
   - [ログイン画面](#ログイン画面)
@@ -74,8 +74,8 @@
 ## デザインカンプ
 [Figmaページ](https://www.figma.com/design/PM0PUujqI4QhWLHKSYZXlY/Diary-%E6%97%A5%E8%A8%98%E5%B8%B3%E3%82%A2%E3%83%97%E3%83%AA?node-id=0-1&t=YHTBa6kXNgUcqrsM-1)（閲覧のみ可能です）
 
-## データベース定義書
-[データベース定義書](https://docs.google.com/spreadsheets/d/1MvpjmFBf0TYdGGZldpBbFiIp7Ro0SINdkb1USx12AEs/edit?usp=sharing)（Googleスプレッドシートへのリンクです。）
+## テーブル定義書
+[テーブル定義書](https://docs.google.com/spreadsheets/d/1MvpjmFBf0TYdGGZldpBbFiIp7Ro0SINdkb1USx12AEs/edit?usp=sharing)（Googleスプレッドシートへのリンクです。）
 
 ## テスト結果表
 [テスト結果表](https://docs.google.com/spreadsheets/d/1xSZY4r3QBzMDQ3fCB16fS5FFNCjj_AmNP8zL4zl5Ckg/edit?usp=sharing)（Googleスプレッドシートへのリンクです。）
