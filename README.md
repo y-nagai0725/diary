@@ -11,7 +11,7 @@
 - [使用フォント](#使用フォント)
 - [デザインカンプ](#デザインカンプ)
 - [テーブル定義書](#テーブル定義書)
-- [テスト結果表](#テスト結果表)
+- [機能テスト](#機能テスト)
 - [各画面・機能説明](#各画面機能説明)
   - [ログイン画面](#ログイン画面)
   - [ユーザー登録画面](#ユーザー登録画面)
@@ -77,8 +77,8 @@
 ## テーブル定義書
 [テーブル定義書](https://docs.google.com/spreadsheets/d/1MvpjmFBf0TYdGGZldpBbFiIp7Ro0SINdkb1USx12AEs/edit?usp=sharing)（Googleスプレッドシートへのリンクです。）
 
-## テスト結果表
-[テスト結果表](https://docs.google.com/spreadsheets/d/1xSZY4r3QBzMDQ3fCB16fS5FFNCjj_AmNP8zL4zl5Ckg/edit?usp=sharing)（Googleスプレッドシートへのリンクです。）
+## 機能テスト
+[機能テスト表](https://docs.google.com/spreadsheets/d/1xSZY4r3QBzMDQ3fCB16fS5FFNCjj_AmNP8zL4zl5Ckg/edit?usp=sharing)（Googleスプレッドシートへのリンクです。）
 
 ## 各画面・機能説明
 ### ログイン画面
