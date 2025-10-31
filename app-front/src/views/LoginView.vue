@@ -29,7 +29,7 @@ const route = useRoute();
 // テストユーザー情報
 const testUserData = {
   name: 'testUser',
-  password: 'testDiary',
+  password: 'testPass',
 };
 
 /**

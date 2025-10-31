@@ -11,18 +11,19 @@ async function main() {
   console.log('既存のデータを削除しました。');
 
   // テスト用のユーザーを作成
-  const hashedPassword = await bcrypt.hash('testDiary', 10);
+  const hashedPassword = await bcrypt.hash('testPass', 10);
   const user = await prisma.user.create({
     data: {
       name: 'testUser',
       password: hashedPassword,
     },
   });
-  console.log(`ユーザー「${user.name}」を作成しました。 (パスワード: testDiary)`);
+  console.log(`ユーザー「${user.name}」を作成しました。 (パスワード: testPass)`);
 
-  // テスト用の日記データを20件作成
+  // テスト用の日記データをn件作成
   const diaryPromises = [];
-  for (let i = 0; i < 100; i++) {
+  const count = 100;
+  for (let i = 0; i < count; i++) {
     const date = new Date();
     date.setDate(date.getDate() - i); // i日前の日付にするよ
 
@@ -39,7 +40,7 @@ async function main() {
   }
 
   await Promise.all(diaryPromises);
-  console.log('20件の日記データを作成しました。');
+  console.log(count + '件の日記データを作成しました。');
 
   console.log('シード処理が完了しました！');
 }
