@@ -42,7 +42,7 @@ const router = createRouter({
     },
     {
       // 既存の日記を表示・編集
-      path: '/diary/:id',
+      path: '/diary/:id(\\d+)',
       name: 'diary-detail',
       component: DiaryDetailView,
       meta: { requiresAuth: true },
@@ -89,6 +89,8 @@ router.beforeEach((to, from, next) => {
       path: '/login',
       query: { redirect: to.fullPath }
     });
+  } else if((to.name === 'login' || to.name === 'register') && token){
+    next('/home');
   } else {
     // ログイン済み、またはログイン不要ページならそのまま進む
     next();
