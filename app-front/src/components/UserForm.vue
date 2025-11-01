@@ -143,7 +143,6 @@ const handlePasswordEnter = () => {
         id="user-form__input-name"
         class="user-form__input-name"
         type="text"
-        placeholder="ユーザー名"
         v-model.trim="userForm.name"
         @keydown.enter.prevent="handleNameEnter"
       />
@@ -159,7 +158,6 @@ const handlePasswordEnter = () => {
         id="user-form__input-password"
         class="user-form__input-password"
         type="password"
-        placeholder="パスワード"
         v-model.trim="userForm.password"
         ref="passwordInputRef"
         @keydown.enter.prevent="handlePasswordEnter"
