@@ -56,6 +56,11 @@ const showResultModal = ref(false);
 const resultMessage = ref('');
 
 /**
+ * 日記取得時のローディング表示制御用
+ */
+const isDiaryLoading = ref(false);
+
+/**
  * 直近7件の日記データ取得
  */
 const getRecentDiaries = async () => {
@@ -126,9 +131,11 @@ const createDisplayData = (diaries) => {
  */
 onMounted(async () => {
   //直近7件の日記データ取得、表示
+  isDiaryLoading.value = true;
   const responseData = await getRecentDiaries();
   recentDiaries.value = responseData.recentDiaries;
   totalDiariesCount.value = responseData.totalDiaries || '---';
+  isDiaryLoading.value = false;
 
   //お知らせメッセージ表示
   if (!existsTodayDiaryData()) {
@@ -161,10 +168,17 @@ onMounted(async () => {
     </div>
     <div class="home__recent-diaries">
       <h2 class="home__sub-title">最近の日記</h2>
-      <p v-if="recentDiaries.length === 0" class="home__no-diaries">
+      <div v-if="isDiaryLoading" class="home__loader"></div>
+      <p
+        v-if="!isDiaryLoading && recentDiaries.length === 0"
+        class="home__no-diaries"
+      >
         {{ NO_DIARIES_MESSAGE }}
       </p>
-      <ul v-else class="home__diaries-list">
+      <ul
+        v-if="!isDiaryLoading && recentDiaries.length > 0"
+        class="home__diaries-list"
+      >
         <li
           v-for="diary in displayDiaries"
           :key="diary.id"
@@ -381,6 +395,7 @@ onMounted(async () => {
   &__recent-diaries {
     display: grid;
     gap: 1rem;
+    position: relative;
 
     @include tab {
       width: 75%;
@@ -397,6 +412,37 @@ onMounted(async () => {
 
   &__sub-title {
     @include sub-title-style;
+  }
+
+  &__loader {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    border: 4px solid $orange;
+    border-top-color: $brown;
+    border-radius: 100vmax;
+    animation: spin 1s linear infinite;
+    z-index: 10;
+
+    @include tab {
+      top: 100px;
+    }
+
+    @include pc {
+      top: 120px;
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
   }
 
   &__no-diaries {
