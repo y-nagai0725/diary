@@ -323,7 +323,7 @@ Home画面と同様に、日記の読み込み中はローディングスピナ�
   ![日記作成画面：前後の日記への遷移GIF](https://github.com/user-attachments/assets/a9c737d4-6420-4354-bd7c-2fdfd68028fa)
 
 ### 404 Not Found画面
-app-front/src/router/index.js に定義されていないパス（例: /diary/abc や /abcdefg）にアクセスした場合に表示される画面です。Vue Routerのcatch-allルート（path: '/:pathMatch(.*)*'）によって、すべての一致しなかったURLがこの画面にリダイレクトされます。
+app-front/src/router/index.js に定義されていないパス（例: /diary/abc や /abcdefg）にアクセスした場合に表示される画面です。Vue Routerのcatch-allルート (`path: '/:pathMatch(.*)*'`)によって、すべての一致しなかったURLがこの画面にリダイレクトされます。
 
 <img width="1920" height="919" alt="404 Not Found画面" src="https://github.com/user-attachments/assets/f874fb68-1d7c-4451-a3d4-6437b82b4da5" />
 
@@ -350,7 +350,7 @@ SP幅（1024px未満）では、ナビゲーションリンクは非表示とな
 
 メニュー表示中は、背景コンテンツがスクロールしないよう document.body.style.overflow = 'hidden' で制御しています。
 
-再度ハンバーガーボタン（×マークに変形している）ボタンをクリックすると、メニューが閉じます。
+再度ハンバーガーボタン（×マークに変形している）をクリックすると、メニューが閉じます。
 
 ![ヘッダー：SP時のメニュー開閉](https://github.com/user-attachments/assets/39975af7-8f29-46de-a708-470306f226d8)
 
