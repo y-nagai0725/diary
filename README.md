@@ -1,5 +1,5 @@
 # Diary 日記帳アプリ<!-- omit in toc -->
-![Image](https://github.com/user-attachments/assets/0d779b3c-b6f0-4737-aa45-9423b815b7cc)
+![Diary](https://github.com/user-attachments/assets/0d779b3c-b6f0-4737-aa45-9423b815b7cc)
 
 ## 目次<!-- omit in toc -->
 - [概要](#概要)
@@ -29,6 +29,9 @@
     - [最近の日記リスト](#最近の日記リスト)
     - [画面遷移](#画面遷移-2)
   - [日記一覧画面](#日記一覧画面)
+    - [検索設定](#検索設定)
+    - [日記一覧とページネーション](#日記一覧とページネーション)
+    - [日記の操作（編集・削除）](#日記の操作編集削除)
   - [日記作成画面（新規作成モード）](#日記作成画面新規作成モード)
   - [日記作成画面（更新モード）](#日記作成画面更新モード)
   - [404 Not Found画面](#404-not-found画面)
@@ -96,7 +99,7 @@
 ### ログイン画面
 アプリの入り口となる画面です。登録済みのユーザー名とパスワードでログインします。
 
-<img width="1920" height="919" alt="Image" src="https://github.com/user-attachments/assets/595b9909-46c6-4e02-9d89-9276cce6cd29" />
+<img width="1920" height="919" alt="ログイン画面" src="https://github.com/user-attachments/assets/595b9909-46c6-4e02-9d89-9276cce6cd29" />
 
 #### ユーザー認証
 
@@ -114,15 +117,15 @@
 
 サーバーからのエラー（「登録されていないユーザー名です。」や「パスワードが間違っています。」）も、ログインボタンの下に表示されます。
 
-![Image](https://github.com/user-attachments/assets/40b50610-382a-4657-81ab-ea5937e772b7)
+![ログイン画面：ユーザー名バリデーションGIF](https://github.com/user-attachments/assets/40b50610-382a-4657-81ab-ea5937e772b7)
 
-![Image](https://github.com/user-attachments/assets/2ac9de6b-3501-4b15-b5a8-07f563fa99cf)
+![ログイン画面：パスワードバリデーションGIF](https://github.com/user-attachments/assets/2ac9de6b-3501-4b15-b5a8-07f563fa99cf)
 
 #### 通知メッセージ表示
 
 セッションの有効期限が切れた状態で認証が必要なページにアクセスした場合、自動でログイン画面にリダイレクトされ、「セッションが無効か期限切れです。再度ログインしてください。」というメッセージが表示されます。（axiosインターセプターによる制御）
 
-<img width="1920" height="919" alt="Image" src="https://github.com/user-attachments/assets/d8811cec-0245-4251-9608-1630e8b0580a" />
+<img width="1920" height="919" alt="ログイン画面：トークン切れメッセージ表示" src="https://github.com/user-attachments/assets/d8811cec-0245-4251-9608-1630e8b0580a" />
 
 #### 画面遷移
 
@@ -131,7 +134,7 @@
 ### ユーザー登録画面
 新しいユーザーがアカウントを作成するための画面です。ログイン画面と共通のフォームコンポーネントを使用しています。
 
-<img width="1920" height="919" alt="Image" src="https://github.com/user-attachments/assets/211d99b5-7dda-4e25-ac32-9c11d8c9f11c" />
+<img width="1920" height="919" alt="ユーザー登録画面" src="https://github.com/user-attachments/assets/211d99b5-7dda-4e25-ac32-9c11d8c9f11c" />
 
 #### 新規ユーザー登録
 
@@ -147,7 +150,7 @@
 
 バリデーションエラーは各テキストボックスの下に、サーバーからのエラー（「こちらのユーザー名は既に使用されています。別のユーザー名を入力して下さい。」）はユーザー登録ボタンの下に表示されます。
 
-![Image](https://github.com/user-attachments/assets/bd0b482a-d57d-4bf1-bc1b-b36a8e8fc02b)
+![ユーザー登録画面：サーバーからのエラーメッセージ表示GIF](https://github.com/user-attachments/assets/bd0b482a-d57d-4bf1-bc1b-b36a8e8fc02b)
 
 #### 画面遷移
 
@@ -158,11 +161,11 @@
 
 * PC表示
 
-  <img width="1440" height="810" alt="Image" src="https://github.com/user-attachments/assets/0bc171df-8734-4630-b326-7e6d9e725f32" />
+  <img width="1440" height="810" alt="Home画面PC表示" src="https://github.com/user-attachments/assets/0bc171df-8734-4630-b326-7e6d9e725f32" />
 
 * SP表示
 
-  <img width="375" height="667" alt="Image" src="https://github.com/user-attachments/assets/e0426999-e16a-4315-b7dc-6519f593db46" />
+  <img width="375" height="667" alt="Home画面SP表示" src="https://github.com/user-attachments/assets/e0426999-e16a-4315-b7dc-6519f593db46" />
 
 #### ユーザー情報カード
 画面左側（SP表示では上部）に、ログイン中のユーザー名と、現在の総投稿数を表示します。
@@ -181,12 +184,63 @@
 
 日記の読み込み中はローディングスピナーを表示し、読み込み完了後にリストまたは未登録メッセージを表示することで、画面のチラつき（ガタつき）を抑えるよう制御しています。
 
-![Image](https://github.com/user-attachments/assets/9e0522dc-6d64-47d3-a5f7-de06e7795a31)
+![Home画面：日記取得ローディングGIF](https://github.com/user-attachments/assets/9e0522dc-6d64-47d3-a5f7-de06e7795a31)
 
 #### 画面遷移
 各日記アイテムをクリックすると、その日記の更新画面 (/diary/:id) へ遷移できます。
 
 ### 日記一覧画面
+登録した日記を一覧で表示・管理する画面です。この画面には「キーワード検索」「日付絞り込み」「並び替え」「ページネーション」といった、一覧画面に求められる実用的な機能を実装しました。
+
+<img width="1920" height="919" alt="日記一覧画面" src="https://github.com/user-attachments/assets/47892313-20c0-4523-a418-db4af2960f41" />
+
+#### 検索設定
+* キーワード検索
+
+  日記の本文を対象に、部分一致で検索が可能です。入力から500ミリ秒後に自動で検索が実行されるデバウンス処理を実装し、サーバーへの過度な負荷を抑えています。
+
+  ![日記一覧画面：キーワード検索GIF](https://github.com/user-attachments/assets/772458ab-e0bb-452e-805f-8ad2c322391f)
+
+* 日付絞り込み
+
+  「対象期間」のラジオボタンで、「すべて」/「年月」/「年月日」を切り替えられます。vue-datepickerを使用し、カレンダーから直感的に日付を選択できます。
+
+  ![日記一覧画面：日付検索GIF](https://github.com/user-attachments/assets/3f7db483-4f9b-492f-a397-c809c30ea51c)
+
+* 並び替え
+
+  日記の登録日時を基準に、「新しい順（降順）」または「古い順（昇順）」で並び替えることができます。
+
+* レスポンシブ対応
+
+  PC幅 (1024px以上) では検索設定が常に表示されますが、SP幅 (1024px未満)ではアコーディオンメニューとして実装し、省スペースでも操作性を損なわないよう工夫しました。
+
+  ![日記一覧画面：SP表示時の検索設定アコーディオンメニューGIF](https://github.com/user-attachments/assets/59fc4a1f-f41d-45fa-a488-e93896be09ed)
+
+#### 日記一覧とページネーション
+検索結果は1ページあたり最大10件ずつ表示されます。
+
+総ページ数と現在表示ページに応じて、「< 1 ... 4 5 6 ... 10 >」のように、動的に省略記号（...）を差し込む自作のページネーション機能を実装しています。
+
+![日記一覧画面：ページネーションGIF](https://github.com/user-attachments/assets/3c223459-6668-46f6-99db-8943ae7c747f)
+
+検索結果が0件の場合は、「検索条件に該当する日記はありません。」というメッセージを表示します。
+
+Home画面と同様に、日記の読み込み中はローディングスピナーを表示します。
+
+#### 日記の操作（編集・削除）
+* 編集
+
+  各日記アイテムの「編集」ボタン（緑色）から、日記作成（更新モード）画面へ遷移できます。
+
+* 削除
+
+  「削除」ボタン（赤色）をクリックすると、確認モーダルを表示し、誤操作を防ぎます。
+
+  削除が完了すると、結果をモーダルで通知した後、日記一覧を自動で再読み込みして最新の状態を反映します。
+
+  ![日記一覧画面：日記削除GIF](https://github.com/user-attachments/assets/3100b254-2ca3-4275-9341-d71df9031904)
+
 ### 日記作成画面（新規作成モード）
 ### 日記作成画面（更新モード）
 ### 404 Not Found画面
