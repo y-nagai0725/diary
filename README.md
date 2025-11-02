@@ -181,7 +181,7 @@
 
 日記の読み込み中はローディングスピナーを表示し、読み込み完了後にリストまたは未登録メッセージを表示することで、画面のチラつき（ガタつき）を抑えるよう制御しています。
 
-![Image](https://github.com/user-attachments/assets/c744547c-089c-4a6b-bc74-113e9712c392)
+![Image](https://github.com/user-attachments/assets/9e0522dc-6d64-47d3-a5f7-de06e7795a31)
 
 #### 画面遷移
 各日記アイテムをクリックすると、その日記の更新画面 (/diary/:id) へ遷移できます。
