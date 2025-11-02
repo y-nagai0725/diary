@@ -310,5 +310,15 @@ Home画面と同様に、日記の読み込み中はローディングスピナ�
   ![日記作成画面：前後の日記への遷移GIF](https://github.com/user-attachments/assets/a9c737d4-6420-4354-bd7c-2fdfd68028fa)
 
 ### 404 Not Found画面
+app-front/src/router/index.js に定義されていないパス（例: /diary/abc や /abcdefg）にアクセスした場合に表示される画面です。Vue Routerのcatch-allルート（path: '/:pathMatch(.*)*'）によって、すべての一致しなかったURLがこの画面にリダイレクトされます。
+
+<img width="1920" height="919" alt="404 Not Found画面" src="https://github.com/user-attachments/assets/f874fb68-1d7c-4451-a3d4-6437b82b4da5" />
+
+* エラーページであることを示す画像、タイトル、メッセージを表示します。
+
+* 「Home」ボタンが設置されており、クリックするとHome画面（/home）へ遷移できます。
+
+* 未ログイン時にクリックした場合は、Home画面へのアクセスがルートガードに弾かれ、自動的にログイン画面へ遷移します。
+
 ### ヘッダー
 ### フッター
