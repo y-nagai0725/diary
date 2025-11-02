@@ -166,7 +166,7 @@ onMounted(async () => {
       </div>
       <p v-if="notice" class="home__notice">{{ notice }}</p>
     </div>
-    <div class="home__recent-diaries">
+    <div class="home__recent-diaries" :class="{ 'is-loaded': !isDiaryLoading }">
       <h2 class="home__sub-title">最近の日記</h2>
       <div v-if="isDiaryLoading" class="home__loader"></div>
       <p
@@ -396,14 +396,22 @@ onMounted(async () => {
     display: grid;
     gap: 1rem;
     position: relative;
+    align-content: flex-start;
+    min-height: 500px;
+
+    &.is-loaded {
+      min-height: auto;
+    }
 
     @include tab {
+      min-height: 600px;
       width: 75%;
       margin-inline: auto;
       gap: 1.6rem;
     }
 
     @include pc {
+      min-height: 800px;
       width: 100%;
       margin-inline: initial;
       gap: 2.4rem;
