@@ -94,8 +94,8 @@
 * [Gemini API](https://ai.google.dev/api/generate-content?hl=ja#v1beta.models.generateContent)
 
 **インフラ・その他**
-* さくらVPS
-* Apache（Webサーバー）
+* ConoHa VPS
+* Nginx（Webサーバー）
 * pm2（Node.js Process起動用）
 
 ## 使用フォント
