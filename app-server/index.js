@@ -4,6 +4,7 @@ const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const app = express();
@@ -73,6 +74,17 @@ const promptSettings = {
     suggestion: '「こんなことをしてみるのはどう？」と新しい視点やアイデアを提案するスタイル',
   }
 };
+
+/**
+ * Gemini専用APIアクセス制限のルール
+ * @type {import('express').RequestHandler}
+ */
+const geminiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,// 1分間
+  max: 10,// 10回
+  message: { message: 'AIの呼び出し回数が上限に達しました。1分ほど待ってからお試しください。' },
+});
+app.use('/api/comment', geminiLimiter);
 
 /**
  * リクエストヘッダーのトークン認証
